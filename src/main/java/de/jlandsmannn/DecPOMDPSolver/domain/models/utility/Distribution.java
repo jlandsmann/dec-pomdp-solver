@@ -2,6 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,14 +10,22 @@ public class Distribution<T> {
     private final Map<T, Double> distribution;
     private final T currentMax;
 
-    public static <T> Distribution<T> createUniformDistribution(Set<T> entries) throws DistributionEmptyException {
+    public static <T> Distribution<T> createUniformDistribution(Set<T> entries) {
         try {
             var distribution = entries.stream()
                     .map(e -> Map.entry(e, 1D / entries.size()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             return new Distribution<T>(distribution);
-        } catch (DistributionSumNotOneException e) {
+        } catch (DistributionEmptyException | DistributionSumNotOneException e) {
             throw new IllegalStateException("Sum of distributions not one", e);
+        }
+    }
+
+    public static <T> Distribution<T> createSingleEntryDistribution(T entry) {
+        try {
+            return new Distribution<>(Map.of(entry, 1D));
+        } catch (DistributionEmptyException | DistributionSumNotOneException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -38,6 +47,10 @@ public class Distribution<T> {
 
     public T getMax() {
         return currentMax;
+    }
+
+    public Set<T> getEntries() {
+        return distribution.keySet();
     }
 
     public Double getProbability(T item) {
@@ -64,6 +77,11 @@ public class Distribution<T> {
     @Override
     public String toString() {
         return distribution.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash("Distribution", distribution);
     }
 
 

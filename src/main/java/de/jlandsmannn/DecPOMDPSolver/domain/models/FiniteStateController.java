@@ -1,6 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.*;
+import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Node;
+import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 
 import java.util.Map;
@@ -10,9 +12,9 @@ public class FiniteStateController {
     protected Node currentNode;
     protected final Set<Node> nodes;
     protected final Map<Node, Distribution<Action>> actionFunction;
-    protected final Map<Action, Map<Observation, Distribution<Node>>> transitionFunction;
+    protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
 
-    public FiniteStateController(Node initialNode, Set<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Action, Map<Observation, Distribution<Node>>> transitionFunction) {
+    public FiniteStateController(Node initialNode, Set<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
         this.currentNode = initialNode;
         this.nodes = nodes;
         this.actionFunction = actionFunction;
@@ -28,6 +30,6 @@ public class FiniteStateController {
     }
 
     public Distribution<Node> getNextNode(Action action, Observation observation) {
-        return transitionFunction.get(action).get(observation);
+        return transitionFunction.get(currentNode).get(action).get(observation);
     }
 }

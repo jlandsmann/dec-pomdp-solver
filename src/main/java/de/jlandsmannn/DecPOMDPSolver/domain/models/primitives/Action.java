@@ -1,5 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models.primitives;
 
+import java.util.Objects;
+
 public record Action(String name) {
     @Override
     public boolean equals(Object obj) {
@@ -12,5 +14,10 @@ public record Action(String name) {
     @Override
     public String toString() {
         return "Action " + name;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash("Action", name);
     }
 }

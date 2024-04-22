@@ -7,21 +7,21 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
 public class DecPOMDP {
     private final int agentCount;
     private final int stateCount;
-    private final Agent[] agents;
+    private final ArrayList<Agent> agents;
     private final Set<State> states;
     private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction;
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
     private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction;
 
-    public DecPOMDP(Agent[] agents, Set<State> states, Map<State, Map<Vector<Action>, BeliefState>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
-        this.agentCount = agents.length;
+    public DecPOMDP(ArrayList<Agent> agents, Set<State> states, Map<State, Map<Vector<Action>, BeliefState>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
+        this.agentCount = agents.size();
         this.agents = agents;
         this.stateCount = states.size();
         this.states = states;
@@ -44,9 +44,9 @@ public class DecPOMDP {
     }
 
     protected Vector<Action> getActionsFromAgents(BeliefState currentState) {
-        var agentsStream = Arrays.stream(agents);
+        var agentsStream = agents.stream();
         var agentsActionsStream = agentsStream.map(a -> a.chooseAction(currentState));
-        return new Vector<>((Action[]) agentsActionsStream.toArray());
+        return new Vector<>(agentsActionsStream.toList());
     }
 
     protected BeliefState getNextBeliefState(BeliefState currentState, Vector<Action> agentActions) {
@@ -62,8 +62,8 @@ public class DecPOMDP {
     }
 
     protected void observe(Vector<Action> actions, Vector<Distribution<Observation>> observations, Double reward) {
-        for (int i = 0; i < this.agents.length; i++) {
-            var agent = this.agents[i];
+        for (int i = 0; i < this.agentCount; i++) {
+            var agent = this.agents.get(i);
             agent.observe(actions.get(i), observations.get(i).getMax(), reward);
         }
     }
@@ -98,7 +98,7 @@ public class DecPOMDP {
             if (actionVector.getSize() != agentCount) {
                 throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
             } else if (observationFunction.get(actionVector).size() != stateCount) {
-                throw new IllegalArgumentException("For some action vector of observation function not every state is matched.");
+                throw new IllegalArgumentException("For some action vector of observation function not every state is matched." + "Action vector: " + actionVector);
             }
             var innerMap = observationFunction.get(actionVector);
             for (var state : innerMap.keySet()) {

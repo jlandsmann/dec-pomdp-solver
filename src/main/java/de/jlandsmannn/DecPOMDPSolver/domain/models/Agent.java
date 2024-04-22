@@ -20,4 +20,12 @@ public abstract class Agent {
     public abstract Action chooseAction(BeliefState beliefState);
 
     public abstract void observe(Action action, Observation observation, Double reward);
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Agent) {
+            return name.equals(((Agent) obj).name);
+        }
+        return super.equals(obj);
+    }
 }

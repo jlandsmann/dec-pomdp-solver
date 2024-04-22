@@ -1,32 +1,48 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public class Vector<T> {
-    private final T[] values;
-    private final int size;
+    private final ArrayList<T> values;
 
-    public Vector(T[] values) {
-        this.values = values;
-        this.size = values.length;
-        if (this.size == 0) {
+    public Vector(Collection<T> values) {
+        this.values = new ArrayList<>(values);
+        if (this.values.isEmpty()) {
             throw new IllegalArgumentException("Vector is empty");
         }
     }
 
     public T get(int index) {
-        return values[index];
+        return values.get(index);
     }
 
     public int getSize() {
-        return size;
+        return values.size();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Vector<?>) {
-            return Arrays.equals(values, ((Vector<?>) obj).values);
+            return values.equals(((Vector<?>) obj).values);
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.size(); i++) {
+            T value = values.get(i);
+            sb.append(value);
+            if (i+1 < values.size()) sb.append(", ");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash("Vector", values);
     }
 }
