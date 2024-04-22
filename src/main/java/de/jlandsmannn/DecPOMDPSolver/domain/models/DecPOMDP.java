@@ -9,20 +9,37 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 public class DecPOMDP {
-    private final int agentCount = 0;
-    private final Agent[] agents = new Agent[agentCount];
-    private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction = Map.of();
-    private final Map<State, Map<Vector<Action>, Double>> rewardFunction = Map.of();
-    private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction = Map.of();
+    private final int agentCount;
+    private final int stateCount;
+    private final Agent[] agents;
+    private final Set<State> states;
+    private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction;
+    private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
+    private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction;
+
+    public DecPOMDP(Agent[] agents, Set<State> states, Map<State, Map<Vector<Action>, BeliefState>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
+        this.agentCount = agents.length;
+        this.agents = agents;
+        this.stateCount = states.size();
+        this.states = states;
+        this.transitionFunction = transitionFunction;
+        this.rewardFunction = rewardFunction;
+        this.observationFunction = observationFunction;
+
+        validateTransitionFunction();
+        validateRewardFunction();
+        validateObservationFunction();
+    }
 
     public BeliefState transition(BeliefState currentState) {
         var agentActions = getActionsFromAgents(currentState);
         var nextBeliefState = getNextBeliefState(currentState, agentActions);
         var reward = getReward(currentState, agentActions);
         var observations = getObservations(agentActions, nextBeliefState);
-        observe(observations, reward);
+        observe(agentActions, observations, reward);
         return nextBeliefState;
     }
 
@@ -44,10 +61,51 @@ public class DecPOMDP {
         return observationFunction.get(agentActions).get(nextState.getMax());
     }
 
-    protected void observe(Vector<Distribution<Observation>> observations, Double reward) {
+    protected void observe(Vector<Action> actions, Vector<Distribution<Observation>> observations, Double reward) {
         for (int i = 0; i < this.agents.length; i++) {
             var agent = this.agents[i];
-            agent.observe(observations.get(i).getMax(), reward);
+            agent.observe(actions.get(i), observations.get(i).getMax(), reward);
+        }
+    }
+
+    private void validateTransitionFunction() {
+        if (transitionFunction.size() != stateCount) {
+            throw new IllegalArgumentException("Transition function does not match state count");
+        }
+        for (var state : transitionFunction.keySet()) {
+            var innerMap = transitionFunction.get(state);
+            for (var actionVector : innerMap.keySet()) {
+                if (actionVector.getSize() != agentCount) {
+                    throw new IllegalArgumentException("Some action vector of transition function does not match agent count.");
+                }
+            }
+        }
+    }
+
+    private void validateRewardFunction() {
+        for (var state : rewardFunction.keySet()) {
+            var innerMap = rewardFunction.get(state);
+            for (var actionVector : innerMap.keySet()) {
+                if (actionVector.getSize() != agentCount) {
+                    throw new IllegalArgumentException("Some action vector of reward function does not match agent count.");
+                }
+            }
+        }
+    }
+
+    private void validateObservationFunction() {
+        for (var actionVector : observationFunction.keySet()) {
+            if (actionVector.getSize() != agentCount) {
+                throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
+            } else if (observationFunction.get(actionVector).size() != stateCount) {
+                throw new IllegalArgumentException("For some action vector of observation function not every state is matched.");
+            }
+            var innerMap = observationFunction.get(actionVector);
+            for (var state : innerMap.keySet()) {
+                if (innerMap.get(state).getSize() != agentCount) {
+                    throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
+                }
+            }
         }
     }
 }

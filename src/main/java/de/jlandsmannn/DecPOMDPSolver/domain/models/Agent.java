@@ -7,9 +7,17 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
 import java.util.Set;
 
 public abstract class Agent {
-    private final Set<Action> actions = Set.of();
-    private final Set<Observation> observations = Set.of();
+    protected final String name;
+    protected final Set<Action> actions;
+    protected final Set<Observation> observations;
+
+    protected Agent(String name, Set<Action> actions, Set<Observation> observations) {
+        this.name = name;
+        this.actions = actions;
+        this.observations = observations;
+    }
 
     public abstract Action chooseAction(BeliefState beliefState);
-    public abstract void observe(Observation observation, Double reward);
+
+    public abstract void observe(Action action, Observation observation, Double reward);
 }

@@ -1,5 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
+import java.util.Arrays;
+
 public class Vector<T> {
     private final T[] values;
     private final int size;
@@ -18,5 +20,13 @@ public class Vector<T> {
 
     public int getSize() {
         return size;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Vector<?>) {
+            return Arrays.equals(values, ((Vector<?>) obj).values);
+        }
+        return super.equals(obj);
     }
 }

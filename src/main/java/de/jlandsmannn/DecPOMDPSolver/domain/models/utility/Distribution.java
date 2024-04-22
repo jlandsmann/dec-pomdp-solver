@@ -15,6 +15,10 @@ public class Distribution<T> {
         if (sumOfDistributions != 1) throw new DistributionSumNotOneException(sumOfDistributions);
     }
 
+    public int size() {
+        return distribution.size();
+    }
+
     public T getMax() {
         return currentMax;
     }
@@ -30,6 +34,19 @@ public class Distribution<T> {
             if (rand <= 0) return entry.getKey();
         }
         throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Distribution<?>) {
+            return distribution.equals(((Distribution<?>) obj).distribution);
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return distribution.toString();
     }
 
     private T calculateMax() throws DistributionEmptyException {
