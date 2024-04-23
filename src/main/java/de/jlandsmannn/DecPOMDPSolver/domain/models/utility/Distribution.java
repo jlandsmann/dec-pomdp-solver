@@ -49,8 +49,12 @@ public class Distribution<T> {
         return currentMax;
     }
 
-    public Set<T> getEntries() {
+    public Set<T> getItems() {
         return distribution.keySet();
+    }
+
+    public Set<Map.Entry<T, Double>> getEntries() {
+        return distribution.entrySet();
     }
 
     public Double getProbability(T item) {

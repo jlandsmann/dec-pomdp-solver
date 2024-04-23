@@ -40,7 +40,7 @@ public class BeliefState {
     }
 
     public Set<State> getEntries() {
-        return distribution.getEntries();
+        return distribution.getItems();
     }
 
     public Double getProbability(State state) {

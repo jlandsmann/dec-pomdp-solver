@@ -70,7 +70,7 @@ public class FiniteStateControllerBuilder {
     public FiniteStateControllerBuilder addActionSelection(String nodeString, Distribution<String> actionStringDistribution) {
         var node = new Node(nodeString);
         var distributionMap = new HashMap<Action, Double>();
-        for (var actionString : actionStringDistribution.getEntries()) {
+        for (var actionString : actionStringDistribution.getItems()) {
             var action = new Action(actionString);
             distributionMap.putIfAbsent(action, actionStringDistribution.getProbability(actionString));
         }
@@ -93,7 +93,7 @@ public class FiniteStateControllerBuilder {
         var action = new Action(actionString);
         var observation = new Observation(observationString);
         var distributionMap = new HashMap<Node, Double>();
-        for (var nextNodeString : nextNodeStringDistribution.getEntries()) {
+        for (var nextNodeString : nextNodeStringDistribution.getItems()) {
             var nextNode = new Node(nextNodeString);
             distributionMap.putIfAbsent(nextNode, nextNodeStringDistribution.getProbability(nextNodeString));
         }

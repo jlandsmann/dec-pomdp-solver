@@ -2,6 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.domain.models;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.BeliefState;
+import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 
@@ -27,6 +28,10 @@ public class AgentWithStateController extends Agent {
 
     public Distribution<Action> getNextAction() {
         return controller.getNextAction();
+    }
+
+    public Distribution<Node> getNextNode(Action action, Observation observation) {
+        return controller.getNextNode(action, observation);
     }
 
     @Override

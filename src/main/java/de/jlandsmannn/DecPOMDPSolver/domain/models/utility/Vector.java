@@ -1,14 +1,24 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 public class Vector<T> {
     private final ArrayList<T> values;
 
-    public Vector(Collection<T> values) {
-        this.values = new ArrayList<>(values);
+    public Vector(List<T> values) {
+        this(new ArrayList<>(values));
+    }
+
+    public Vector(T[] values) {
+        this(new ArrayList<>(Arrays.asList(values)));
+    }
+
+    public Vector(SortedSet<T> values) {
+        this(new ArrayList<>(values));
+    }
+
+    public Vector(ArrayList<T> values) {
+        this.values = values;
         if (this.values.isEmpty()) {
             throw new IllegalArgumentException("Vector is empty");
         }
@@ -18,8 +28,32 @@ public class Vector<T> {
         return values.get(index);
     }
 
-    public int getSize() {
+    public int size() {
         return values.size();
+    }
+
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    public boolean contains(T o) {
+        return values.contains(o);
+    }
+
+    public boolean containsAll(Collection<T> c) {
+        return values.containsAll(c);
+    }
+
+    public Iterator<T> iterator() {
+        return values.iterator();
+    }
+
+    public Object[] toArray() {
+        return values.toArray();
+    }
+
+    public T[] toArray(T[] a) {
+        return values.toArray(a);
     }
 
     @Override

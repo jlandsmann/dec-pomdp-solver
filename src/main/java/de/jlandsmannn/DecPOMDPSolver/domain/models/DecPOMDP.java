@@ -75,7 +75,7 @@ public class DecPOMDP {
         for (var state : transitionFunction.keySet()) {
             var innerMap = transitionFunction.get(state);
             for (var actionVector : innerMap.keySet()) {
-                if (actionVector.getSize() != agentCount) {
+                if (actionVector.size() != agentCount) {
                     throw new IllegalArgumentException("Some action vector of transition function does not match agent count.");
                 }
             }
@@ -86,7 +86,7 @@ public class DecPOMDP {
         for (var state : rewardFunction.keySet()) {
             var innerMap = rewardFunction.get(state);
             for (var actionVector : innerMap.keySet()) {
-                if (actionVector.getSize() != agentCount) {
+                if (actionVector.size() != agentCount) {
                     throw new IllegalArgumentException("Some action vector of reward function does not match agent count.");
                 }
             }
@@ -95,14 +95,14 @@ public class DecPOMDP {
 
     private void validateObservationFunction() {
         for (var actionVector : observationFunction.keySet()) {
-            if (actionVector.getSize() != agentCount) {
+            if (actionVector.size() != agentCount) {
                 throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
             } else if (observationFunction.get(actionVector).size() != stateCount) {
                 throw new IllegalArgumentException("For some action vector of observation function not every state is matched." + "Action vector: " + actionVector);
             }
             var innerMap = observationFunction.get(actionVector);
             for (var state : innerMap.keySet()) {
-                if (innerMap.get(state).getSize() != agentCount) {
+                if (innerMap.get(state).size() != agentCount) {
                     throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
                 }
             }
