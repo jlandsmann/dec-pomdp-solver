@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 public class FiniteStateController {
     protected Node currentNode;
@@ -33,8 +34,24 @@ public class FiniteStateController {
         return transitionFunction.get(currentNode).get(action).get(observation);
     }
 
-    public void pruneNode(Node node) {
-        // find all incoming edges to node denoted as E
-        // f.a. e in E: e.probability
+    public void pruneNodes(Map<Node, Distribution<Node>> nodesToPrune) {
+        // first remove all outgoing connections from nodes to prune
+        for (var nodeToPrune : nodesToPrune.keySet()) {
+            actionFunction.remove(nodeToPrune);
+            transitionFunction.remove(nodeToPrune);
+        }
+
+        // update distributions of remaining nodes
+        for (var node : transitionFunction.keySet()) {
+            for (var action : transitionFunction.get(node).keySet()) {
+                for (var observation : transitionFunction.get(node).get(action).keySet()) {
+                    var distribution = transitionFunction.get(node).get(action).get(observation);
+                    for (var nodeToPrune : nodesToPrune.keySet()) {
+                        distribution.replaceEntryWithDistribution(nodeToPrune, nodesToPrune.get(nodeToPrune));
+                    }
+                }
+            }
+        }
     }
+
 }
