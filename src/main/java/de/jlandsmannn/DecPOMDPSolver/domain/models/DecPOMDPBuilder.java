@@ -6,10 +6,13 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class DecPOMDPBuilder {
+    private final Logger logger = LoggerFactory.getLogger("DecPOMDPBuilder");
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Set<State> states = new HashSet<>();
     private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction = new HashMap<>();
@@ -55,6 +58,14 @@ public class DecPOMDPBuilder {
     }
 
     public DecPOMDP createDecPOMDP() {
+        logger.info(
+                "Creating DecPOMDP with " +
+                agents.size() + " agents, " +
+                states.size() + " states, " +
+                transitionFunction.size() + " transitions, " +
+                rewardFunction.size() + " rewards and " +
+                observationFunction.size() + " observations."
+        );
         return new DecPOMDP(agents, states, transitionFunction, rewardFunction, observationFunction);
     }
 }

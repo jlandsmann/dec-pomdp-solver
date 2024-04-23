@@ -18,19 +18,15 @@ public class FiniteStateControllerBuilder {
 
     public static FiniteStateController createArbitraryController(Set<Action> actions, Set<Observation> observations) {
         var builder = new FiniteStateControllerBuilder();
-        Set<Node> nodes = actions.stream().map(a -> new Node(a.name())).collect(Collectors.toSet());
-        for (var node : nodes) {
-            var actionDistribution = Distribution.createSingleEntryDistribution(new Action(node.name()));
-            builder.addActionSelection(node, actionDistribution);
-        }
-        for (var node : nodes) {
-            for (var action : actions) {
-                for (var observation : observations) {
-                    builder.addTransition(node, action, observation, Distribution.createUniformDistribution(nodes));
-                }
+        Node node = new Node("N1");
+        var actionDistribution = Distribution.createUniformDistribution(actions);
+        builder.addNode(node, true).addActionSelection(node, actionDistribution);
+        for (var action : actions) {
+            for (var observation : observations) {
+                builder.addTransition(node, action, observation, Distribution.createSingleEntryDistribution(node));
             }
         }
-        return builder.addNodes(nodes).createFiniteStateController();
+        return builder.createFiniteStateController();
     }
 
     public FiniteStateControllerBuilder addNode(String nodeString) {
