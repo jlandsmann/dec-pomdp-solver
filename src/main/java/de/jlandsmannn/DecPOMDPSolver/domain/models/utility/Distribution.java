@@ -1,5 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.exceptions.DistributionEmptyException;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;

@@ -4,11 +4,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.DistributionEmptyException;
+import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.exceptions.DistributionEmptyException;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.DistributionSumNotOneException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FiniteStateControllerBuilder {
     private Node initialNode;
