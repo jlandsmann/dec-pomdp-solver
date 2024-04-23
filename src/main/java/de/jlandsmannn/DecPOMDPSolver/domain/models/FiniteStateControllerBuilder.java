@@ -11,7 +11,7 @@ import java.util.*;
 
 public class FiniteStateControllerBuilder {
     private Node initialNode;
-    private final Set<Node> nodes = new HashSet<>();
+    private final ArrayList<Node> nodes = new ArrayList<>();
     private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
     private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
 

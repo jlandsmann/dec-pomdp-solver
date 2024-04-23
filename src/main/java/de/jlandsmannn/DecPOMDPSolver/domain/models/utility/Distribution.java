@@ -2,10 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.exceptions.DistributionEmptyException;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Distribution<T> {
@@ -39,7 +36,7 @@ public class Distribution<T> {
      */
     public Distribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
         validateDistribution(distribution);
-        this.distribution = distribution;
+        this.distribution = new HashMap<>(distribution);
         this.currentMax = calculateMax();
     }
 
@@ -55,7 +52,7 @@ public class Distribution<T> {
         return distribution.keySet();
     }
 
-    public Set<Map.Entry<T, Double>> getEntries() {
+    public Set<Map.Entry<T, Double>> entrySet() {
         return distribution.entrySet();
     }
 
@@ -70,6 +67,18 @@ public class Distribution<T> {
             if (rand <= 0) return entry.getKey();
         }
         throw new IllegalStateException();
+    }
+
+    public void replaceEntryWithDistribution(T item, Distribution<T> replacement) {
+        var probabilityOfItemToReplace = getProbability(item);
+        if (probabilityOfItemToReplace <= 0) return;
+        if (replacement.getProbability(item) > 0) throw new IllegalStateException("Replacement distribution cant contain item to replace.");
+        distribution.remove(item);
+        for (var entry : replacement.entrySet()) {
+            var currentProbability = getProbability(entry.getKey());
+            var probabilityOfReplacementEntry = entry.getValue();
+            distribution.put(entry.getKey(), currentProbability + (probabilityOfItemToReplace * probabilityOfReplacementEntry));
+        }
     }
 
     @Override
@@ -96,7 +105,7 @@ public class Distribution<T> {
             throw new DistributionEmptyException();
         }
         var sumOfDistributions = distribution.values().stream().reduce(Double::sum).orElse(0D);
-        if (sumOfDistributions != 1) {
+        if (sumOfDistributions < 0.9999999999999999D) {
             throw new DistributionSumNotOneException(sumOfDistributions);
         }
     }
