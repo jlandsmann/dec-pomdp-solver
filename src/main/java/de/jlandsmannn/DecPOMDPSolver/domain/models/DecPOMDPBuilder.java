@@ -13,7 +13,7 @@ import java.util.*;
 
 public class DecPOMDPBuilder {
     private final Logger logger = LoggerFactory.getLogger("DecPOMDPBuilder");
-    private final ArrayList<Agent> agents = new ArrayList<>();
+    private final List<Agent> agents = new ArrayList<>();
     private final Set<State> states = new HashSet<>();
     private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction = new HashMap<>();
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction = new HashMap<>();

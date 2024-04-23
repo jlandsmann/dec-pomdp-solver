@@ -3,22 +3,14 @@ package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 import java.util.*;
 
 public class Vector<T> {
-    private final ArrayList<T> values;
-
-    public Vector(List<T> values) {
-        this(new ArrayList<>(values));
-    }
+    private final List<T> values;
 
     public Vector(T[] values) {
-        this(new ArrayList<>(Arrays.asList(values)));
+        this(Arrays.asList(values));
     }
 
-    public Vector(SortedSet<T> values) {
-        this(new ArrayList<>(values));
-    }
-
-    public Vector(ArrayList<T> values) {
-        this.values = values;
+    public Vector(SequencedCollection<T> values) {
+        this.values = List.copyOf(values);
         if (this.values.isEmpty()) {
             throw new IllegalArgumentException("Vector is empty");
         }
@@ -38,10 +30,6 @@ public class Vector<T> {
 
     public boolean contains(T o) {
         return values.contains(o);
-    }
-
-    public boolean containsAll(Collection<T> c) {
-        return values.containsAll(c);
     }
 
     public Iterator<T> iterator() {

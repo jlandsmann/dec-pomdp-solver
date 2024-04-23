@@ -7,20 +7,20 @@ import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class DecPOMDP {
     private final int agentCount;
     private final int stateCount;
-    private final ArrayList<Agent> agents;
+    private final List<Agent> agents;
     private final Set<State> states;
     private final Map<State, Map<Vector<Action>, BeliefState>> transitionFunction;
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
     private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction;
 
-    public DecPOMDP(ArrayList<Agent> agents, Set<State> states, Map<State, Map<Vector<Action>, BeliefState>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
+    public DecPOMDP(List<Agent> agents, Set<State> states, Map<State, Map<Vector<Action>, BeliefState>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
         this.agentCount = agents.size();
         this.agents = agents;
         this.stateCount = states.size();

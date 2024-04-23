@@ -3,17 +3,17 @@ package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class VectorTest {
-    TreeSet<Integer> originalCollection;
+    LinkedHashSet<Integer> originalCollection;
     Vector<Integer> vector;
 
     @BeforeEach
     void beforeEach() {
-        originalCollection = new TreeSet<Integer>();
+        originalCollection = new LinkedHashSet<Integer>();
         originalCollection.add(1);
         originalCollection.add(2);
         originalCollection.add(3);
