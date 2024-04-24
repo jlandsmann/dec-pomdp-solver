@@ -1,11 +1,17 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.data.Matrix;
+import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
+import org.ejml.interfaces.linsol.LinearSolver;
 import org.ejml.simple.SimpleMatrix;
 
-public class Solver {
-    private SimpleMatrix a;
-    private SimpleMatrix b;
+import java.util.Random;
+
+public class SolverEJML {
+    private DMatrixRMaj a;
+    private DMatrixRMaj b;
     private int numberOfEquations = 0;
     private int numberOfVariables = 0;
 
@@ -23,14 +29,15 @@ public class Solver {
     }
 
     public static void benchmark(int numberOfVariables) {
-        Solver solver = new Solver()
+        var random = new Random();
+        SolverEJML solver = new SolverEJML()
                 .setDimensions(numberOfVariables, numberOfVariables)
-                .setA(SimpleMatrix.random(numberOfVariables, numberOfVariables))
-                .setB(SimpleMatrix.random(numberOfVariables, 1));
+                .setA(SimpleMatrix.random_DDRM(numberOfVariables, numberOfVariables, 0, 100, random).getDDRM())
+                .setB(SimpleMatrix.random_DDRM(numberOfVariables, 1, 0, 50, random).getDDRM());
         var start = System.currentTimeMillis();
         var success = true;
         try {
-            SimpleMatrix result = solver.solve();
+            Matrix result = solver.solve();
             // System.out.println("Result exists with " + result.getNumCols() + " columns and " + result.getNumRows() + " rows");
         } catch (SolvingFailedException e) {
             // System.err.println(e.getMessage());
@@ -41,13 +48,13 @@ public class Solver {
         }
     }
 
-    public Solver setDimensions(int numberOfEquations, int numberOfVariables) {
+    public SolverEJML setDimensions(int numberOfEquations, int numberOfVariables) {
         this.numberOfEquations = numberOfEquations;
         this.numberOfVariables = numberOfVariables;
         return this;
     }
 
-    public Solver setA(SimpleMatrix a) {
+    public SolverEJML setA(DMatrixRMaj a) {
         if (this.numberOfEquations == 0) this.numberOfEquations = a.getNumRows();
         if (this.numberOfVariables == 0) this.numberOfVariables = a.getNumCols();
         if (this.numberOfEquations != a.getNumRows() || this.numberOfVariables != a.getNumCols()) {
@@ -57,7 +64,7 @@ public class Solver {
         return this;
     }
 
-    public Solver setB(SimpleMatrix b) {
+    public SolverEJML setB(DMatrixRMaj b) {
         if (this.numberOfEquations == 0) this.numberOfEquations = b.getNumRows();
         if (this.numberOfEquations != b.getNumRows() || b.getNumCols() != 1) {
             throw new IllegalArgumentException("Vector doesnt match required dimensions");
@@ -66,9 +73,13 @@ public class Solver {
         return this;
     }
 
-    public SimpleMatrix solve() throws SolvingFailedException {
+    public Matrix solve() throws SolvingFailedException {
         try {
-            return a.solve(b);
+            LinearSolver<DMatrixRMaj, DMatrixRMaj> solver = LinearSolverFactory_DDRM.lu(numberOfEquations);
+            DMatrixRMaj result = new DMatrixRMaj(numberOfVariables, 1);
+            solver.setA(a);
+            solver.solve(b, result);
+            return result;
         } catch (Throwable t) {
             throw new SolvingFailedException(t);
         }
