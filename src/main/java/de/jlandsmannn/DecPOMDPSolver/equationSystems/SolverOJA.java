@@ -1,10 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
-import org.ojalgo.RecoverableCondition;
+import org.ojalgo.matrix.decomposition.*;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.matrix.task.SolverTask;
 import org.ojalgo.random.Uniform;
 
 public class SolverOJA {
@@ -70,12 +69,12 @@ public class SolverOJA {
     }
 
     public MatrixStore<Double> solve() throws SolvingFailedException {
-        final var solver = SolverTask.R064.make(a,b,true, false);
+        final var solver = LDL.R064.make(a);
         final var alloc = solver.preallocate(a, b);
-        try {
-            return solver.solve(a, b, alloc);
-        } catch (RecoverableCondition e) {
-            throw new SolvingFailedException("Not solvable solution");
+        solver.decompose(a);
+        if (solver.isSolvable()) {
+            return solver.getSolution(b, alloc);
         }
+        throw new SolvingFailedException("Not solvable solution");
     }
 }
