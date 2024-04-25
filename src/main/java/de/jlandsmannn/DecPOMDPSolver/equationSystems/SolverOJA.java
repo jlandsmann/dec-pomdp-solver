@@ -2,10 +2,9 @@ package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
 import org.ojalgo.RecoverableCondition;
-import org.ojalgo.matrix.decomposition.*;
+import org.ojalgo.matrix.decomposition.LU;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.matrix.task.SolverTask;
 import org.ojalgo.random.Uniform;
 
 public class SolverOJA {
@@ -45,18 +44,17 @@ public class SolverOJA {
     }
 
     public static void test() {
-        var size = 8000;
+        var size = 14000;
         SolverOJA solver = new SolverOJA()
                 .setDimensions(size, size)
-                .setA(Primitive64Store.FACTORY.makeFilled(size, size, Uniform.of(0, 100)))
+                .setA(Primitive64Store.FACTORY.makeFilled(size, size, SparseRandomDistribution.of(0, 100, 0.8)))
                 .setB(Primitive64Store.FACTORY.makeFilled(size, 1, Uniform.of(0, 100)));
+        System.out.println(solver.a);
         var start = System.currentTimeMillis();
         var success = true;
         try {
             MatrixStore<Double> result = solver.solve();
             var multiplicationResult = solver.a.multiply(result);
-            success = multiplicationResult.equals(solver.b);
-
             System.out.println("Diff between result and multiplication");
             double maxDiff = 0;
             for (int i = 0; i < size; i++) {
@@ -64,9 +62,11 @@ public class SolverOJA {
                 var multiRowI = multiplicationResult.get(i, 0);
                 maxDiff = Math.max(maxDiff, Math.abs(resultRowI - multiRowI));
             }
-            System.out.printf("Max diff: %32.28f%n", maxDiff);
+            System.out.printf("Max diff: %16.12f%n", maxDiff);
+            success = maxDiff < 0.1e-6;
         } catch (SolvingFailedException e) {
             success = false;
+            System.err.println(e.getMessage());
         } finally {
             var end = System.currentTimeMillis();
             System.out.printf("%5d : %8d ms. Success: %b%n", size, end - start, success);
