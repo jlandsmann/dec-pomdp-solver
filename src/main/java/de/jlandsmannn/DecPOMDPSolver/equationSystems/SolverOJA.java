@@ -1,9 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
+import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.*;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.SolverTask;
 import org.ojalgo.random.Uniform;
 
 public class SolverOJA {
@@ -13,7 +15,6 @@ public class SolverOJA {
     private int numberOfVariables = 0;
 
     public static void main(String[] args) {
-
         benchmark(100);
         benchmark(500);
         benchmark(1_000);
@@ -34,12 +35,41 @@ public class SolverOJA {
         var start = System.currentTimeMillis();
         var success = true;
         try {
-            MatrixStore<Double> result = solver.solve();
+            solver.solve();
         } catch (SolvingFailedException e) {
             success = false;
         } finally {
             var end = System.currentTimeMillis();
             System.out.printf("%5d : %8d ms. Success: %b%n", numberOfVariables, end - start, success);
+        }
+    }
+
+    public static void test() {
+        var size = 8000;
+        SolverOJA solver = new SolverOJA()
+                .setDimensions(size, size)
+                .setA(Primitive64Store.FACTORY.makeFilled(size, size, Uniform.of(0, 100)))
+                .setB(Primitive64Store.FACTORY.makeFilled(size, 1, Uniform.of(0, 100)));
+        var start = System.currentTimeMillis();
+        var success = true;
+        try {
+            MatrixStore<Double> result = solver.solve();
+            var multiplicationResult = solver.a.multiply(result);
+            success = multiplicationResult.equals(solver.b);
+
+            System.out.println("Diff between result and multiplication");
+            double maxDiff = 0;
+            for (int i = 0; i < size; i++) {
+                var resultRowI = solver.b.get(i, 0);
+                var multiRowI = multiplicationResult.get(i, 0);
+                maxDiff = Math.max(maxDiff, Math.abs(resultRowI - multiRowI));
+            }
+            System.out.printf("Max diff: %32.28f%n", maxDiff);
+        } catch (SolvingFailedException e) {
+            success = false;
+        } finally {
+            var end = System.currentTimeMillis();
+            System.out.printf("%5d : %8d ms. Success: %b%n", size, end - start, success);
         }
     }
 
@@ -69,12 +99,12 @@ public class SolverOJA {
     }
 
     public MatrixStore<Double> solve() throws SolvingFailedException {
-        final var solver = LDL.R064.make(a);
+        final var solver = LU.R064.make(a);
         final var alloc = solver.preallocate(a, b);
-        solver.decompose(a);
-        if (solver.isSolvable()) {
-            return solver.getSolution(b, alloc);
+        try {
+            return solver.solve(a, b, alloc);
+        } catch (RecoverableCondition e) {
+            throw new SolvingFailedException("Not solvable solution");
         }
-        throw new SolvingFailedException("Not solvable solution");
     }
 }
