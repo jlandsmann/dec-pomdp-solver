@@ -45,6 +45,11 @@
 			<version>53.3.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.google.ortools</groupId>
+			<artifactId>ortools-java</artifactId>
+			<version>9.9.3963</version>
+		</dependency>
+		<dependency>
 			<groupId>org.jblas</groupId>
 			<artifactId>jblas</artifactId>
 			<version>1.2.5</version>

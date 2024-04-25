@@ -2,7 +2,6 @@ package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
 import java.io.File;
 
-import org.ojalgo.OjAlgoUtils;
 import org.ojalgo.netio.BasicLogger;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
@@ -14,7 +13,7 @@ import org.ojalgo.optimisation.Variable;
  *
  * @author apete
  */
-public class UsingMPS {
+public class LPSolverOja {
 
     public static void main(final String[] args) {
         File mpsFile = new File("./testprob.mps");
