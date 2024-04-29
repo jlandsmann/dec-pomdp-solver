@@ -5,6 +5,9 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class Agent {
@@ -18,9 +21,21 @@ public abstract class Agent {
         this.observations = observations;
     }
 
-    public abstract Action chooseAction(Distribution<State> beliefState);
+    public String getName() { return name; }
+    public Set<Action> getActions() { return actions; }
+    public Set<Observation> getObservations() { return observations; }
 
-    public abstract void observe(Action action, Observation observation, Double reward);
+    public Distribution<Action> chooseAction(Distribution<State> beliefState) {
+        Map<Distribution<Action>, Double> probabilities = new HashMap<>();
+        for (State state : beliefState.keySet()) {
+            var probability = beliefState.getProbability(state);
+            var action = chooseAction(state);
+            probabilities.put(action, probability);
+        }
+        return Distribution.createWeightedDistribution(probabilities);
+    }
+
+    public abstract Distribution<Action> chooseAction(State state);
 
     @Override
     public boolean equals(Object obj) {

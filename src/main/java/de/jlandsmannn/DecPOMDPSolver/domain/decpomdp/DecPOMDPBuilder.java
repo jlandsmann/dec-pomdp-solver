@@ -3,6 +3,8 @@ package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.CommonDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import org.slf4j.Logger;
@@ -12,13 +14,13 @@ import java.util.*;
 
 public class DecPOMDPBuilder {
     private final Logger logger = LoggerFactory.getLogger("DecPOMDPBuilder");
-    private final List<Agent> agents = new ArrayList<>();
+    private final List<AgentWithStateController> agents = new ArrayList<>();
     private final Set<State> states = new HashSet<>();
     private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction = new HashMap<>();
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction = new HashMap<>();
     private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction = new HashMap<>();
 
-    public DecPOMDPBuilder addAgent(Agent agent) {
+    public DecPOMDPBuilder addAgent(AgentWithStateController agent) {
         this.agents.remove(agent);
         this.agents.add(agent);
         return this;
@@ -56,7 +58,7 @@ public class DecPOMDPBuilder {
         return this;
     }
 
-    public DecPOMDP createDecPOMDP() {
+    public CommonDecPOMDP createDecPOMDP() {
         logger.info(
                 "Creating CommonDecPOMDP with " +
                 agents.size() + " agents, " +

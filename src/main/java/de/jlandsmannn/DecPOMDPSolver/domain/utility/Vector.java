@@ -1,8 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
+import javax.accessibility.AccessibleStreamable;
 import java.util.*;
+import java.util.stream.Stream;
 
-public class Vector<T> implements Iterable<T> {
+public class Vector<T> implements Iterable<T>  {
     private final List<T> values;
 
     public Vector(T[] values) {
@@ -36,6 +38,8 @@ public class Vector<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         return values.iterator();
     }
+
+    public Stream<T> stream() { return values.stream(); }
 
     public Object[] toArray() {
         return values.toArray();

@@ -1,21 +1,30 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
+package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
-public class CommonDecPOMDP extends DecPOMDP {
+public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
     private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
     private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction;
 
-    CommonDecPOMDP(List<Agent> agents, Set<State> states, Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
+    public CommonDecPOMDP(List<AgentWithStateController> agents,
+                   Set<State> states,
+                   Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
+                   Map<State, Map<Vector<Action>, Double>> rewardFunction,
+                   Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
         super(agents, states);
         this.transitionFunction = transitionFunction;
         this.rewardFunction = rewardFunction;
@@ -39,6 +48,35 @@ public class CommonDecPOMDP extends DecPOMDP {
     @Override
     public Vector<Distribution<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
         return observationFunction.get(agentActions).get(nextState);
+    }
+
+    @Override
+    public Double getValue(Distribution<State> beliefState) {
+        var builder =  new VectorStreamBuilder<Node>();
+        var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
+        Stream<Vector<Node>> stream = builder.getStreamForEachCombination(nodeCombinations);
+               return stream
+                       .map(nodes -> getValue(beliefState, nodes))
+                       .reduce(Double::max)
+                       .orElse(0D);
+    }
+
+    public Double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
+        return beliefState
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var state = entry.getKey();
+                    var probability = entry.getValue();
+                    var value = getValue(state, nodes);
+                    return probability * value;
+                })
+                .reduce(Double::sum)
+                .orElse(0D);
+    }
+
+    public Double getValue(State state, Vector<Node> nodes) {
+        return 0D;
     }
 
     private void validateTransitionFunction() {

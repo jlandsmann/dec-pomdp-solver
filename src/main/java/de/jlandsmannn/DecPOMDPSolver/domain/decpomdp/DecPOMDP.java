@@ -6,17 +6,15 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.sql.Array;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public abstract class DecPOMDP {
+public abstract class DecPOMDP<AGENT extends Agent> {
     protected final int agentCount;
     protected final int stateCount;
-    protected final List<Agent> agents;
+    protected final List<AGENT> agents;
     protected final Set<State> states;
 
-    public DecPOMDP(List<Agent> agents, Set<State> states) {
+    public DecPOMDP(List<AGENT> agents, Set<State> states) {
         this.agentCount = agents.size();
         this.agents = agents;
         this.stateCount = states.size();
@@ -68,25 +66,11 @@ public abstract class DecPOMDP {
 
     public abstract Vector<Distribution<Observation>> getObservations(Vector<Action> agentActions, State nextState);
 
-    public Distribution<State> transition(Distribution<State> currentState) {
-        var agentActions = getActionsFromAgents(currentState);
-        var nextBeliefState = getTransition(currentState, agentActions);
-        var reward = getReward(currentState, agentActions);
-        var observations = getObservations(agentActions, nextBeliefState);
-        observe(agentActions, observations, reward);
-        return nextBeliefState;
-    }
+    public abstract Double getValue(Distribution<State> beliefState);
 
-    public Vector<Action> getActionsFromAgents(Distribution<State> currentState) {
+    public Vector<Distribution<Action>> getActionsFromAgents(Distribution<State> currentState) {
         var agentsStream = agents.stream();
         var agentsActionsStream = agentsStream.map(a -> a.chooseAction(currentState));
         return new Vector<>(agentsActionsStream.toList());
-    }
-
-    public void observe(Vector<Action> actions, Vector<Distribution<Observation>> observations, Double reward) {
-        for (int i = 0; i < this.agentCount; i++) {
-            var agent = this.agents.get(i);
-            agent.observe(actions.get(i), observations.get(i).getMax(), reward);
-        }
     }
 }

@@ -109,6 +109,6 @@ public class FiniteStateControllerBuilder {
     }
 
     public FiniteStateController createFiniteStateController() {
-        return new FiniteStateController(initialNode, nodes, actionFunction, transitionFunction);
+        return new FiniteStateController(nodes, actionFunction, transitionFunction);
     }
 }
