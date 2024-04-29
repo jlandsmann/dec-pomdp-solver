@@ -65,17 +65,16 @@ public class FiniteStateControllerBuilder {
     public FiniteStateControllerBuilder addActionSelection(String nodeString, Distribution<String> actionStringDistribution) {
         var node = new Node(nodeString);
         var distributionMap = new HashMap<Action, Double>();
-        for (var actionString : actionStringDistribution.getItems()) {
+        for (var actionString : actionStringDistribution.keySet()) {
             var action = new Action(actionString);
             distributionMap.putIfAbsent(action, actionStringDistribution.getProbability(actionString));
         }
-        Distribution<Action> actions;
         try {
-            actions = new Distribution<>(distributionMap);
+            Distribution<Action> actions = Distribution.of(distributionMap);
+            return addActionSelection(node, actions);
         } catch (DistributionEmptyException | DistributionSumNotOneException e) {
             throw new IllegalStateException(e);
         }
-        return addActionSelection(node, actions);
     }
 
     public FiniteStateControllerBuilder addActionSelection(Node node, Distribution<Action> actions) {
@@ -88,13 +87,14 @@ public class FiniteStateControllerBuilder {
         var action = new Action(actionString);
         var observation = new Observation(observationString);
         var distributionMap = new HashMap<Node, Double>();
-        for (var nextNodeString : nextNodeStringDistribution.getItems()) {
+        for (var nextNodeString : nextNodeStringDistribution.keySet()) {
             var nextNode = new Node(nextNodeString);
-            distributionMap.putIfAbsent(nextNode, nextNodeStringDistribution.getProbability(nextNodeString));
+            var proability = nextNodeStringDistribution.getProbability(nextNodeString);
+            distributionMap.putIfAbsent(nextNode, proability);
         }
         Distribution<Node> nextNodeDistribution;
         try {
-            nextNodeDistribution = new Distribution<>(distributionMap);
+            nextNodeDistribution = Distribution.of(distributionMap);
         } catch (DistributionEmptyException | DistributionSumNotOneException e) {
             throw new IllegalStateException(e);
         }

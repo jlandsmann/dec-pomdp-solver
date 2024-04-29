@@ -63,8 +63,8 @@ class DistributionTest {
     }
 
     @Test
-    void getItemsShouldReturnAllItems() {
-        var actual = distribution.getItems();
+    void keySet() {
+        var actual = distribution.keySet();
         var expected = Set.of("A", "B", "C", "D", "E");
         assertEquals(expected, actual);
     }
@@ -124,7 +124,7 @@ class DistributionTest {
     void replaceEntryWithDistributionShouldEndUpWithSumOfProbabilitiesOf1() throws DistributionSumNotOneException, DistributionEmptyException {
         var replacement = new Distribution<>(Map.of("D", 0.5D, "E", 0.5D));
         distribution.replaceEntryWithDistribution("C", replacement);
-        var sumOfProbabilities = distribution.getItems().stream().map(i -> distribution.getProbability(i)).reduce(Double::sum).orElse(0D);
+        var sumOfProbabilities = distribution.keySet().stream().map(i -> distribution.getProbability(i)).reduce(Double::sum).orElse(0D);
         assertEquals(1D, sumOfProbabilities);
     }
 

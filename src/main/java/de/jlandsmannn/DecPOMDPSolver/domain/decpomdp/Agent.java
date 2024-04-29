@@ -1,8 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.BeliefState;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.Set;
 
@@ -17,14 +18,14 @@ public abstract class Agent {
         this.observations = observations;
     }
 
-    public abstract Action chooseAction(BeliefState beliefState);
+    public abstract Action chooseAction(Distribution<State> beliefState);
 
     public abstract void observe(Action action, Observation observation, Double reward);
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Agent) {
-            return name.equals(((Agent) obj).name);
+            return name.equals(((Agent) obj).name) && actions.equals(((Agent) obj).actions) && observations.equals(((Agent) obj).observations);
         }
         return super.equals(obj);
     }

@@ -28,13 +28,37 @@ public class Distribution<T> {
         }
     }
 
+    public static <T> Distribution<T> createWeightedDistribution(Map<Distribution<T>, Double> distributionOfDistributions) {
+        Map<T, Double> probabilities = new HashMap<>();
+        for (var distribution : distributionOfDistributions.keySet()) {
+            var probability = distributionOfDistributions.getOrDefault(distribution, 0D);
+            if (probability > 0) continue;
+
+            for (var entry : distribution.entrySet()) {
+                var currentProbability = probabilities.getOrDefault(entry.getKey(), 0D);
+                var scaledProbability = entry.getValue() * probability;
+                probabilities.put(entry.getKey(), currentProbability + scaledProbability);
+            }
+        }
+        try {
+            return Distribution.of(probabilities);
+        } catch (DistributionEmptyException | DistributionSumNotOneException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static <T> Distribution<T> of(Map<T, Double> distribution) throws DistributionSumNotOneException, DistributionEmptyException {
+        return new Distribution<>(distribution);
+    }
+
     /**
      * This constructor can be used to create a distribution with probabilities based on distribution
      * @param distribution A non-empty map of distributions, where the values must sum up to 1
      * @throws DistributionEmptyException is thrown if distribution is empty
      * @throws DistributionSumNotOneException is thrown if sum of values in distribution is not one
      */
-    public Distribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
+    protected Distribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
+        removeObsoleteKeys(distribution);
         validateDistribution(distribution);
         this.distribution = new HashMap<>(distribution);
         this.currentMax = calculateMax();
@@ -48,7 +72,7 @@ public class Distribution<T> {
         return currentMax;
     }
 
-    public Set<T> getItems() {
+    public Set<T> keySet() {
         return distribution.keySet();
     }
 
@@ -99,6 +123,12 @@ public class Distribution<T> {
         return Objects.hash("Distribution", distribution);
     }
 
+
+    private void removeObsoleteKeys(Map<T, Double> distribution) {
+        distribution.forEach((key, probability) -> {
+            if (probability == 0D) distribution.remove(key);
+        });
+    }
 
     private void validateDistribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
         if (distribution.isEmpty()) {
