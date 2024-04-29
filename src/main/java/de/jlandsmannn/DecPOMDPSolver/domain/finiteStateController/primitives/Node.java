@@ -1,4 +1,4 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models.primitives;
+package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives;
 
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
+package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.exceptions.DistributionEmptyException;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmptyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models;
+package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.BeliefState;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.BeliefState;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 
 import java.util.Set;
 

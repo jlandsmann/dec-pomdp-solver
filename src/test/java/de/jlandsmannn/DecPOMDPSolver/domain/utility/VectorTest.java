@@ -1,4 +1,4 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
+package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

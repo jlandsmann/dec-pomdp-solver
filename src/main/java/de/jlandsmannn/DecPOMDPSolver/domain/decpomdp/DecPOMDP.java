@@ -1,11 +1,11 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models;
+package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.BeliefState;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.BeliefState;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.List;
 import java.util.Map;

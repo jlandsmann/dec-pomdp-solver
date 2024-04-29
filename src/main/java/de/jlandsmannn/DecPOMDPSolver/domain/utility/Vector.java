@@ -1,4 +1,4 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models.utility;
+package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
 import java.util.*;
 

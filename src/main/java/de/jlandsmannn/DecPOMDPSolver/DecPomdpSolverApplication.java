@@ -1,11 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.DecPOMDPBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

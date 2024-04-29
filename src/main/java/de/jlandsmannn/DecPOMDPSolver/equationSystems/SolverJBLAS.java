@@ -3,11 +3,6 @@ package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
-import org.ojalgo.RecoverableCondition;
-import org.ojalgo.matrix.decomposition.LU;
-import org.ojalgo.matrix.store.MatrixStore;
-import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.random.Uniform;
 
 public class SolverJBLAS {
     private DoubleMatrix a;

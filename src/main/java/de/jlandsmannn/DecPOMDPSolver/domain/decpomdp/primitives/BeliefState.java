@@ -1,8 +1,8 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models.primitives;
+package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.exceptions.DistributionEmptyException;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.DistributionSumNotOneException;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmptyException;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.DistributionSumNotOneException;
 
 import java.util.Map;
 import java.util.Objects;

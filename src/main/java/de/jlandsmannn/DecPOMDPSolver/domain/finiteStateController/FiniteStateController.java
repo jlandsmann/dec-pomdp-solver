@@ -1,9 +1,9 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.models;
+package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Node;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.models.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.Map;
 import java.util.Set;
