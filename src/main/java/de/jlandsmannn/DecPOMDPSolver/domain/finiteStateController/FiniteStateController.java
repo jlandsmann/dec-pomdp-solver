@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import org.springframework.util.SerializationUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,7 @@ public class FiniteStateController {
   }
 
   public Distribution<Node> getFollowNode(Node q, Action a, Observation o) {
-    return transitionFunction.get(q).get(a).get(o);
+    return transitionFunction.getOrDefault(q, Map.of()).getOrDefault(a, Map.of()).get(o);
   }
 
   public void addNode(Node node, Action action) {
@@ -38,6 +39,7 @@ public class FiniteStateController {
   }
 
   public void addNode(Node node, Distribution<Action> action) {
+    nodes.add(node);
     actionFunction.put(node, action);
   }
 

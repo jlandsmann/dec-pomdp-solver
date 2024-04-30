@@ -1,4 +1,4 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions;
 
-public class DistributionEmptyException extends Exception {
+public class DistributionEmptyException extends RuntimeException {
 }

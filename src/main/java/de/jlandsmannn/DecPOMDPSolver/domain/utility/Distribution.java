@@ -4,9 +4,11 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmpty
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNotOneException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class Distribution<T> {
+public class Distribution<T> implements Iterable<T> {
+  private static final double ROUNDING_ERROR_THRESHOLD = 1e-14;
   private final Map<T, Double> distribution;
   private final T currentMax;
 
@@ -17,10 +19,11 @@ public class Distribution<T> {
    * @throws DistributionEmptyException     is thrown if distribution is empty
    * @throws DistributionSumNotOneException is thrown if sum of values in distribution is not one
    */
-  protected Distribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
+  protected Distribution(Map<T, Double> distribution) {
+    distribution = new ConcurrentHashMap<>(distribution);
     removeObsoleteKeys(distribution);
     validateDistribution(distribution);
-    this.distribution = new HashMap<>(distribution);
+    this.distribution = distribution;
     this.currentMax = calculateMax();
   }
 
@@ -29,7 +32,7 @@ public class Distribution<T> {
       var distribution = entries.stream()
         .map(e -> Map.entry(e, 1D / entries.size()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      return new Distribution<T>(distribution);
+      return new Distribution<>(distribution);
     } catch (DistributionEmptyException | DistributionSumNotOneException e) {
       throw new IllegalStateException("Sum of distributions not one", e);
     }
@@ -62,7 +65,7 @@ public class Distribution<T> {
     }
   }
 
-  public static <T> Distribution<T> of(Map<T, Double> distribution) throws DistributionSumNotOneException, DistributionEmptyException {
+  public static <T> Distribution<T> of(Map<T, Double> distribution) {
     return new Distribution<>(distribution);
   }
 
@@ -109,6 +112,11 @@ public class Distribution<T> {
   }
 
   @Override
+  public Iterator<T> iterator() {
+    return keySet().iterator();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj instanceof Distribution<?>) {
       return distribution.equals(((Distribution<?>) obj).distribution);
@@ -138,7 +146,7 @@ public class Distribution<T> {
       throw new DistributionEmptyException();
     }
     var sumOfDistributions = distribution.values().stream().reduce(Double::sum).orElse(0D);
-    if (sumOfDistributions < 0.9999999999999999D) {
+    if (Math.abs(1D - sumOfDistributions) > ROUNDING_ERROR_THRESHOLD) {
       throw new DistributionSumNotOneException(sumOfDistributions);
     }
   }

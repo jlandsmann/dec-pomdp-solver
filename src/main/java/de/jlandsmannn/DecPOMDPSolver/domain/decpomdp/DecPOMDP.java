@@ -53,7 +53,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   public abstract double getReward(State currentState, Vector<Action> agentActions);
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
-    var map = nextBeliefState.entrySet().stream()
+    Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
       .map(entry -> {
         var state = entry.getKey();
         var probability = entry.getValue();
