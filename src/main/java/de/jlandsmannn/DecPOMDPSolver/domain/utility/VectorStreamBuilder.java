@@ -8,10 +8,19 @@ import java.util.stream.Stream;
 
 public class VectorStreamBuilder<T> {
 
+  public static <T > Stream<Vector<T>> forEachCombination(Collection<? extends Collection<T>> possibleValues) {
+    var builder = new VectorStreamBuilder<T>();
+    return builder.getStreamForEachCombination(possibleValues);
+  }
+
   private final List<Long> takeNthElement = new ArrayList<>();
   private List<List<T>> possibleValues;
 
-  public Stream<Vector<T>> getStreamForEachCombination(Collection<? extends Collection<T>> pPossibleValues) {
+  private VectorStreamBuilder() {
+
+  }
+
+  private Stream<Vector<T>> getStreamForEachCombination(Collection<? extends Collection<T>> pPossibleValues) {
     possibleValues = new ArrayList<>(pPossibleValues.stream().map(ArrayList::new).toList());
     int size = possibleValues.size();
     if (size == 0) return Stream.empty();

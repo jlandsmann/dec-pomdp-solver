@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmptyException;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNotOneException;
 
 import java.util.*;
 import java.util.stream.Collectors;

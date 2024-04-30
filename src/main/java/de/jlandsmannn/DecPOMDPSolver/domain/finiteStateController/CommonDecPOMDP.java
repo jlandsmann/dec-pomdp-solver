@@ -52,9 +52,8 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
 
   @Override
   public double getValue(Distribution<State> beliefState) {
-    var builder = new VectorStreamBuilder<Node>();
     var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
-    Stream<Vector<Node>> stream = builder.getStreamForEachCombination(nodeCombinations);
+    Stream<Vector<Node>> stream = VectorStreamBuilder.forEachCombination(nodeCombinations);
     return stream
       .map(nodes -> getValue(beliefState, nodes))
       .reduce(Double::max)
@@ -76,11 +75,13 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
   }
 
   public double getValue(State state, Vector<Node> nodes) {
-    var builder = new VectorStreamBuilder<Action>();
     var actionLists = agents.stream().map(AgentWithStateController::getActions).toList();
-    var stream = builder.getStreamForEachCombination(actionLists);
+    var stream = VectorStreamBuilder.forEachCombination(actionLists);
     return stream
-      .map(actionVector -> getActionVectorProbability(nodes, actionVector) * getActionVectorValue(state, nodes, actionVector))
+      .map(actionVector ->
+        getActionVectorProbability(nodes, actionVector)
+          * getActionVectorValue(state, nodes, actionVector)
+      )
       .reduce(Double::sum)
       .orElse(0D);
   }
