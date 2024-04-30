@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toCollection;
+
 public class VectorStreamBuilder<T> {
 
   public static <T > Stream<Vector<T>> forEachCombination(Collection<? extends Collection<T>> possibleValues) {
@@ -21,7 +23,7 @@ public class VectorStreamBuilder<T> {
   }
 
   private Stream<Vector<T>> getStreamForEachCombination(Collection<? extends Collection<T>> pPossibleValues) {
-    possibleValues = new ArrayList<>(pPossibleValues.stream().map(ArrayList::new).toList());
+    possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
     int size = possibleValues.size();
     if (size == 0) return Stream.empty();
     long numberOfCombinations = possibleValues.stream()

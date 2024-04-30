@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,24 @@ public class FiniteStateController {
     return transitionFunction.get(q).get(a).get(o);
   }
 
+  public void addNode(Node node, Action action) {
+    addNode(node, Distribution.createSingleEntryDistribution(action));
+  }
+
+  public void addNode(Node node, Distribution<Action> action) {
+    actionFunction.put(node, action);
+  }
+
+  public void addTransition(Node node, Action a, Observation o, Node followNode) {
+    addTransition(node, a, o, Distribution.createSingleEntryDistribution(followNode));
+  }
+
+  public void addTransition(Node node, Action a, Observation o, Distribution<Node> transition) {
+    transitionFunction.putIfAbsent(node, new HashMap<>());
+    transitionFunction.get(node).putIfAbsent(a, new HashMap<>());
+    transitionFunction.get(node).get(a).put(o, transition);
+  }
+
   public void pruneNodes(Map<Node, Distribution<Node>> nodesToPrune) {
     // first remove all outgoing connections from nodes to prune
     for (var nodeToPrune : nodesToPrune.keySet()) {
@@ -48,6 +67,20 @@ public class FiniteStateController {
           for (var nodeToPrune : nodesToPrune.keySet()) {
             distribution.replaceEntryWithDistribution(nodeToPrune, nodesToPrune.get(nodeToPrune));
           }
+        }
+      }
+    }
+  }
+
+  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
+    nodes.remove(nodeToPrune);
+    actionFunction.remove(nodeToPrune);
+    transitionFunction.remove(nodeToPrune);
+    for (var node : transitionFunction.keySet()) {
+      for (var action : transitionFunction.get(node).keySet()) {
+        for (var observation : transitionFunction.get(node).get(action).keySet()) {
+          var distribution = transitionFunction.get(node).get(action).get(observation);
+          distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
         }
       }
     }

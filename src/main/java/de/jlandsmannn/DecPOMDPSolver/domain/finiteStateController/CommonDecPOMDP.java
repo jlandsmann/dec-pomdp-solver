@@ -9,6 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
   private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
+  private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new HashMap<>();
 
   public CommonDecPOMDP(List<AgentWithStateController> agents,
                         Set<State> states,
@@ -75,15 +77,9 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
   }
 
   public double getValue(State state, Vector<Node> nodes) {
-    var actionLists = agents.stream().map(AgentWithStateController::getActions).toList();
-    var stream = VectorStreamBuilder.forEachCombination(actionLists);
-    return stream
-      .map(actionVector ->
-        getActionVectorProbability(nodes, actionVector)
-          * getActionVectorValue(state, nodes, actionVector)
-      )
-      .reduce(Double::sum)
-      .orElse(0D);
+    var stateSelected = preCalculatedValueFunction.get(state);
+    if (stateSelected == null) return 0D;
+    return stateSelected.getOrDefault(nodes, 0D);
   }
 
   private double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
@@ -95,11 +91,6 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
       probability += agent.getActionProbability(node, action);
     }
     return probability;
-  }
-
-  private double getActionVectorValue(State state, Vector<Node> nodes, Vector<Action> actions) {
-    // TODO: fix me
-    return getReward(state, actions);
   }
 
   private double getStateTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {

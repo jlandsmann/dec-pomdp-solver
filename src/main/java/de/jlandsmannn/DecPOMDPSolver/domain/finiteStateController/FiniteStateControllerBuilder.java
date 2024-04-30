@@ -13,13 +13,12 @@ public class FiniteStateControllerBuilder {
   private final Set<Node> nodes = new HashSet<>();
   private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
   private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
-  private Node initialNode;
 
   public static FiniteStateController createArbitraryController(Set<Action> actions, Set<Observation> observations) {
     var builder = new FiniteStateControllerBuilder();
     Node node = new Node("N1");
     var actionDistribution = Distribution.createUniformDistribution(actions);
-    builder.addNode(node, true).addActionSelection(node, actionDistribution);
+    builder.addNode(node).addActionSelection(node, actionDistribution);
     for (var action : actions) {
       for (var observation : observations) {
         builder.addTransition(node, action, observation, Distribution.createSingleEntryDistribution(node));
@@ -29,36 +28,16 @@ public class FiniteStateControllerBuilder {
   }
 
   public FiniteStateControllerBuilder addNode(String nodeString) {
-    return addNode(nodeString, false);
-  }
-
-  public FiniteStateControllerBuilder addNode(String nodeString, boolean initial) {
-    var node = new Node(nodeString);
-    return addNode(node, initial);
+    return addNode(new Node(nodeString));
   }
 
   public FiniteStateControllerBuilder addNode(Node node) {
-    return addNode(node, false);
-  }
-
-  public FiniteStateControllerBuilder addNode(Node node, boolean initial) {
     this.nodes.add(node);
-    if (initial) this.initialNode = node;
     return this;
   }
 
   public FiniteStateControllerBuilder addNodes(Collection<Node> nodes) {
     this.nodes.addAll(nodes);
-    return this;
-  }
-
-  public FiniteStateControllerBuilder setInitialNode(String nodeString) {
-    var node = new Node(nodeString);
-    return setInitialNode(node);
-  }
-
-  public FiniteStateControllerBuilder setInitialNode(Node node) {
-    this.initialNode = node;
     return this;
   }
 
@@ -89,8 +68,8 @@ public class FiniteStateControllerBuilder {
     var distributionMap = new HashMap<Node, Double>();
     for (var nextNodeString : nextNodeStringDistribution.keySet()) {
       var nextNode = new Node(nextNodeString);
-      var proability = nextNodeStringDistribution.getProbability(nextNodeString);
-      distributionMap.putIfAbsent(nextNode, proability);
+      var probability = nextNodeStringDistribution.getProbability(nextNodeString);
+      distributionMap.putIfAbsent(nextNode, probability);
     }
     Distribution<Node> nextNodeDistribution;
     try {
