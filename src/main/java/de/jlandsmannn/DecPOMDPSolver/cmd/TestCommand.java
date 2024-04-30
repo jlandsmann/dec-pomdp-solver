@@ -9,188 +9,187 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import org.springframework.shell.command.annotation.Command;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 @Command(command = "test")
 public class TestCommand {
-    @Command(command = "init")
-    public void initDecPOMDP() {
-        var model = initializeDecPOMDP();
-        System.out.println(model);
-    }
+  @Command(command = "init")
+  public void initDecPOMDP() {
+    var model = initializeDecPOMDP();
+    System.out.println(model);
+  }
 
-    public DecPOMDP initializeDecPOMDP() {
-        var builder = new DecPOMDPBuilder();
-        initializeStates(builder);
-        initializeActions(builder);
-        initializeTransitions(builder);
-        initializeRewards(builder);
-        initializeObservations(builder);
-        return builder.createDecPOMDP();
-    }
+  public DecPOMDP initializeDecPOMDP() {
+    var builder = new DecPOMDPBuilder();
+    initializeStates(builder);
+    initializeActions(builder);
+    initializeTransitions(builder);
+    initializeRewards(builder);
+    initializeObservations(builder);
+    return builder.createDecPOMDP();
+  }
 
-    private void initializeStates(DecPOMDPBuilder builder) {
-        builder
-                .addState("S1")
-                .addState("S2")
-                .addState("S3")
-                .addState("S4")
-        ;
-    }
+  private void initializeStates(DecPOMDPBuilder builder) {
+    builder
+      .addState("S1")
+      .addState("S2")
+      .addState("S3")
+      .addState("S4")
+    ;
+  }
 
-    private void initializeActions(DecPOMDPBuilder builder) {
-        builder
-                .addAgent(AgentWithStateController.createArbitraryAgent("A1", 2, 2))
-                .addAgent(AgentWithStateController.createArbitraryAgent("A2", 2, 2))
-                .addAgent(AgentWithStateController.createArbitraryAgent("A3", 2, 2))
-                .addAgent(AgentWithStateController.createArbitraryAgent("A4", 2, 2))
-        ;
+  private void initializeActions(DecPOMDPBuilder builder) {
+    builder
+      .addAgent(AgentWithStateController.createArbitraryAgent("A1", 2, 2))
+      .addAgent(AgentWithStateController.createArbitraryAgent("A2", 2, 2))
+      .addAgent(AgentWithStateController.createArbitraryAgent("A3", 2, 2))
+      .addAgent(AgentWithStateController.createArbitraryAgent("A4", 2, 2))
+    ;
 
-    }
+  }
 
-    private void initializeTransitions(DecPOMDPBuilder builder) {
-        builder
-                .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S2")
-                .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S2")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S3")
-                .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S3")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S4")
-                .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S4")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S1")
-                .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S1")
-        ;
+  private void initializeTransitions(DecPOMDPBuilder builder) {
+    builder
+      .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S2")
+      .addTransition("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S2")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S3")
+      .addTransition("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S3")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S4")
+      .addTransition("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S4")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S1")
+      .addTransition("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S1")
+    ;
 
-    }
+  }
 
-    private void initializeRewards(DecPOMDPBuilder builder) {
-        builder
-                .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.2D)
-                .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.2D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.3D)
-                .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.3D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.4D)
-                .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.4D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.1D)
-                .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.1D)
-        ;
+  private void initializeRewards(DecPOMDPBuilder builder) {
+    builder
+      .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.2D)
+      .addReward("S1", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.2D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.3D)
+      .addReward("S2", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.3D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.4D)
+      .addReward("S3", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.4D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A1", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A1", "A2-A2", "A3-A2", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A1", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A1", "A3-A2", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), 0.1D)
+      .addReward("S4", createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), 0.1D)
+    ;
 
-    }
+  }
 
-    private void initializeObservations(DecPOMDPBuilder builder) {
-        builder
+  private void initializeObservations(DecPOMDPBuilder builder) {
+    builder
                 .addObservation(createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A1"), "S1", createObservationVector("A1-O1", "A2-O1", "A3-O1", "A4-O1"))
                 .addObservation(createActionVector("A1-A1", "A2-A1", "A3-A1", "A4-A2"), "S1", createObservationVector("A1-O1", "A2-O1", "A3-O1", "A4-O2"))
                 .addObservation(createActionVector("A1-A1", "A2-A1", "A3-A2", "A4-A1"), "S1", createObservationVector("A1-O1", "A2-O1", "A3-O2", "A4-O1"))
@@ -447,18 +446,18 @@ public class TestCommand {
                 .addObservation(createActionVector("A1-A2", "A2-A2", "A3-A1", "A4-A2"), "S4", createObservationVector("A1-O2", "A2-O2", "A3-O1", "A4-O2"))
                 .addObservation(createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A1"), "S4", createObservationVector("A1-O2", "A2-O2", "A3-O2", "A4-O1"))
                 .addObservation(createActionVector("A1-A2", "A2-A2", "A3-A2", "A4-A2"), "S4", createObservationVector("A1-O2", "A2-O2", "A3-O2", "A4-O2"))
-        ;
+    ;
 
-    }
+  }
 
-    private Vector<Action> createActionVector(String... actions) {
-        var listOfActions = Arrays.stream(actions).sorted().map(Action::new).toList();
-        return new Vector<>(listOfActions);
-    }
+  private Vector<Action> createActionVector(String... actions) {
+    var listOfActions = Arrays.stream(actions).sorted().map(Action::new).toList();
+    return new Vector<>(listOfActions);
+  }
 
-    private Distribution<Vector<Observation>> createObservationVector(String... observations) {
-        var listOfObservations = Arrays.stream(observations).map(Observation::new).toList();
-        var vectorOfObservations = new Vector<>(listOfObservations);
-        return Distribution.createSingleEntryDistribution(vectorOfObservations);
-    }
+  private Distribution<Vector<Observation>> createObservationVector(String... observations) {
+    var listOfObservations = Arrays.stream(observations).map(Observation::new).toList();
+    var vectorOfObservations = new Vector<>(listOfObservations);
+    return Distribution.createSingleEntryDistribution(vectorOfObservations);
+  }
 }

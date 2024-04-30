@@ -1,7 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization;
 
 public interface LinearOptimizationSolver {
-    void solve();
+  void solve();
 
-    <T> T getResult(String variable);
+  <T> T getResult(String variable);
 }
