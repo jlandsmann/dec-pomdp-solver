@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
@@ -18,14 +17,15 @@ import java.util.stream.Stream;
 public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
     private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
-    private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction;
+    private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
 
     public CommonDecPOMDP(List<AgentWithStateController> agents,
                    Set<State> states,
+                   double discountFactor,
                    Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                    Map<State, Map<Vector<Action>, Double>> rewardFunction,
-                   Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction) {
-        super(agents, states);
+                   Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
+        super(agents, states, discountFactor);
         this.transitionFunction = transitionFunction;
         this.rewardFunction = rewardFunction;
         this.observationFunction = observationFunction;
@@ -41,17 +41,17 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
     }
 
     @Override
-    public Double getReward(State currentState, Vector<Action> agentActions) {
+    public double getReward(State currentState, Vector<Action> agentActions) {
         return rewardFunction.get(currentState).get(agentActions);
     }
 
     @Override
-    public Vector<Distribution<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
+    public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
         return observationFunction.get(agentActions).get(nextState);
     }
 
     @Override
-    public Double getValue(Distribution<State> beliefState) {
+    public double getValue(Distribution<State> beliefState) {
         var builder =  new VectorStreamBuilder<Node>();
         var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
         Stream<Vector<Node>> stream = builder.getStreamForEachCombination(nodeCombinations);
@@ -61,7 +61,7 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
                        .orElse(0D);
     }
 
-    public Double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
+    public double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
         return beliefState
                 .entrySet()
                 .stream()
@@ -75,8 +75,49 @@ public class CommonDecPOMDP extends DecPOMDP<AgentWithStateController> {
                 .orElse(0D);
     }
 
-    public Double getValue(State state, Vector<Node> nodes) {
-        return 0D;
+    public double getValue(State state, Vector<Node> nodes) {
+        var builder =  new VectorStreamBuilder<Action>();
+        var actionLists = agents.stream().map(AgentWithStateController::getActions).toList();
+        var stream = builder.getStreamForEachCombination(actionLists);
+        return stream
+                .map(actionVector -> getActionVectorProbability(nodes, actionVector) * getActionVectorValue(state, nodes, actionVector))
+                .reduce(Double::sum)
+                .orElse(0D);
+    }
+
+    private double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
+        var probability = 0D;
+        for (int i = 0; i < actions.size(); i++) {
+            var agent = agents.get(i);
+            var node = nodes.get(i);
+            var action = actions.get(i);
+            probability += agent.getActionProbability(node, action);
+        }
+        return probability;
+    }
+
+    private double getActionVectorValue(State state, Vector<Node> nodes, Vector<Action> actions) {
+        // TODO: fix me
+        return getReward(state, actions);
+    }
+
+    private double getStateTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
+        var stateProbability = getTransition(state, actions).getProbability(newState);
+        var observationProbability = getObservations(actions, newState).getProbability(observations);
+        return stateProbability * observationProbability;
+    }
+
+    private double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
+        var probability = 0D;
+        for (int i = 0; i < nodes.size(); i++) {
+            var agent = agents.get(i);
+            var node = nodes.get(i);
+            var action = actions.get(i);
+            var observation = observations.get(i);
+            var newNode = newNodes.get(i);
+            probability += agent.getNodeTransitionProbability(node, action, observation, newNode);
+        }
+        return probability;
     }
 
     private void validateTransitionFunction() {

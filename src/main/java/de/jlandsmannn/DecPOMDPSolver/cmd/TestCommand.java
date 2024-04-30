@@ -9,6 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import org.springframework.shell.command.annotation.Command;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Command(command = "test")
@@ -451,15 +452,13 @@ public class TestCommand {
     }
 
     private Vector<Action> createActionVector(String... actions) {
-        return new Vector<>(Arrays.stream(actions).sorted().map(Action::new).toList());
+        var listOfActions = Arrays.stream(actions).sorted().map(Action::new).toList();
+        return new Vector<>(listOfActions);
     }
 
-    private Vector<Distribution<Observation>> createObservationVector(String... observations) {
-        return new Vector<>(Arrays.stream(observations)
-                .sorted()
-                .map(Observation::new)
-                .map(Distribution::createSingleEntryDistribution)
-                .toList()
-        );
+    private Distribution<Vector<Observation>> createObservationVector(String... observations) {
+        var listOfObservations = Arrays.stream(observations).map(Observation::new).toList();
+        var vectorOfObservations = new Vector<>(listOfObservations);
+        return Distribution.createSingleEntryDistribution(vectorOfObservations);
     }
 }

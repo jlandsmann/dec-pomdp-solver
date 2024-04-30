@@ -36,4 +36,12 @@ public class AgentWithStateController extends Agent {
         // TODO: fix me
         return Distribution.createUniformDistribution(actions);
     }
+
+    public double getActionProbability(Node node, Action action) {
+        return controller.getAction(node).getProbability(action);
+    }
+
+    public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node newNode) {
+        return controller.getFollowNode(node, action, observation).getProbability(newNode);
+    }
 }

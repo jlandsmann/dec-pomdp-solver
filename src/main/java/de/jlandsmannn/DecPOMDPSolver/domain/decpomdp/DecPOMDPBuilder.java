@@ -18,7 +18,8 @@ public class DecPOMDPBuilder {
     private final Set<State> states = new HashSet<>();
     private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction = new HashMap<>();
     private final Map<State, Map<Vector<Action>, Double>> rewardFunction = new HashMap<>();
-    private final Map<Vector<Action>, Map<State, Vector<Distribution<Observation>>>> observationFunction = new HashMap<>();
+    private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction = new HashMap<>();
+    private double discountFactor;
 
     public DecPOMDPBuilder addAgent(AgentWithStateController agent) {
         this.agents.remove(agent);
@@ -51,10 +52,15 @@ public class DecPOMDPBuilder {
         return this;
     }
 
-    public DecPOMDPBuilder addObservation(Vector<Action> actions, String targetStateString, Vector<Distribution<Observation>> observations) {
+    public DecPOMDPBuilder addObservation(Vector<Action> actions, String targetStateString, Distribution<Vector<Observation>> observations) {
         State targeState = new State(targetStateString);
         this.observationFunction.putIfAbsent(actions, new HashMap<>());
         this.observationFunction.get(actions).put(targeState, observations);
+        return this;
+    }
+
+    public DecPOMDPBuilder setDiscountFactor(double discountFactor) {
+        this.discountFactor = discountFactor;
         return this;
     }
 
@@ -67,6 +73,6 @@ public class DecPOMDPBuilder {
                 rewardFunction.size() + " rewards and " +
                 observationFunction.size() + " observations."
         );
-        return new CommonDecPOMDP(agents, states, transitionFunction, rewardFunction, observationFunction);
+        return new CommonDecPOMDP(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
     }
 }
