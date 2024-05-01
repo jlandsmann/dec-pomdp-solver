@@ -18,14 +18,26 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   protected final List<AGENT> agents;
   protected final Set<State> states;
   protected final double discountFactor;
+  private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
+  private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
+  private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
 
-  public DecPOMDP(List<AGENT> agents, Set<State> states, double discountFactor) {
+  public DecPOMDP(List<AGENT> agents, Set<State> states, double discountFactor,
+                  Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
+                  Map<State, Map<Vector<Action>, Double>> rewardFunction,
+                  Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
     this.agentCount = agents.size();
     this.agents = agents;
     this.stateCount = states.size();
     this.states = states;
     this.discountFactor = discountFactor;
+    this.transitionFunction = transitionFunction;
+    this.rewardFunction = rewardFunction;
+    this.observationFunction = observationFunction;
     validateDiscountFactor(discountFactor);
+    validateTransitionFunction();
+    validateRewardFunction();
+    validateObservationFunction();
   }
 
   public Distribution<State> getTransition(Distribution<State> currentState, Vector<Action> agentActions) {
@@ -38,7 +50,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return Distribution.createWeightedDistribution(probabilities);
   }
 
-  public abstract Distribution<State> getTransition(State currentState, Vector<Action> agentActions);
+  public Distribution<State> getTransition(State currentState, Vector<Action> agentActions) {
+    return transitionFunction.get(currentState).get(agentActions);
+  }
 
   public double getReward(Distribution<State> currentState, Vector<Action> agentActions) {
     var reward = 0D;
@@ -50,7 +64,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return reward;
   }
 
-  public abstract double getReward(State currentState, Vector<Action> agentActions);
+  public double getReward(State currentState, Vector<Action> agentActions) {
+    return rewardFunction.get(currentState).get(agentActions);
+  }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
     Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
@@ -64,19 +80,54 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return Distribution.createWeightedDistribution(map);
   }
 
-  public abstract Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState);
-
-  public abstract double getValue(Distribution<State> beliefState);
-
-  public Vector<Distribution<Action>> getActionsFromAgents(Distribution<State> currentState) {
-    var agentsStream = agents.stream();
-    var agentsActionsStream = agentsStream.map(a -> a.chooseAction(currentState));
-    return new Vector<>(agentsActionsStream.toList());
+  public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
+    return observationFunction.get(agentActions).get(nextState);
   }
 
   private void validateDiscountFactor(double discountFactor) {
     if (discountFactor <= 0 || 1 <= discountFactor) {
       throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1");
+    }
+  }
+
+  private void validateTransitionFunction() {
+    if (transitionFunction.size() != stateCount) {
+      throw new IllegalArgumentException("Transition function does not match state count");
+    }
+    for (var state : transitionFunction.keySet()) {
+      var innerMap = transitionFunction.get(state);
+      for (var actionVector : innerMap.keySet()) {
+        if (actionVector.size() != agentCount) {
+          throw new IllegalArgumentException("Some action vector of transition function does not match agent count.");
+        }
+      }
+    }
+  }
+
+  private void validateRewardFunction() {
+    for (var state : rewardFunction.keySet()) {
+      var innerMap = rewardFunction.get(state);
+      for (var actionVector : innerMap.keySet()) {
+        if (actionVector.size() != agentCount) {
+          throw new IllegalArgumentException("Some action vector of reward function does not match agent count.");
+        }
+      }
+    }
+  }
+
+  private void validateObservationFunction() {
+    for (var actionVector : observationFunction.keySet()) {
+      if (actionVector.size() != agentCount) {
+        throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
+      } else if (observationFunction.get(actionVector).size() != stateCount) {
+        throw new IllegalArgumentException("For some action vector of observation function not every state is matched." + "Action vector: " + actionVector);
+      }
+      var innerMap = observationFunction.get(actionVector);
+      for (var state : innerMap.keySet()) {
+        if (innerMap.get(state).size() != agentCount) {
+          throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
+        }
+      }
     }
   }
 }

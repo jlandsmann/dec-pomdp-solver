@@ -3,7 +3,6 @@ package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
@@ -32,11 +31,12 @@ public class AgentWithStateController extends Agent {
     return controller.getNodes();
   }
 
+  public Distribution<Action> getAction(Node node) {
+    return controller.getAction(node);
+  }
 
-  @Override
-  public Distribution<Action> chooseAction(State state) {
-    // TODO: fix me
-    return Distribution.createUniformDistribution(actions);
+  public Distribution<Node> getTransition(Node node, Action action, Observation observation) {
+    return controller.getFollowNode(node, action, observation);
   }
 
   public double getActionProbability(Node node, Action action) {

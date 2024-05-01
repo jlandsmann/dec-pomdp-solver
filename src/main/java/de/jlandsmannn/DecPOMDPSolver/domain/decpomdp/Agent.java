@@ -32,18 +32,6 @@ public abstract class Agent {
     return observations;
   }
 
-  public Distribution<Action> chooseAction(Distribution<State> beliefState) {
-    Map<Distribution<Action>, Double> probabilities = new HashMap<>();
-    for (State state : beliefState.keySet()) {
-      var probability = beliefState.getProbability(state);
-      var action = chooseAction(state);
-      probabilities.put(action, probability);
-    }
-    return Distribution.createWeightedDistribution(probabilities);
-  }
-
-  public abstract Distribution<Action> chooseAction(State state);
-
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof Agent) {
