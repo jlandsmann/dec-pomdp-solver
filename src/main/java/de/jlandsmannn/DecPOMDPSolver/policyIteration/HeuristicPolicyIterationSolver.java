@@ -43,7 +43,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       performExhaustiveBackup();
       retainDominatingNodes();
       pruneCombinatorialDominatedNodes();
-    } while (hasControllerHashChanged() || isIterationLimitReached());
+    } while (hasControllerHashChanged() && !isIterationLimitReached());
     return getValueOfDecPOMDP();
   }
 
@@ -65,7 +65,6 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void retainDominatingNodes() {
     LOG.info("Retaining dominating nodes.");
-
   }
 
   protected void pruneCombinatorialDominatedNodes() {
@@ -73,10 +72,14 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   }
 
   protected boolean hasControllerHashChanged() {
-    return controllerHash != decPOMDP.hashCode();
+    boolean controllerHashChanged = controllerHash != decPOMDP.hashCode();
+    LOG.info("Controller hash changed: {}", controllerHashChanged);
+    return controllerHashChanged;
   }
 
   protected boolean isIterationLimitReached() {
-    return maxIterations != 0 && maxIterations >= currentIteration;
+    boolean hasIterationLimit = maxIterations != 0;
+    boolean isIterationLimitReached = maxIterations >= currentIteration;
+    return hasIterationLimit && isIterationLimitReached;
   }
 }

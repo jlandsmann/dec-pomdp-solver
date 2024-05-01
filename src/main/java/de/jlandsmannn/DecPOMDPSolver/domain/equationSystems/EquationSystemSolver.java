@@ -4,12 +4,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.Optional;
 
-public interface EquationSystemSolver<A, B> {
-  EquationSystemSolver<A, B> setDimensions(int numberOfEquations, int numberOfVariables);
+public interface EquationSystemSolver<MATRIX> {
+  EquationSystemSolver<MATRIX> setDimensions(int numberOfEquations, int numberOfVariables);
 
-  EquationSystemSolver<A, B> setMatrix(A a);
+  EquationSystemSolver<MATRIX> setMatrix(MATRIX a);
 
-  EquationSystemSolver<A, B> setVector(B a);
+  EquationSystemSolver<MATRIX> setVector(MATRIX a);
 
-  Optional<Vector<Double>> solve();
+  Optional<MATRIX> solve();
 }

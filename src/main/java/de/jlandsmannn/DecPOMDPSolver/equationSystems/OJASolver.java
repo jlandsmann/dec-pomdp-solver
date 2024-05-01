@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Service
-public class OJASolver implements EquationSystemSolver<MatrixStore<Double>, MatrixStore<Double>> {
+public class OJASolver implements EquationSystemSolver<MatrixStore<Double>> {
   private MatrixStore<Double> matrix;
   private MatrixStore<Double> vector;
   private int numberOfEquations = 0;
@@ -46,18 +46,13 @@ public class OJASolver implements EquationSystemSolver<MatrixStore<Double>, Matr
   }
 
   @Override
-  public Optional<Vector<Double>> solve() {
+  public Optional<MatrixStore<Double>> solve() {
     final var solver = LU.R064.make(matrix);
     try {
       var result = solver.solve(matrix, vector);
-      var resultVector = transformMatrixStoreToVector(result);
-      return Optional.of(resultVector);
+      return Optional.of(result);
     } catch (RecoverableCondition e) {
       return Optional.empty();
     }
-  }
-
-  public Vector<Double> transformMatrixStoreToVector(MatrixStore<Double> matrixStore) {
-    return new Vector<>(Arrays.stream(matrixStore.toRawCopy1D()).boxed().toList());
   }
 }
