@@ -1,32 +1,51 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.command.annotation.Command;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 @Command(command = "test")
+@Component
 public class TestCommand {
+  private final HeuristicPolicyIterationSolver solver;
+
+  @Autowired
+  public TestCommand(HeuristicPolicyIterationSolver solver) {
+    this.solver = solver;
+  }
+
   @Command(command = "init")
   public void initDecPOMDP() {
     var model = initializeDecPOMDP();
+    var initialBeliefState = Distribution.createUniformDistribution(model.getStates());
     System.out.println(model);
+
+    solver.setDecPOMDP(model);
+    solver.setInitialBeliefState(initialBeliefState);
+    solver.setNumberOfBeliefPoints(10);
+    solver.setMaxIterations(5);
+    var result = solver.solve();
+    System.out.println("Result: " + result);
   }
 
-  public DecPOMDP initializeDecPOMDP() {
+  public DecPOMDPWithStateController initializeDecPOMDP() {
     var builder = new DecPOMDPBuilder();
     initializeStates(builder);
-    initializeActions(builder);
+    initializeAgents(builder);
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
-    return builder.createDecPOMDP();
+    return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
 
   private void initializeStates(DecPOMDPBuilder builder) {
@@ -38,14 +57,13 @@ public class TestCommand {
     ;
   }
 
-  private void initializeActions(DecPOMDPBuilder builder) {
+  private void initializeAgents(DecPOMDPBuilder builder) {
     builder
       .addAgent(AgentWithStateController.createArbitraryAgent("A1", 2, 2))
       .addAgent(AgentWithStateController.createArbitraryAgent("A2", 2, 2))
       .addAgent(AgentWithStateController.createArbitraryAgent("A3", 2, 2))
       .addAgent(AgentWithStateController.createArbitraryAgent("A4", 2, 2))
     ;
-
   }
 
   private void initializeTransitions(DecPOMDPBuilder builder) {

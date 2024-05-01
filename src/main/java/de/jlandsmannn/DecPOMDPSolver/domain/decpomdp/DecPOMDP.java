@@ -40,6 +40,14 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     validateObservationFunction();
   }
 
+  public Set<State> getStates() {
+    return states;
+  }
+
+  public List<AGENT> getAgents() {
+    return agents;
+  }
+
   public Distribution<State> getTransition(Distribution<State> currentState, Vector<Action> agentActions) {
     Map<Distribution<State>, Double> probabilities = new HashMap<>();
     for (State state : currentState.keySet()) {
@@ -84,6 +92,12 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return observationFunction.get(agentActions).get(nextState);
   }
 
+  public double getDiscountFactor() {
+    return discountFactor;
+  }
+
+  public abstract double getValue(Distribution<State> beliefSate);
+
   private void validateDiscountFactor(double discountFactor) {
     if (discountFactor <= 0 || 1 <= discountFactor) {
       throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1");
@@ -124,8 +138,10 @@ public abstract class DecPOMDP<AGENT extends Agent> {
       }
       var innerMap = observationFunction.get(actionVector);
       for (var state : innerMap.keySet()) {
-        if (innerMap.get(state).size() != agentCount) {
-          throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
+        for (var vector : innerMap.get(state)) {
+          if (vector.size() != agentCount) {
+            throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
+          }
         }
       }
     }

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class DecPOMDPBuilder {
-  private final Logger logger = LoggerFactory.getLogger("DecPOMDPBuilder");
+  private final Logger logger = LoggerFactory.getLogger(DecPOMDPBuilder.class);
   private final List<AgentWithStateController> agents = new ArrayList<>();
   private final Set<State> states = new HashSet<>();
   private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction = new HashMap<>();
@@ -65,14 +65,8 @@ public class DecPOMDPBuilder {
   }
 
   public DecPOMDPWithStateController createDecPOMDP() {
-    logger.info(
-      "Creating CommonDecPOMDP with " +
-        agents.size() + " agents, " +
-        states.size() + " states, " +
-        transitionFunction.size() + " transitions, " +
-        rewardFunction.size() + " rewards and " +
-        observationFunction.size() + " observations."
-    );
+    logger.info("Creating CommonDecPOMDP with {} agents, {} states, {} transitions, {} rewards and {} observations.",
+      agents.size(), states.size(), transitionFunction.size(), rewardFunction.size(), observationFunction.size());
     return new DecPOMDPWithStateController(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
   }
 }
