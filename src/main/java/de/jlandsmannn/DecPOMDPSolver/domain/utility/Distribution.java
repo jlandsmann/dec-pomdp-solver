@@ -50,7 +50,7 @@ public class Distribution<T> implements Iterable<T> {
     Map<T, Double> probabilities = new HashMap<>();
     for (var distribution : distributionOfDistributions.keySet()) {
       var probability = distributionOfDistributions.getOrDefault(distribution, 0D);
-      if (probability > 0) continue;
+      if (probability == 0) continue;
 
       for (var entry : distribution.entrySet()) {
         var currentProbability = probabilities.getOrDefault(entry.getKey(), 0D);
@@ -60,8 +60,10 @@ public class Distribution<T> implements Iterable<T> {
     }
     try {
       return Distribution.of(probabilities);
-    } catch (DistributionEmptyException | DistributionSumNotOneException e) {
-      throw new IllegalStateException(e);
+    } catch (DistributionEmptyException e) {
+      throw new IllegalStateException("Distribution is empty, but shouldn't be.", e);
+    } catch (DistributionSumNotOneException e) {
+      throw new IllegalStateException("Distribution's sum is not 1, but should be.", e);
     }
   }
 

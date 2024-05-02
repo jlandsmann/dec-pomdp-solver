@@ -6,6 +6,14 @@ import java.util.stream.Stream;
 public class Vector<T> implements Iterable<T> {
   private final List<T> values;
 
+  public static <U> Vector<U> of(U ...items) {
+    return of(List.of(items));
+  }
+
+  public static <U> Vector<U> of(SequencedCollection<U> items) {
+    return new Vector<>(items);
+  }
+
   public Vector(T[] values) {
     this(Arrays.asList(values));
   }

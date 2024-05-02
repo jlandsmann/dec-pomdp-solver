@@ -6,7 +6,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class DecPOMDP<AGENT extends Agent> {
@@ -45,28 +48,32 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return agents;
   }
 
-  public Distribution<State> getTransition(Distribution<State> currentState, Vector<Action> agentActions) {
-    Map<Distribution<State>, Double> probabilities = new HashMap<>();
-    for (State state : currentState.keySet()) {
-      var probability = currentState.getProbability(state);
-      var nextState = getTransition(state, agentActions);
-      probabilities.put(nextState, probability);
-    }
-    return Distribution.createWeightedDistribution(probabilities);
+  public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+    Map<Distribution<State>, Double> map = currentBeliefState.entrySet().stream()
+      .map(entry -> {
+        var state = entry.getKey();
+        var probability = entry.getValue();
+        var distribution = getTransition(state, agentActions);
+        return Map.entry(distribution, probability);
+      })
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return Distribution.createWeightedDistribution(map);
   }
 
   public Distribution<State> getTransition(State currentState, Vector<Action> agentActions) {
     return transitionFunction.get(currentState).get(agentActions);
   }
 
-  public double getReward(Distribution<State> currentState, Vector<Action> agentActions) {
-    var reward = 0D;
-    for (State state : currentState.keySet()) {
-      var probability = currentState.getProbability(state);
-      var rewardForState = getReward(state, agentActions);
-      reward += probability * rewardForState;
-    }
-    return reward;
+  public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+    return currentBeliefState.entrySet().stream()
+      .map(entry -> {
+        var state = entry.getKey();
+        var probability = entry.getValue();
+        var reward = getReward(state, agentActions);
+        return probability * reward;
+      })
+      .reduce(Double::sum)
+      .orElse(0D);
   }
 
   public double getReward(State currentState, Vector<Action> agentActions) {
@@ -113,7 +120,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
       getAgents(),
       getStates(),
       getDiscountFactor(),
-      transitionFunction, 
+      transitionFunction,
       rewardFunction,
       observationFunction);
   }
