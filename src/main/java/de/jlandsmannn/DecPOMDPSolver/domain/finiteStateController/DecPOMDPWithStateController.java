@@ -19,7 +19,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new HashMap<>();
 
   public DecPOMDPWithStateController(List<AgentWithStateController> agents,
-                                     Set<State> states,
+                                     List<State> states,
                                      double discountFactor,
                                      Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                                      Map<State, Map<Vector<Action>, Double>> rewardFunction,
@@ -56,7 +56,12 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
     return preCalculatedValuesForState.getOrDefault(nodes, 0D);
   }
 
-  private double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
+  public void setValue(State state, Vector<Node> nodes, double value) {
+    preCalculatedValueFunction.putIfAbsent(state, new HashMap<>());
+    preCalculatedValueFunction.get(state).put(nodes, value);
+  }
+
+  public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
     var probability = 0D;
     for (int i = 0; i < actions.size(); i++) {
       var agent = agents.get(i);
@@ -67,13 +72,13 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
     return probability;
   }
 
-  private double getStateTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
+  public double getStateTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
     var stateProbability = getTransition(state, actions).getProbability(newState);
     var observationProbability = getObservations(actions, newState).getProbability(observations);
     return stateProbability * observationProbability;
   }
 
-  private double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
+  public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
     var probability = 0D;
     for (int i = 0; i < nodes.size(); i++) {
       var agent = agents.get(i);

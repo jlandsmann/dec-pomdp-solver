@@ -6,23 +6,20 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class DecPOMDP<AGENT extends Agent> {
   protected final int agentCount;
   protected final int stateCount;
   protected final List<AGENT> agents;
-  protected final Set<State> states;
+  protected final List<State> states;
   protected final double discountFactor;
   private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
 
-  public DecPOMDP(List<AGENT> agents, Set<State> states, double discountFactor,
+  public DecPOMDP(List<AGENT> agents, List<State> states, double discountFactor,
                   Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                   Map<State, Map<Vector<Action>, Double>> rewardFunction,
                   Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
@@ -40,7 +37,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     validateObservationFunction();
   }
 
-  public Set<State> getStates() {
+  public List<State> getStates() {
     return states;
   }
 

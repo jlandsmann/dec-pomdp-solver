@@ -12,18 +12,18 @@ import java.util.Map;
 import java.util.Set;
 
 public class FiniteStateController {
-  protected final Set<Node> nodes;
+  protected final List<Node> nodes;
   protected final Map<Node, Distribution<Action>> actionFunction;
   protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
 
-  public FiniteStateController(Set<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
+  public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
     this.nodes = nodes;
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;
   }
 
   public List<Node> getNodes() {
-    return List.copyOf(nodes);
+    return nodes;
   }
 
   public Distribution<Action> getAction(Node q) {
@@ -39,6 +39,7 @@ public class FiniteStateController {
   }
 
   public void addNode(Node node, Distribution<Action> action) {
+    nodes.remove(node);
     nodes.add(node);
     actionFunction.put(node, action);
   }

@@ -1,6 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
-import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
+import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.exceptions.SolvingFailedException;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.LU;
 import org.ojalgo.matrix.store.MatrixStore;

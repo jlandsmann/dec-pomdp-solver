@@ -1,6 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
-import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
+import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.exceptions.SolvingFailedException;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 

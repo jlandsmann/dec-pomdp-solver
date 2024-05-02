@@ -10,7 +10,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmpty
 import java.util.*;
 
 public class FiniteStateControllerBuilder {
-  private final Set<Node> nodes = new HashSet<>();
+  private final List<Node> nodes = new ArrayList<>();
   private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
   private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
 
@@ -32,11 +32,13 @@ public class FiniteStateControllerBuilder {
   }
 
   public FiniteStateControllerBuilder addNode(Node node) {
+    this.nodes.remove(node);
     this.nodes.add(node);
     return this;
   }
 
   public FiniteStateControllerBuilder addNodes(Collection<Node> nodes) {
+    this.nodes.removeAll(nodes);
     this.nodes.addAll(nodes);
     return this;
   }

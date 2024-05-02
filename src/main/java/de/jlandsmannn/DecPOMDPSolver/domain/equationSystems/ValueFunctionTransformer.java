@@ -5,9 +5,11 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 
 public interface ValueFunctionTransformer<DECPOMDP extends DecPOMDP<? extends Agent>, MATRIX> {
 
-  MATRIX getMatrixFromDecPOMDP(DECPOMDP decPOMDP);
+  void setDecPOMDP(DECPOMDP decPOMDP);
 
-  MATRIX getVectorFromDecPOMDP(DECPOMDP decPOMDP);
+  MATRIX getMatrixFromDecPOMDP();
 
-  void applyValuesToDecPOMDP(DECPOMDP decPOMDP, MATRIX values);
+  MATRIX getVectorFromDecPOMDP();
+
+  void applyValuesToDecPOMDP(MATRIX values);
 }

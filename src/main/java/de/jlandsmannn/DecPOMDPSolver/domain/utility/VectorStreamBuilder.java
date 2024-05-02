@@ -43,6 +43,7 @@ public class VectorStreamBuilder<T> {
     AtomicLong idx = new AtomicLong();
     return Stream
       .generate(() -> iterate(idx.getAndIncrement()))
+      .sequential()
       .limit(numberOfCombinations);
   }
 

@@ -2,11 +2,13 @@ package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionEvaluater;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -21,6 +23,13 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected Set<Distribution<State>> beliefPoints;
   protected int controllerHash = 0;
   protected int currentIteration = 0;
+
+  protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> evaluater;
+
+  @Autowired
+  public HeuristicPolicyIterationSolver(ValueFunctionEvaluater<DecPOMDPWithStateController, ?> evaluater) {
+    this.evaluater = evaluater;
+  }
 
   public HeuristicPolicyIterationSolver setNumberOfBeliefPoints(int numberOfBeliefPoints) {
     this.numberOfBeliefPoints = numberOfBeliefPoints;
@@ -57,6 +66,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void evaluateValueFunction() {
     LOG.info("Evaluating the value function.");
+    evaluater.evaluateValueFunction(decPOMDP);
   }
 
   protected void performExhaustiveBackup() {

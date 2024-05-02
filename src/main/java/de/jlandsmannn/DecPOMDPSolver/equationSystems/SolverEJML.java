@@ -1,6 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
-import de.jlandsmannn.DecPOMDPSolver.equationSystems.exceptions.SolvingFailedException;
+import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.exceptions.SolvingFailedException;
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.data.Matrix;
 import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;

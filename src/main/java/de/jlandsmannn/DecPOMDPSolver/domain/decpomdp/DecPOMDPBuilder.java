@@ -15,7 +15,7 @@ import java.util.*;
 public class DecPOMDPBuilder {
   private final Logger logger = LoggerFactory.getLogger(DecPOMDPBuilder.class);
   private final List<AgentWithStateController> agents = new ArrayList<>();
-  private final Set<State> states = new HashSet<>();
+  private final List<State> states = new ArrayList<>();
   private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction = new HashMap<>();
   private final Map<State, Map<Vector<Action>, Double>> rewardFunction = new HashMap<>();
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction = new HashMap<>();
@@ -29,6 +29,7 @@ public class DecPOMDPBuilder {
 
   public DecPOMDPBuilder addState(String stateString) {
     var state = new State(stateString);
+    this.states.remove(state);
     this.states.add(state);
     return this;
   }
