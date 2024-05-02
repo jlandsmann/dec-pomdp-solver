@@ -3,7 +3,7 @@
     <module name="Dec-POMDP-Solver" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="de.jlandsmannn.DecPOMDPSolver.domain.utility.*" />
+        <option name="PATTERN" value="de.jlandsmannn.DecPOMDPSolver.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class OJAValueFunctionTransformer implements ValueFunctionTransformer<DecPOMDPWithStateController, MatrixStore<Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJAValueFunctionTransformer.class);
-  private final LocalValidatorFactoryBean defaultValidator;
 
   private DecPOMDPWithStateController decPOMDP;
   private long stateCount;
@@ -30,10 +29,6 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
   private List<Vector<Node>> nodeCombinations;
   private List<Vector<Action>> actionCombinations;
   private List<Vector<Observation>> observationsCombinations;
-
-  public OJAValueFunctionTransformer(LocalValidatorFactoryBean defaultValidator) {
-    this.defaultValidator = defaultValidator;
-  }
 
   @Override
   public void setDecPOMDP(DecPOMDPWithStateController decPOMDP) {

@@ -22,40 +22,40 @@ class VectorTest {
     }
 
     @Test
-    void getShouldReturnCorrectElementFromOriginalCollection() {
+    void get_ShouldReturnCorrectElementFromOriginalCollection() {
         var actual = vector.get(1);
         var expected = 2;
         assertEquals(expected, actual);
     }
 
     @Test
-    void sizeShouldReturnTheSizeOfTheOriginalCollection() {
+    void size_ShouldReturnTheSizeOfTheOriginalCollection() {
         var actual = vector.size();
         var expected = 4;
         assertEquals(expected, actual);
     }
 
     @Test
-    void equalsShouldReturnTrueForSameObject() {
+    void equals_ShouldReturnTrueForSameObject() {
         assertEquals(vector, vector);
     }
 
     @Test
-    void equalsShouldReturnTrueForVectorWithSameElementsInSameOrder() {
+    void equals_ShouldReturnTrueForVectorWithSameElementsInSameOrder() {
         var vector1 = new Vector<>(originalCollection);
         var vector2 = new Vector<>(originalCollection);
         assertEquals(vector1, vector2);
     }
 
     @Test
-    void equalsShouldReturnFalseForVectorWithSameElementsInDifferentOrder() {
+    void equals_ShouldReturnFalseForVectorWithSameElementsInDifferentOrder() {
         var vector1 = new Vector<>(originalCollection);
         var vector2 = new Vector<>(originalCollection.reversed());
         assertNotEquals(vector1, vector2);
     }
 
     @Test
-    void toStringShouldConcatenateItsValues() {
+    void toString_ShouldConcatenateItsValues() {
         var actual = vector.toString();
         for (int i = 0; i < vector.size(); i++) {
             assertTrue(actual.contains(vector.get(i).toString()));
@@ -63,7 +63,7 @@ class VectorTest {
     }
 
     @Test
-    void hashCodeShouldBeEqualForVectorWithSameElementsInSameOrder() {
+    void hashCode_ShouldBeEqualForVectorWithSameElementsInSameOrder() {
         var vector1 = new Vector<>(originalCollection);
         var vector2 = new Vector<>(originalCollection);
         assertEquals(vector1.hashCode(), vector2.hashCode());
@@ -71,7 +71,7 @@ class VectorTest {
     }
 
     @Test
-    void hashCodeShouldNotBeEqualForVectorWithSameElementsInDifferentOrder() {
+    void hashCode_ShouldNotBeEqualForVectorWithSameElementsInDifferentOrder() {
         var vector1 = new Vector<>(originalCollection);
         var vector2 = new Vector<>(originalCollection.reversed());
         assertNotEquals(vector1.hashCode(), vector2.hashCode());

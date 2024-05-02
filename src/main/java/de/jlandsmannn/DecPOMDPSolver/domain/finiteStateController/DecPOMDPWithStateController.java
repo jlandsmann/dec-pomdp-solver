@@ -77,13 +77,14 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
     var probability = 1D;
-    for (int i = 0; i < nodes.size(); i++) {
+    for (int i = 0; i < nodes.size() && probability != 0; i++) {
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
       var observation = observations.get(i);
       var newNode = newNodes.get(i);
-      probability *= agent.getTransition(node, action, observation).getProbability(newNode);
+      var transition = agent.getTransition(node, action, observation);
+      probability *= transition == null ? 0 : transition.getProbability(newNode);
     }
     return probability;
   }

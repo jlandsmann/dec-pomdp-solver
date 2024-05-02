@@ -53,21 +53,21 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void getNodesShouldReturnAllNodes() {
+  void getNodes_ShouldReturnAllNodes() {
     var actual = finiteStateController.getNodes();
     assertTrue(nodes.containsAll(actual));
     assertTrue(actual.containsAll(nodes));
   }
 
   @Test
-  void getActionShouldReturnActionDistributionBasedOnGivenNode() {
+  void getAction_ShouldReturnActionDistributionBasedOnGivenNode() {
     var actual = finiteStateController.getAction(new Node("N1"));
     var expected = Distribution.createUniformDistribution(actions);
     assertEquals(expected, actual);
   }
 
   @Test
-  void getFollowNodeShouldReturnStateDistributionBasedOnGivenTransition() {
+  void getFollowNode_ShouldReturnStateDistributionBasedOnGivenTransition() {
     var node = new Node("N1");
     var action = new Action("A1");
     var observation = new Observation("O1");
@@ -77,7 +77,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void addNodeShouldAddNodeAndActionDistribution() {
+  void addNode_ShouldAddNodeAndActionDistribution() {
     var newNode = new Node("NN1");
     var actionDistribution = Distribution.createUniformDistribution(actions);
     finiteStateController.addNode(newNode, actionDistribution);
@@ -91,7 +91,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void addNodeShouldCreateSingleEntryDistributionIfSingleActionGiven() {
+  void addNode_ShouldCreateSingleEntryDistributionIfSingleActionGiven() {
     var newNode = new Node("NN1");
     var action = new Action("A1");
     finiteStateController.addNode(newNode, action);
@@ -106,7 +106,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void addTransitionShouldUpdateFollowNodeFunction() {
+  void addTransition_ShouldUpdateFollowNodeFunction() {
     var newNode = new Node("NN1");
     var action = new Action("A1");
     var observation = new Observation("O1");
@@ -118,7 +118,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void addTransitionShouldCreateSingleEntryDistributionIfSingleNodeGiven() {
+  void addTransition_ShouldCreateSingleEntryDistributionIfSingleNodeGiven() {
     var newNode = new Node("NN1");
     var action = new Action("A1");
     var observation = new Observation("O1");
@@ -131,7 +131,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void pruneNodeShouldRemoveAllOccurrencesOfNode() {
+  void pruneNode_ShouldRemoveAllOccurrencesOfNode() {
     var nodeToPrune = new Node("N1");
     var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
     finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
@@ -152,7 +152,7 @@ class FiniteStateControllerTest {
   }
 
   @Test
-  void pruneNodeShouldReplaceNodeWithDistribution() {
+  void pruneNode_ShouldReplaceNodeWithDistribution() {
     var nodeToPrune = new Node("N1");
     var nodeN2 = new Node("N2");
     var nodeN3 = new Node("N3");

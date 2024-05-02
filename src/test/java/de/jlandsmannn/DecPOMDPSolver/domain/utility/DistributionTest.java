@@ -35,7 +35,7 @@ class DistributionTest {
 
   @ParameterizedTest()
   @ValueSource(ints = {1,2,3,4,5,6,7,8,9,10})
-  void createUniformDistributionShouldGiveAllItemsSameProbability(int numberOfItems) {
+  void createUniformDistribution_ShouldGiveAllItemsSameProbability(int numberOfItems) {
     var inputSet = IntStream.range(0, numberOfItems).boxed().collect(Collectors.toSet());
     var distribution = Distribution.createUniformDistribution(inputSet);
     var expectedProbability = 1D / numberOfItems;
@@ -47,7 +47,7 @@ class DistributionTest {
   }
 
   @Test
-  void createSingleEntryDistributionShouldCreateDistributionWithOneEntryAndProbability1() {
+  void createSingleEntryDistribution_ShouldCreateDistributionWithOneEntryAndProbability1() {
     var distribution2 = Distribution.createSingleEntryDistribution(1);
     var actualSize = distribution2.size();
     var actualProbability = distribution2.getProbability(1);
@@ -57,7 +57,23 @@ class DistributionTest {
   }
 
   @Test
-  void sizeShouldReturnNumberOfEntries() {
+  void createWeightedDistribution_ShouldReturnDistributionWithWeightedProbabilities() {
+    var sourceDistribution1 = new Distribution<>(Map.of("A", 0.2, "B", 0.1, "C", 0.7));
+    var sourceDistribution2 = new Distribution<>(Map.of("A", 0.3, "B", 0.2, "D", 0.5));
+    var weightedDistribution = Distribution.createWeightedDistribution(Map.of(sourceDistribution1, 0.55, sourceDistribution2, 0.45));
+
+    var expectedProbabilityA = 0.2 * 0.55 + 0.3 * 0.45;
+    var expectedProbabilityB = 0.1 * 0.55 + 0.2 * 0.45;
+    var expectedProbabilityC = 0.7 * 0.55 + 0.0 * 0.45;
+    var expectedProbabilityD = 0.0 * 0.55 + 0.5 * 0.45;
+    assertEquals(expectedProbabilityA, weightedDistribution.getProbability("A"));
+    assertEquals(expectedProbabilityB, weightedDistribution.getProbability("B"));
+    assertEquals(expectedProbabilityC, weightedDistribution.getProbability("C"));
+    assertEquals(expectedProbabilityD, weightedDistribution.getProbability("D"));
+  }
+
+  @Test
+  void size_ShouldReturnNumberOfEntries() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -71,7 +87,7 @@ class DistributionTest {
   }
 
   @Test
-  void getMaxShouldReturnKeyWithGreatestProbability() {
+  void getMax_ShouldReturnKeyWithGreatestProbability() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -85,7 +101,7 @@ class DistributionTest {
   }
 
   @Test
-  void keySet() {
+  void keySet_ShouldReturnSetOfKeys() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -99,7 +115,7 @@ class DistributionTest {
   }
 
   @Test
-  void entrySetShouldReturnAllEntries() {
+  void entrySet_ShouldReturnAllEntries() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -116,7 +132,7 @@ class DistributionTest {
   }
 
   @Test
-  void getProbabilityShouldReturnProbabilityOfExistingEntry() {
+  void getProbability_ShouldReturnProbabilityOfExistingEntry() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -137,7 +153,7 @@ class DistributionTest {
   }
 
   @Test
-  void getProbabilityShouldReturn0IfElementDoesNotExist() {
+  void getProbability_ShouldReturn0IfElementDoesNotExist() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -149,8 +165,8 @@ class DistributionTest {
     assertEquals(0D, actual);
   }
 
-  @RepeatedTest(5)
-  void getRandomShouldReturnWeightedRandomElement() {
+  @RepeatedTest(value = 5, failureThreshold = 1)
+  void getRandom_ShouldReturnWeightedRandomElement() {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -178,7 +194,7 @@ class DistributionTest {
   }
 
   @Test
-  void replaceEntryWithDistributionShouldEndUpWithSumOfProbabilitiesOf1() throws DistributionSumNotOneException, DistributionEmptyException {
+  void replaceEntryWithDistribution_ShouldEndUpWithSumOfProbabilitiesOf1() throws DistributionSumNotOneException, DistributionEmptyException {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,
@@ -196,7 +212,7 @@ class DistributionTest {
   }
 
   @Test
-  void replaceEntryWithDistributionShouldDivideProbabilityToNewDistribution() throws DistributionSumNotOneException, DistributionEmptyException {
+  void replaceEntryWithDistribution_ShouldDivideProbabilityToNewDistribution() throws DistributionSumNotOneException, DistributionEmptyException {
     var distribution = new Distribution<>(Map.of(
       "A", 0.1D,
       "B", 0.2D,

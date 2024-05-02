@@ -9,7 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import java.util.List;
 import java.util.Map;
 
-class TestDecPOMDP extends DecPOMDP<TestAgent> {
+public class TestDecPOMDP extends DecPOMDP<TestAgent> {
 
   public TestDecPOMDP(List<TestAgent> testAgents, List<State> states, double discountFactor, Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
     super(testAgents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
