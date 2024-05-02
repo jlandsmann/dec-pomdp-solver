@@ -17,12 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-public class OJATransformer implements ValueFunctionTransformer<DecPOMDPWithStateController, MatrixStore<Double>> {
-  private static final Logger LOG = LoggerFactory.getLogger(OJATransformer.class);
+public class OJAValueFunctionTransformer implements ValueFunctionTransformer<DecPOMDPWithStateController, MatrixStore<Double>> {
+  private static final Logger LOG = LoggerFactory.getLogger(OJAValueFunctionTransformer.class);
   private final LocalValidatorFactoryBean defaultValidator;
 
   private DecPOMDPWithStateController decPOMDP;
@@ -32,7 +31,7 @@ public class OJATransformer implements ValueFunctionTransformer<DecPOMDPWithStat
   private List<Vector<Action>> actionCombinations;
   private List<Vector<Observation>> observationsCombinations;
 
-  public OJATransformer(LocalValidatorFactoryBean defaultValidator) {
+  public OJAValueFunctionTransformer(LocalValidatorFactoryBean defaultValidator) {
     this.defaultValidator = defaultValidator;
   }
 
