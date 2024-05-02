@@ -9,10 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
@@ -62,12 +59,12 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
-    var probability = 0D;
+    var probability = 1D;
     for (int i = 0; i < actions.size(); i++) {
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
-      probability += agent.getAction(node).getProbability(action);
+      probability *= agent.getAction(node).getProbability(action);
     }
     return probability;
   }
@@ -79,15 +76,28 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
-    var probability = 0D;
+    var probability = 1D;
     for (int i = 0; i < nodes.size(); i++) {
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
       var observation = observations.get(i);
       var newNode = newNodes.get(i);
-      probability += agent.getTransition(node, action, observation).getProbability(newNode);
+      probability *= agent.getTransition(node, action, observation).getProbability(newNode);
     }
     return probability;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DecPOMDPWithStateController that)) return false;
+    if (!super.equals(o)) return false;
+    return Objects.equals(preCalculatedValueFunction, that.preCalculatedValueFunction);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), preCalculatedValueFunction);
   }
 }

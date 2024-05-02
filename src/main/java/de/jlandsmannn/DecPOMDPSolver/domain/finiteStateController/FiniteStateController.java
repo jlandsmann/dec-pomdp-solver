@@ -6,10 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.springframework.util.SerializationUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class FiniteStateController {
   protected final List<Node> nodes;
@@ -87,5 +84,19 @@ public class FiniteStateController {
         }
       }
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof FiniteStateController that)) return false;
+    return Objects.equals(getNodes(), that.getNodes())
+      && Objects.equals(actionFunction, that.actionFunction)
+      && Objects.equals(transitionFunction, that.transitionFunction);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getNodes(), actionFunction, transitionFunction);
   }
 }

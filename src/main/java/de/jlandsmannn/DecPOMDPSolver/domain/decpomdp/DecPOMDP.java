@@ -95,6 +95,29 @@ public abstract class DecPOMDP<AGENT extends Agent> {
 
   public abstract double getValue(Distribution<State> beliefSate);
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DecPOMDP<?> decPOMDP)) return false;
+    return Double.compare(getDiscountFactor(), decPOMDP.getDiscountFactor()) == 0
+      && Objects.equals(getAgents(), decPOMDP.getAgents())
+      && Objects.equals(getStates(), decPOMDP.getStates())
+      && Objects.equals(transitionFunction, decPOMDP.transitionFunction)
+      && Objects.equals(rewardFunction, decPOMDP.rewardFunction)
+      && Objects.equals(observationFunction, decPOMDP.observationFunction);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+      getAgents(),
+      getStates(),
+      getDiscountFactor(),
+      transitionFunction, 
+      rewardFunction,
+      observationFunction);
+  }
+
   private void validateDiscountFactor(double discountFactor) {
     if (discountFactor <= 0 || 1 <= discountFactor) {
       throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1");

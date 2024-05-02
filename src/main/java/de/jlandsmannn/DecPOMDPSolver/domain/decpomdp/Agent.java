@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Agent {
@@ -33,10 +34,16 @@ public abstract class Agent {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Agent) {
-      return name.equals(((Agent) obj).name) && actions.equals(((Agent) obj).actions) && observations.equals(((Agent) obj).observations);
-    }
-    return super.equals(obj);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Agent agent)) return false;
+    return Objects.equals(getName(), agent.getName())
+      && Objects.equals(getActions(), agent.getActions())
+      && Objects.equals(getObservations(), agent.getObservations());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getActions(), getObservations());
   }
 }

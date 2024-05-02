@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -45,5 +46,18 @@ public class AgentWithStateController extends Agent {
 
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node newNode) {
     return controller.getFollowNode(node, action, observation).getProbability(newNode);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AgentWithStateController that)) return false;
+    if (!super.equals(o)) return false;
+    return Objects.equals(controller, that.controller);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), controller);
   }
 }
