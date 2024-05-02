@@ -83,13 +83,15 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected boolean hasControllerHashChanged() {
     boolean controllerHashChanged = controllerHash != decPOMDP.hashCode();
-    LOG.info("Controller hash changed: {}", controllerHashChanged);
+    LOG.debug("Controller hash changed: {}", controllerHashChanged);
     return controllerHashChanged;
   }
 
   protected boolean isIterationLimitReached() {
     boolean hasIterationLimit = maxIterations != 0;
-    boolean isIterationLimitReached = maxIterations >= currentIteration;
+    boolean isIterationLimitReached = maxIterations <= currentIteration;
+    LOG.debug("Iteration limit enabled: {}", hasIterationLimit);
+    LOG.debug("Iteration limit reached: {}", isIterationLimitReached);
     return hasIterationLimit && isIterationLimitReached;
   }
 }

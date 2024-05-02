@@ -75,7 +75,7 @@ public class OJATransformer implements ValueFunctionTransformer<DecPOMDPWithStat
       }
     }
 
-    LOG.info("Retrieved matrix from DecPOMDP: " + matrixBuilder.get());
+    LOG.debug("Retrieved matrix from DecPOMDP: " + matrixBuilder.get());
     return matrixBuilder.get();
   }
 
@@ -90,7 +90,7 @@ public class OJATransformer implements ValueFunctionTransformer<DecPOMDPWithStat
         matrixBuilder.set(index.getAndAdd(1), 0, -reward);
       }
     }
-    LOG.info("Retrieved reward vector from DecPOMDP: " + matrixBuilder.get());
+    LOG.debug("Retrieved reward vector from DecPOMDP: " + matrixBuilder.get());
     return matrixBuilder.get();
   }
 
@@ -102,7 +102,7 @@ public class OJATransformer implements ValueFunctionTransformer<DecPOMDPWithStat
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : nodeCombinations) {
         var value = values.get(index.getAndAdd(1), 0);
-        LOG.info("Value for state {} and nodes {} is {}", state, nodeVector, value);
+        LOG.info("Value for state {} and node vector {} is {}", state, nodeVector.hashCode(), value);
         decPOMDP.setValue(state, nodeVector, value);
       }
     }
