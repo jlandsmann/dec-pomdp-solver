@@ -7,7 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,6 +28,10 @@ public class AgentWithStateController extends Agent {
     return new AgentWithStateController(name, actions, observations, controller);
   }
 
+  public long getControllerNodeIndex() {
+    return controller.getNodeIndex();
+  }
+
   public List<Node> getControllerNodes() {
     return controller.getNodes();
   }
@@ -46,6 +50,14 @@ public class AgentWithStateController extends Agent {
 
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node newNode) {
     return controller.getFollowNode(node, action, observation).getProbability(newNode);
+  }
+
+  public void addNode(Node node, Distribution<Action> actionDistribution) {
+    controller.addNode(node, actionDistribution);
+  }
+
+  public void addTransition(Node node, Action action, Observation observation, Distribution<Node> newNode) {
+    controller.addTransition(node, action, observation, newNode);
   }
 
   public void pruneNode(Node node, Distribution<Node> nodesToReplace) {

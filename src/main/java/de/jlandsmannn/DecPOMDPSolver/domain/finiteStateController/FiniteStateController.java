@@ -9,18 +9,24 @@ import org.springframework.util.SerializationUtils;
 import java.util.*;
 
 public class FiniteStateController {
+  protected long nodeIndex;
   protected final List<Node> nodes;
   protected final Map<Node, Distribution<Action>> actionFunction;
   protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
 
   public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
     this.nodes = nodes;
+    this.nodeIndex = nodes.size();
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;
   }
 
   public List<Node> getNodes() {
     return nodes;
+  }
+
+  public long getNodeIndex() {
+    return nodeIndex;
   }
 
   public Distribution<Action> getAction(Node q) {
@@ -36,8 +42,11 @@ public class FiniteStateController {
   }
 
   public void addNode(Node node, Distribution<Action> action) {
-    nodes.remove(node);
+    if (nodes.contains(node)) {
+      throw new IllegalStateException("Node " + node + " already exists");
+    }
     nodes.add(node);
+    nodeIndex++;
     actionFunction.put(node, action);
   }
 
@@ -46,6 +55,9 @@ public class FiniteStateController {
   }
 
   public void addTransition(Node node, Action a, Observation o, Distribution<Node> transition) {
+    if (!nodes.contains(node)) {
+      throw new IllegalStateException("Node " + node + " does not exist.");
+    }
     transitionFunction.putIfAbsent(node, new HashMap<>());
     transitionFunction.get(node).putIfAbsent(a, new HashMap<>());
     transitionFunction.get(node).get(a).put(o, transition);

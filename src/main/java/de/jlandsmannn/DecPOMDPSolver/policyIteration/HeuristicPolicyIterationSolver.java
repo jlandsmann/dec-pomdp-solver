@@ -30,12 +30,17 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int currentIteration = 0;
 
   protected final BeliefPointGenerator beliefPointGenerator;
+  protected final ExhaustiveBackupPerformer exhaustiveBackupPerformer;
   protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater;
   protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
 
   @Autowired
-  public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator, ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater, CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
+  public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator,
+                                        ExhaustiveBackupPerformer exhaustiveBackupPerformer,
+                                        ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater,
+                                        CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
     this.beliefPointGenerator = beliefPointGenerator;
+    this.exhaustiveBackupPerformer = exhaustiveBackupPerformer;
     this.valueFunctionEvaluater = valueFunctionEvaluater;
     this.combinatorialNodePruner = combinatorialNodePruner;
   }
@@ -91,6 +96,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void performExhaustiveBackup() {
     LOG.info("Performing exhaustive backup.");
+    exhaustiveBackupPerformer.performExhaustiveBackup(decPOMDP);
   }
 
   protected void retainDominatingNodes() {
