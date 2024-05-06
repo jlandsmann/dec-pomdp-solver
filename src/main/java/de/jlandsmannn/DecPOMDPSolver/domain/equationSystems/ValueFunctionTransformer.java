@@ -7,6 +7,10 @@ public interface ValueFunctionTransformer<DECPOMDP extends DecPOMDP<? extends Ag
 
   void setDecPOMDP(DECPOMDP decPOMDP);
 
+  long getNumberOfEquations();
+
+  long getNumberOfVariables();
+
   MATRIX getMatrixFromDecPOMDP();
 
   MATRIX getVectorFromDecPOMDP();

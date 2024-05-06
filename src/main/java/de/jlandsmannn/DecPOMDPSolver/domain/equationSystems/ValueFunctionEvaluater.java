@@ -18,9 +18,17 @@ public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRI
 
   public void evaluateValueFunction(DECPOMDP decPOMDP) {
     transformer.setDecPOMDP(decPOMDP);
-    solver.setMatrix(transformer.getMatrixFromDecPOMDP());
-    solver.setVector(transformer.getVectorFromDecPOMDP());
-    var result = solver.solve().orElseThrow(SolvingFailedException::new);
+    var numberOfEquations = transformer.getNumberOfEquations();
+    var numberOfVariables = transformer.getNumberOfVariables();
+    var matrix = transformer.getMatrixFromDecPOMDP();
+    var vector = transformer.getVectorFromDecPOMDP();
+    var result = solver
+      .setDimensions(numberOfEquations, numberOfVariables)
+      .setMatrix(matrix)
+      .setVector(vector)
+      .solve()
+      .orElseThrow(SolvingFailedException::new)
+    ;
     transformer.applyValuesToDecPOMDP(result);
   }
 }

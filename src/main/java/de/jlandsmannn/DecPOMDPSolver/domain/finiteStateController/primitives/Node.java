@@ -3,6 +3,10 @@ package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives;
 import java.util.Objects;
 
 public record Node(String name) {
+  public static Node of(String name) {
+    return new Node(name);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof Node) {

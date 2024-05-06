@@ -51,17 +51,4 @@ public class AgentWithStateController extends Agent {
   public void pruneNode(Node node, Distribution<Node> nodesToReplace) {
     controller.pruneNode(node, nodesToReplace);
   }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof AgentWithStateController that)) return false;
-    if (!super.equals(o)) return false;
-    return Objects.equals(controller, that.controller);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), controller);
-  }
 }

@@ -14,7 +14,6 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -41,8 +40,16 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     var observationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
     this.observationsCombinations = VectorStreamBuilder.forEachCombination(observationsCombinations).toList();
 
-    this.stateCount = this.decPOMDP.getStates().size();
+    this.stateCount = decPOMDP.getStates().size();
     this.nodeCombinationCount = VectorStreamBuilder.forEachCombination(nodeCombinations).count();
+  }
+
+  public long getNumberOfEquations() {
+    return stateCount * nodeCombinationCount;
+  }
+
+  public long getNumberOfVariables() {
+    return stateCount * nodeCombinationCount;
   }
 
   @Override
@@ -68,8 +75,6 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         row.getAndAdd(1);
       }
     }
-
-    LOG.debug("Retrieved matrix from DecPOMDP: " + matrixBuilder.get());
     return matrixBuilder.get();
   }
 
@@ -84,7 +89,6 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         matrixBuilder.set(index.getAndAdd(1), 0, -reward);
       }
     }
-    LOG.debug("Retrieved reward vector from DecPOMDP: " + matrixBuilder.get());
     return matrixBuilder.get();
   }
 
@@ -96,7 +100,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : nodeCombinations) {
         var value = values.get(index.getAndAdd(1), 0);
-        LOG.info("Value for state {} and node vector {} is {}", state, nodeVector.hashCode(), value);
+        LOG.info("Value for state {} and node vector {} is {}", state, nodeVector, value);
         decPOMDP.setValue(state, nodeVector, value);
       }
     }

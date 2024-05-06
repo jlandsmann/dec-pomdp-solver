@@ -37,7 +37,6 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
     }
     LOG.info("Maximising linear program has feasible solution: {}", result);
     var mappedResults = getMapFromResults(result);
-    LOG.info("Results were mapped to their variable names: {}", mappedResults);
     return Optional.of(mappedResults);
   }
 
@@ -50,7 +49,6 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
     }
     LOG.info("Minimising linear program has feasible solution: {}", result);
     var mappedResults = getMapFromResults(result);
-    LOG.info("Results were mapped to their variable names: {}", mappedResults);
     return Optional.of(mappedResults);
   }
 

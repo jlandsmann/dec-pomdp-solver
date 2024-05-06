@@ -15,11 +15,11 @@ public class OJAEquationSystemSolver implements EquationSystemSolver<MatrixStore
   private static final Logger LOG = LoggerFactory.getLogger(OJAEquationSystemSolver.class);
   private MatrixStore<Double> matrix;
   private MatrixStore<Double> vector;
-  private int numberOfEquations = 0;
-  private int numberOfVariables = 0;
+  private long numberOfEquations = 0;
+  private long numberOfVariables = 0;
 
   @Override
-  public OJAEquationSystemSolver setDimensions(int numberOfEquations, int numberOfVariables) {
+  public OJAEquationSystemSolver setDimensions(long numberOfEquations, long numberOfVariables) {
     if (numberOfEquations <= 0 || numberOfVariables <= 0) {
       throw new IllegalArgumentException("Number of equations and variables must be greater than zero");
     }

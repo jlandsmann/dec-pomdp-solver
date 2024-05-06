@@ -64,7 +64,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     for (var beliefState : beliefPoints) {
       for (var nodeVector : nodeCombinations) {
         var expression = linearProgram.newExpression("b: " + beliefState.hashCode() + ", q-i: " + nodeVector.hashCode());
-        var nodeToCheckVector = rebuildVector(nodeVector, agentIndex, nodeToCheck);
+        var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         expression.lower(epsilon);
 
         for (var state : decPOMDP.getStates()) {
@@ -75,7 +75,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
           for (var node : agent.getControllerNodes()) {
             if (node.equals(nodeToCheck)) continue;
             var nodeVariable = linearProgram.getVariables().stream().filter(v -> v.getName().equals(node.name())).findFirst();
-            var vector = rebuildVector(nodeVector, agentIndex, node);
+            var vector = Vector.addEntry(nodeVector, agentIndex, node);
             var value = decPOMDP.getValue(state, vector);
             expression.add(nodeVariable.get(), stateProbability * value);
           }
@@ -83,7 +83,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
       }
     }
 
-    LOG.debug("Created linear program: {}", linearProgram);
+    LOG.debug("Created linear program.");
     return linearProgram;
   }
 
@@ -99,11 +99,5 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     }
     var distribution = Distribution.of(mappedResults);
     return Optional.of(distribution);
-  }
-
-  private <U> Vector<U> rebuildVector(Vector<U> vector, int index, U value) {
-    var list = new ArrayList<>(vector.stream().toList());
-    list.add(index, value);
-    return new Vector<>(list);
   }
 }

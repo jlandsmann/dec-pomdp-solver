@@ -5,7 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import java.util.Optional;
 
 public interface EquationSystemSolver<MATRIX> {
-  EquationSystemSolver<MATRIX> setDimensions(int numberOfEquations, int numberOfVariables);
+  EquationSystemSolver<MATRIX> setDimensions(long numberOfEquations, long numberOfVariables);
 
   EquationSystemSolver<MATRIX> setMatrix(MATRIX a);
 

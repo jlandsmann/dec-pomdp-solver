@@ -14,6 +14,12 @@ public class Vector<T> implements Iterable<T> {
     return new Vector<>(items);
   }
 
+  public static <U> Vector<U> addEntry(Vector<U> vector, int index, U value) {
+    var list = new ArrayList<>(vector.values);
+    list.add(index, value);
+    return new Vector<>(list);
+  }
+
   public Vector(T[] values) {
     this(Arrays.asList(values));
   }

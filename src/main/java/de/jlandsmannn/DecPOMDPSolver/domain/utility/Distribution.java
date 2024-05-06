@@ -27,6 +27,30 @@ public class Distribution<T> implements Iterable<T> {
     this.currentMax = calculateMax();
   }
 
+  public static <T> Distribution<T> createRandomDistribution(Set<T> entries) {
+    if (entries.size() == 1) {
+      return Distribution.createSingleEntryDistribution(entries.stream().findFirst().get());
+    } else if (entries.size() == 0) {
+      throw new IllegalArgumentException("Collection must not be empty");
+    }
+    try {
+      var random = new Random();
+      var probabilityLeft = 1D;
+      var distribution = entries.stream()
+        .map(e -> Map.entry(e, random.nextDouble(0D, probabilityLeft)))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      if (probabilityLeft > 0) {
+        var randomIndex = random.nextInt(entries.size() - 1);
+        var randomEntry = entries.stream().skip(randomIndex).findFirst().get();
+        var previousProbability = distribution.get(randomEntry);
+        distribution.put(randomEntry, previousProbability + probabilityLeft);
+      }
+      return new Distribution<>(distribution);
+    } catch (DistributionEmptyException | DistributionSumNotOneException e) {
+      throw new IllegalStateException("Sum of distributions not one", e);
+    }
+  }
+
   public static <T> Distribution<T> createUniformDistribution(Set<T> entries) {
     try {
       var distribution = entries.stream()

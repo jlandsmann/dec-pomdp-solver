@@ -4,12 +4,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionEvaluater;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruner;
-import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.linearPrograms.OJALinearProgramSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +29,13 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int controllerHash = 0;
   protected int currentIteration = 0;
 
+  protected final BeliefPointGenerator beliefPointGenerator;
   protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater;
   protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
 
   @Autowired
-  public HeuristicPolicyIterationSolver(ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater, CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
+  public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator, ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater, CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
+    this.beliefPointGenerator = beliefPointGenerator;
     this.valueFunctionEvaluater = valueFunctionEvaluater;
     this.combinatorialNodePruner = combinatorialNodePruner;
   }
@@ -53,6 +53,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   @Override
   public double solve() {
     LOG.info("Start solving DecPOMDP with heuristic policy iteration.");
+    currentIteration = 0;
     generateBeliefPoints();
     do {
       LOG.info("Starting iteration #{}", ++currentIteration);
@@ -66,11 +67,16 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   }
 
   protected void generateBeliefPoints() {
-    LOG.info("Generating {} belief points for guiding the pruning.", numberOfBeliefPoints);
+    LOG.info("Generating {} belief points for each agent to guide the pruning.", numberOfBeliefPoints);
+    beliefPointGenerator
+      .setDecPOMDP(decPOMDP)
+      .setInitialBeliefState(initialBeliefState)
+      .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
+      .generateRandomPolicies();
     for (var agent : decPOMDP.getAgents()) {
-      var collection = new HashSet<Distribution<State>>();
-      collection.add(initialBeliefState);
-      beliefPoints.put(agent, collection);
+      LOG.debug("Generating {} belief points for {} to guide the pruning.", numberOfBeliefPoints, agent);
+      var generateBeliefPointsForAgent = beliefPointGenerator.generateBeliefPointsForAgent(agent);
+      beliefPoints.put(agent, generateBeliefPointsForAgent);
     }
   }
 
@@ -93,9 +99,11 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void pruneCombinatorialDominatedNodes() {
     LOG.info("Pruning combinatorial dominated nodes.");
-    var agent = decPOMDP.getAgents().get(0);
-    var agentBeliefPoints = beliefPoints.get(agent);
-    combinatorialNodePruner.pruneNodesIfCombinatorialDominated(decPOMDP, agent, agentBeliefPoints);
+    for (var agent : decPOMDP.getAgents()) {
+      var agentBeliefPoints = beliefPoints.get(agent);
+      LOG.info("Pruning combinatorial dominated nodes for Agent {}.", agent);
+      combinatorialNodePruner.pruneNodesIfCombinatorialDominated(decPOMDP, agent, agentBeliefPoints);
+    }
   }
 
   protected boolean hasControllerHashChanged() {
