@@ -46,6 +46,14 @@ class DistributionTest {
     }
   }
 
+  @RepeatedTest(50)
+  void createRandomDistribution_ShouldReturnDistributionWithRandomProbabilities() {
+    var numberOfItems = 999;
+    var inputSet = IntStream.range(0, numberOfItems).boxed().collect(Collectors.toSet());
+    assertDoesNotThrow(() -> Distribution.createRandomDistribution(inputSet));
+
+  }
+
   @Test
   void createSingleEntryDistribution_ShouldCreateDistributionWithOneEntryAndProbability1() {
     var distribution2 = Distribution.createSingleEntryDistribution(1);

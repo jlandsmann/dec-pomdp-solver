@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNo
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Distribution<T> implements Iterable<T> {
@@ -27,7 +28,7 @@ public class Distribution<T> implements Iterable<T> {
     this.currentMax = calculateMax();
   }
 
-  public static <T> Distribution<T> createRandomDistribution(Set<T> entries) {
+  public static <T> Distribution<T> createRandomDistribution(Collection<T> entries) {
     if (entries.size() == 1) {
       return Distribution.createSingleEntryDistribution(entries.stream().findFirst().get());
     } else if (entries.size() == 0) {
@@ -35,15 +36,20 @@ public class Distribution<T> implements Iterable<T> {
     }
     try {
       var random = new Random();
-      var probabilityLeft = 1D;
+      AtomicReference<Double> probabilityLeft = new AtomicReference<>(1D);
       var distribution = entries.stream()
-        .map(e -> Map.entry(e, random.nextDouble(0D, probabilityLeft)))
+        .filter(e -> probabilityLeft.get() > 0D)
+        .map(e -> {
+          var probability = random.nextDouble(0D, probabilityLeft.get());
+          probabilityLeft.updateAndGet(v -> v - probability);
+          return Map.entry(e, probability);
+        })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      if (probabilityLeft > 0) {
+      if (probabilityLeft.get() > 0) {
         var randomIndex = random.nextInt(entries.size() - 1);
         var randomEntry = entries.stream().skip(randomIndex).findFirst().get();
         var previousProbability = distribution.get(randomEntry);
-        distribution.put(randomEntry, previousProbability + probabilityLeft);
+        distribution.put(randomEntry, previousProbability + probabilityLeft.get());
       }
       return new Distribution<>(distribution);
     } catch (DistributionEmptyException | DistributionSumNotOneException e) {

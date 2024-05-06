@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.equationSystems;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.exceptions.SolvingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.OJAEquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.equationSystems.OJAValueFunctionEvaluater;
@@ -18,10 +17,15 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ValueFunctionEvaluaterTest {
+
+  private final long numberOfEquations = 3;
+  private final long numberOfVariables = 3;
 
   @Mock
   private DecPOMDPWithStateController decPOMDP;
@@ -35,11 +39,21 @@ class ValueFunctionEvaluaterTest {
   @InjectMocks
   private OJAValueFunctionEvaluater valueFunctionEvaluater;
 
-  private MatrixStore<Double> randomMatrix = Primitive64Store.FACTORY.make(3,3);
+  private MatrixStore<Double> coefficientMatrix = Primitive64Store.FACTORY.make(numberOfEquations, numberOfVariables);
+  private MatrixStore<Double> rightHandVector = Primitive64Store.FACTORY.make(numberOfEquations, 1);
+  private MatrixStore<Double> resultVector = Primitive64Store.FACTORY.make(numberOfVariables, 1);
 
   @BeforeEach
   void setUp() {
-    when(solver.solve()).thenReturn(Optional.of(randomMatrix));
+    when(solver.setDimensions(anyLong(), anyLong())).thenReturn(solver);
+    when(solver.setMatrix(any())).thenReturn(solver);
+    when(solver.setVector(any())).thenReturn(solver);
+    when(solver.solve()).thenReturn(Optional.of(resultVector));
+
+    when(valueFunctionTransformer.getNumberOfEquations()).thenReturn(numberOfEquations);
+    when(valueFunctionTransformer.getNumberOfVariables()).thenReturn(numberOfVariables);
+    when(valueFunctionTransformer.getMatrixFromDecPOMDP()).thenReturn(coefficientMatrix);
+    when(valueFunctionTransformer.getVectorFromDecPOMDP()).thenReturn(rightHandVector);
   }
 
   @Test
@@ -63,13 +77,13 @@ class ValueFunctionEvaluaterTest {
   @Test
   void evaluateValueFunction_ShouldCallEvaluatorSetMatrix() {
     valueFunctionEvaluater.evaluateValueFunction(decPOMDP);
-    Mockito.verify(solver).setMatrix(null);
+    Mockito.verify(solver).setMatrix(coefficientMatrix);
   }
 
   @Test
   void evaluateValueFunction_ShouldCallEvaluatorSetVector() {
     valueFunctionEvaluater.evaluateValueFunction(decPOMDP);
-    Mockito.verify(solver).setVector(null);
+    Mockito.verify(solver).setVector(rightHandVector);
   }
 
   @Test
@@ -81,6 +95,6 @@ class ValueFunctionEvaluaterTest {
   @Test
   void evaluateValueFunction_ShouldCallTransformApplyValues() {
     valueFunctionEvaluater.evaluateValueFunction(decPOMDP);
-    Mockito.verify(valueFunctionTransformer).applyValuesToDecPOMDP(randomMatrix);
+    Mockito.verify(valueFunctionTransformer).applyValuesToDecPOMDP(resultVector);
   }
 }

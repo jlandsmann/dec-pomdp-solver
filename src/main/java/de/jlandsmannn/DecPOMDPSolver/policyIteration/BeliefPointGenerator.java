@@ -24,7 +24,7 @@ public class BeliefPointGenerator {
 
   private DecPOMDPWithStateController decPOMDP;
   private Distribution<State> initialBeliefState;
-  private Map<Agent, Map<State, Distribution<Action>>> randomPolicies = new HashMap<>();
+  private Map<Agent, Map<State, Distribution<Action>>> randomPolicies;
   private int numberOfBeliefPoints;
 
   public BeliefPointGenerator setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
@@ -46,7 +46,9 @@ public class BeliefPointGenerator {
   }
 
   public BeliefPointGenerator generateRandomPolicies() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate random policies.");
     LOG.info("Generating random policies for {} agents", decPOMDP.getAgents().size());
+    randomPolicies = new HashMap<>();
     for (var agent : decPOMDP.getAgents()) {
       var policy = generateRandomPolicy(agent);
       randomPolicies.put(agent, policy);
@@ -54,17 +56,10 @@ public class BeliefPointGenerator {
     return this;
   }
 
-  private Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
-    LOG.info("Generating random policies for {}", agent);
-    Map<State, Distribution<Action>> policy = new HashMap<>();
-    for (var state : decPOMDP.getStates()) {
-      var distribution = Distribution.createRandomDistribution(agent.getActions());
-      policy.put(state, distribution);
-    }
-    return policy;
-  }
-
   public Set<Distribution<State>> generateBeliefPointsForAgent(AgentWithStateController agent) {
+    if (decPOMDP == null || initialBeliefState == null || randomPolicies == null || numberOfBeliefPoints == 0) {
+      throw new IllegalStateException("DecPOMDP, initialBeliefState, randomPolicies and numberOfBeliefPoints must be set, to generate belief points for agents.");
+    }
     LOG.info("Generating {} belief points for {} starting from {}.", numberOfBeliefPoints, agent, initialBeliefState);
     var currentBeliefPoint = initialBeliefState;
     var collection = new HashSet<Distribution<State>>();
@@ -75,6 +70,16 @@ public class BeliefPointGenerator {
       currentBeliefPoint = generatedBeliefPoint;
     }
     return collection;
+  }
+
+  private Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
+    LOG.info("Generating random policies for {}", agent);
+    Map<State, Distribution<Action>> policy = new HashMap<>();
+    for (var state : decPOMDP.getStates()) {
+      var distribution = Distribution.createRandomDistribution(agent.getActions());
+      policy.put(state, distribution);
+    }
+    return policy;
   }
 
   private Distribution<State> generateBeliefPoint(AgentWithStateController agent, Distribution<State> currentBeliefPoint) {
