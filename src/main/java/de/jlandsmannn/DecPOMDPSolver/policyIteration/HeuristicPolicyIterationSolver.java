@@ -1,16 +1,23 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionEvaluater;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
+import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruner;
+import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.linearPrograms.OJALinearProgramSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -20,15 +27,17 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
 
-  protected Set<Distribution<State>> beliefPoints;
+  protected Map<Agent, Set<Distribution<State>>> beliefPoints = new HashMap<>();
   protected int controllerHash = 0;
   protected int currentIteration = 0;
 
-  protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> evaluater;
+  protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater;
+  protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
 
   @Autowired
-  public HeuristicPolicyIterationSolver(ValueFunctionEvaluater<DecPOMDPWithStateController, ?> evaluater) {
-    this.evaluater = evaluater;
+  public HeuristicPolicyIterationSolver(ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater, CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
+    this.valueFunctionEvaluater = valueFunctionEvaluater;
+    this.combinatorialNodePruner = combinatorialNodePruner;
   }
 
   public HeuristicPolicyIterationSolver setNumberOfBeliefPoints(int numberOfBeliefPoints) {
@@ -58,6 +67,11 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void generateBeliefPoints() {
     LOG.info("Generating {} belief points for guiding the pruning.", numberOfBeliefPoints);
+    for (var agent : decPOMDP.getAgents()) {
+      var collection = new HashSet<Distribution<State>>();
+      collection.add(initialBeliefState);
+      beliefPoints.put(agent, collection);
+    }
   }
 
   protected void saveControllerHash() {
@@ -66,7 +80,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void evaluateValueFunction() {
     LOG.info("Evaluating the value function.");
-    evaluater.evaluateValueFunction(decPOMDP);
+    valueFunctionEvaluater.evaluateValueFunction(decPOMDP);
   }
 
   protected void performExhaustiveBackup() {
@@ -79,6 +93,9 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void pruneCombinatorialDominatedNodes() {
     LOG.info("Pruning combinatorial dominated nodes.");
+    var agent = decPOMDP.getAgents().get(0);
+    var agentBeliefPoints = beliefPoints.get(agent);
+    combinatorialNodePruner.pruneNodesIfCombinatorialDominated(decPOMDP, agent, agentBeliefPoints);
   }
 
   protected boolean hasControllerHashChanged() {

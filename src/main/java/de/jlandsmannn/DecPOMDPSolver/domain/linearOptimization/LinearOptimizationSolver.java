@@ -1,7 +1,12 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization;
 
-public interface LinearOptimizationSolver {
-  void solve();
+import java.util.Optional;
 
-  <T> T getResult(String variable);
+public interface LinearOptimizationSolver<LP, RESULT> {
+
+  void setLinearProgram(LP linearProgram);
+
+  Optional<RESULT> maximise();
+
+  Optional<RESULT> minimise();
 }

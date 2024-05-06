@@ -48,6 +48,10 @@ public class AgentWithStateController extends Agent {
     return controller.getFollowNode(node, action, observation).getProbability(newNode);
   }
 
+  public void pruneNode(Node node, Distribution<Node> nodesToReplace) {
+    controller.pruneNode(node, nodesToReplace);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
