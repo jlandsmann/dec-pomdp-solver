@@ -28,9 +28,18 @@ public class DecPOMDPBuilder {
   }
 
   public DecPOMDPBuilder addState(String stateString) {
-    var state = new State(stateString);
+    this.addState(State.from(stateString));
+    return this;
+  }
+
+  public DecPOMDPBuilder addState(State state) {
     this.states.remove(state);
     this.states.add(state);
+    return this;
+  }
+
+  public DecPOMDPBuilder addStates(Collection<State> states) {
+    states.forEach(state -> addState(state));
     return this;
   }
 

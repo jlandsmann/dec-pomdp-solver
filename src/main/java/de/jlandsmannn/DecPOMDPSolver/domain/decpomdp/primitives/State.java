@@ -3,6 +3,8 @@ package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record State(String name) {
 
@@ -12,6 +14,10 @@ public record State(String name) {
 
   public static List<State> listOf(String ...names) {
     return Arrays.stream(names).map(State::from).toList();
+  }
+
+  public static Set<State> setOf(String ...names) {
+    return Arrays.stream(names).map(State::from).collect(Collectors.toSet());
   }
 
   @Override
