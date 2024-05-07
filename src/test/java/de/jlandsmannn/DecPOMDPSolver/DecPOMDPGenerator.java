@@ -81,7 +81,7 @@ public class DecPOMDPGenerator {
       .addTransition("tiger-left", createActionVector("open-right", "listen"), uniformStateDistribution)
       .addTransition("tiger-left", createActionVector("open-right", "open-left"), uniformStateDistribution)
       .addTransition("tiger-left", createActionVector("open-right", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-left")
+      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-right")
       .addTransition("tiger-right", createActionVector("listen", "open-left"), uniformStateDistribution)
       .addTransition("tiger-right", createActionVector("listen", "open-right"), uniformStateDistribution)
       .addTransition("tiger-right", createActionVector("open-left", "listen"), uniformStateDistribution)

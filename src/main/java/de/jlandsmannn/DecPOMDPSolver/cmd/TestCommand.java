@@ -36,7 +36,7 @@ public class TestCommand {
     var result = solver
       .setDecPOMDP(model)
       .setInitialBeliefState(initialBeliefState)
-      .setNumberOfBeliefPoints(2)
+      .setNumberOfBeliefPoints(10)
       .setMaxIterations(20)
       .setInitialPolicies(initialPolicies)
       .solve();
@@ -102,7 +102,7 @@ public class TestCommand {
       .addTransition("tiger-left", createActionVector("open-right", "listen"), uniformStateDistribution)
       .addTransition("tiger-left", createActionVector("open-right", "open-left"), uniformStateDistribution)
       .addTransition("tiger-left", createActionVector("open-right", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-left")
+      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-right")
       .addTransition("tiger-right", createActionVector("listen", "open-left"), uniformStateDistribution)
       .addTransition("tiger-right", createActionVector("listen", "open-right"), uniformStateDistribution)
       .addTransition("tiger-right", createActionVector("open-left", "listen"), uniformStateDistribution)
