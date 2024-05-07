@@ -57,7 +57,7 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void generateBeliefPointsForAgent_ShouldThrowIfDecPOMDPNotSet() {
+  void getFollowUpBeliefPointsForAgent_ShouldThrowIfDecPOMDPNotSetForAgent() {
     beliefPointGenerator.setInitialBeliefState(Distribution.createRandomDistribution(decPOMDP.getStates()));
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
     assertThrows(IllegalStateException.class, () -> {
@@ -66,7 +66,7 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void generateBeliefPointsForAgent_ShouldThrowIfDesiredNumberOfBeliefPointsNotSet() {
+  void getFollowUpBeliefPointsForAgent_ShouldThrowIfDesiredNumberOfBeliefPointsNotSetForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setInitialBeliefState(Distribution.createRandomDistribution(decPOMDP.getStates()));
     beliefPointGenerator.generateRandomPolicies();
@@ -76,7 +76,7 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void generateBeliefPointsForAgent_ShouldThrowIfInitialBeliefStateNotSet() {
+  void getFollowUpBeliefPointsForAgent_ShouldThrowIfInitialBeliefStateNotSetForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
     beliefPointGenerator.generateRandomPolicies();
@@ -86,7 +86,7 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void generateBeliefPointsForAgent_ShouldThrowIfRandomPoliciesNotGenerated() {
+  void getFollowUpBeliefPointsForAgent_ShouldThrowIfRandomPoliciesNotGeneratedForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setInitialBeliefState(Distribution.createRandomDistribution(decPOMDP.getStates()));
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
@@ -96,11 +96,11 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void generateBeliefPointsForAgent_ShouldNotThrowIfAllDependenciesPresent() {
+  void getFollowUpBeliefPointsForAgent_ShouldNotThrowIfAllDependenciesPresentForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setInitialBeliefState(Distribution.createRandomDistribution(decPOMDP.getStates()));
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
-    beliefPointGenerator.generateRandomPolicies();
+    beliefPointGenerator.setPolicies(null);
     assertDoesNotThrow(() -> {
       beliefPointGenerator.generateBeliefPointsForAgent(decPOMDP.getAgents().get(0));
     });

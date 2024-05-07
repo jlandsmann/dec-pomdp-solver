@@ -19,7 +19,7 @@ import java.util.Set;
 @Service
 public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController, HeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);
-  private static final double VALUE_CHANGE_THRESHOLD = 1e-6;
+  private static final double VALUE_CHANGE_THRESHOLD = 1e-8;
 
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
@@ -85,8 +85,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       .setDecPOMDP(decPOMDP)
       .setInitialBeliefState(initialBeliefState)
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
-      .setRandomPolicies(initialPolicies)
-      .generateRandomPoliciesIfNeeded();
+      .setPolicies(initialPolicies);
 
     for (var agent : decPOMDP.getAgents()) {
       LOG.debug("Generating {} belief points for {} to guide the pruning.", numberOfBeliefPoints, agent);
