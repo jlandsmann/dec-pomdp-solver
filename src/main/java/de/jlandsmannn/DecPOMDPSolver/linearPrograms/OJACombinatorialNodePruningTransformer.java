@@ -22,7 +22,6 @@ import java.util.Optional;
 public class OJACombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJACombinatorialNodePruningTransformer.class);
 
-
   private DecPOMDPWithStateController decPOMDP;
   private AgentWithStateController agent;
   private Collection<Distribution<State>> beliefPoints;
@@ -87,7 +86,6 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     LOG.debug("Created linear program.");
     return linearProgram;
   }
-
 
   @Override
   public Optional<Distribution<Node>> getDominatingNodeDistribution(Map<String, Double> result) {
