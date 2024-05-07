@@ -45,15 +45,18 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
   }
 
   public long getNumberOfEquations() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get number of equations");
     return stateCount * nodeCombinationCount;
   }
 
   public long getNumberOfVariables() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get number of variables");
     return stateCount * nodeCombinationCount;
   }
 
   @Override
   public MatrixStore<Double> getMatrixFromDecPOMDP() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get matrix");
     LOG.info("Retrieving transition matrix from DecPOMDP");
     var matrixBuilder = Primitive64Store.FACTORY.make(
       stateCount * nodeCombinationCount,
@@ -80,6 +83,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
 
   @Override
   public MatrixStore<Double> getVectorFromDecPOMDP() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get vector");
     LOG.info("Retrieving reward vector from DecPOMDP");
     var matrixBuilder = Primitive64Store.FACTORY.make(stateCount * nodeCombinationCount,1);
     AtomicLong index = new AtomicLong();
@@ -94,6 +98,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
 
   @Override
   public void applyValuesToDecPOMDP(MatrixStore<Double> values) {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to apply values");
     LOG.info("Applying values to DecPOMDP");
 
     AtomicLong index = new AtomicLong();

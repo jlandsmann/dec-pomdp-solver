@@ -45,6 +45,21 @@ public class BeliefPointGenerator {
     return this;
   }
 
+  public BeliefPointGenerator setRandomPolicies(Map<Agent, Map<State, Distribution<Action>>> randomPolicies) {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to validate random policies.");
+    LOG.debug("Retrieving random policies: {}", randomPolicies);
+    if (!decPOMDP.getAgents().stream().allMatch(randomPolicies::containsKey)) {
+      throw new IllegalArgumentException("Random policies must be defined for every agent.");
+    }
+    this.randomPolicies = randomPolicies;
+    return this;
+  }
+
+  public BeliefPointGenerator generateRandomPoliciesIfNeeded() {
+    if (randomPolicies != null) return this;
+    return this.generateRandomPolicies();
+  }
+
   public BeliefPointGenerator generateRandomPolicies() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate random policies.");
     LOG.info("Generating random policies for {} agents", decPOMDP.getAgents().size());

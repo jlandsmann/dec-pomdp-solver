@@ -1,8 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruner;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.CombinatorialNodePruner;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

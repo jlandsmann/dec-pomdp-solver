@@ -1,11 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionEvaluater;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruner;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +17,14 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController> {
+public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController, HeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);
   private static final double VALUE_CHANGE_THRESHOLD = 1e-6;
 
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
 
+  protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
   protected Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints = new HashMap<>();
   protected double controllerState = 0;
   protected int currentIteration = 0;
@@ -57,6 +58,11 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     return this;
   }
 
+  public HeuristicPolicyIterationSolver setInitialPolicies(Map<Agent, Map<State, Distribution<Action>>> initialPolicies) {
+    this.initialPolicies = initialPolicies;
+    return this;
+  }
+
   @Override
   public double solve() {
     LOG.info("Start solving DecPOMDP with heuristic policy iteration.");
@@ -79,7 +85,8 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       .setDecPOMDP(decPOMDP)
       .setInitialBeliefState(initialBeliefState)
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
-      .generateRandomPolicies();
+      .setRandomPolicies(initialPolicies)
+      .generateRandomPoliciesIfNeeded();
 
     for (var agent : decPOMDP.getAgents()) {
       LOG.debug("Generating {} belief points for {} to guide the pruning.", numberOfBeliefPoints, agent);
@@ -96,7 +103,8 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected void evaluateValueFunction() {
     LOG.info("Evaluating the value function.");
     valueFunctionEvaluater
-      .evaluateValueFunction(decPOMDP);
+      .setDecPOMDP(decPOMDP)
+      .evaluateValueFunction();
   }
 
   protected void performExhaustiveBackup() {
@@ -116,10 +124,14 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void pruneCombinatorialDominatedNodes() {
     LOG.info("Pruning combinatorial dominated nodes.");
+    combinatorialNodePruner.setDecPOMDP(decPOMDP);
     for (var agent : decPOMDP.getAgents()) {
       var agentBeliefPoints = beliefPoints.get(agent);
       LOG.debug("Pruning combinatorial dominated nodes for Agent {}.", agent);
-      combinatorialNodePruner.pruneNodesIfCombinatorialDominated(decPOMDP, agent, agentBeliefPoints);
+      combinatorialNodePruner
+        .setAgent(agent)
+        .setBeliefPoints(agentBeliefPoints)
+        .pruneNodesIfCombinatorialDominated();
     }
   }
 

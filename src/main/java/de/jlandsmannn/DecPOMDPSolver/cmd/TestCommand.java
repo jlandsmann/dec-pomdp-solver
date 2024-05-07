@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
@@ -31,12 +32,14 @@ public class TestCommand {
   public void initDecPOMDP() {
     var model = initializeDecPOMDP();
     var initialBeliefState = Distribution.createUniformDistribution(Set.copyOf(model.getStates()));
-
-    solver.setDecPOMDP(model);
-    solver.setInitialBeliefState(initialBeliefState);
-    solver.setNumberOfBeliefPoints(10);
-    solver.setMaxIterations(20);
-    var result = solver.solve();
+    var initialPolicies = generateInitialPolicies(model);
+    var result = solver
+      .setDecPOMDP(model)
+      .setInitialBeliefState(initialBeliefState)
+      .setNumberOfBeliefPoints(2)
+      .setMaxIterations(20)
+      .setInitialPolicies(initialPolicies)
+      .solve();
     System.out.println("Result: " + result);
   }
 
@@ -48,6 +51,22 @@ public class TestCommand {
     initializeRewards(builder);
     initializeObservations(builder);
     return builder.setDiscountFactor(0.99).createDecPOMDP();
+  }
+
+  public Map<Agent, Map<State, Distribution<Action>>> generateInitialPolicies(DecPOMDPWithStateController model) {
+    var actionDistribution = Distribution.of(Map.of(
+      Action.from("listen"), 0.8,
+      Action.from("open-left"), 0.1,
+      Action.from("open-right"), 0.1
+    ));
+    var policy = Map.of(
+      State.from("tiger-left"), actionDistribution,
+      State.from("tiger-right"), actionDistribution
+    );
+    return Map.of(
+      model.getAgents().get(0), policy,
+      model.getAgents().get(1), policy
+    );
   }
 
   private void initializeStates(DecPOMDPBuilder builder) {

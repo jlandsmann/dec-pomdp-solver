@@ -3,9 +3,7 @@ package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.LU;
-import org.ojalgo.matrix.decomposition.QR;
 import org.ojalgo.matrix.store.MatrixStore;
-import org.ojalgo.matrix.task.SolverTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,7 +59,7 @@ public class OJAEquationSystemSolver implements EquationSystemSolver<MatrixStore
   public Optional<MatrixStore<Double>> solve() {
     LOG.info("Solving system of equations with {} equations and {} variables", numberOfEquations, numberOfVariables);
     LOG.debug("System consists of matrix {} and vector {}", matrix, vector);
-    final var solver = SolverTask.R064.make(matrix, vector);
+    final var solver = LU.R064.make(matrix);
     try {
       var result = solver.solve(matrix, vector);
       LOG.info("Solving was successful");

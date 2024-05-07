@@ -1,9 +1,11 @@
-package de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization;
+package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
+import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
+import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,9 @@ import java.util.Collection;
 public abstract class CombinatorialNodePruner<LP, RESULT> {
   private static final Logger LOG = LoggerFactory.getLogger(CombinatorialNodePruner.class);
 
-  CombinatorialNodePruningTransformer<LP, RESULT> transformer;
-  LinearOptimizationSolver<LP, RESULT> solver;
+  protected CombinatorialNodePruningTransformer<LP, RESULT> transformer;
+  protected LinearOptimizationSolver<LP, RESULT> solver;
+  protected AgentWithStateController agent;
 
   public CombinatorialNodePruner(CombinatorialNodePruningTransformer<LP, RESULT> transformer,
                                  LinearOptimizationSolver<LP, RESULT> solver) {
@@ -22,27 +25,35 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
     this.solver = solver;
   }
 
-  public void pruneNodesIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
-                                     AgentWithStateController agent,
-                                     Collection<Distribution<State>> beliefPoints) {
+  public CombinatorialNodePruner<LP, RESULT> setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+    transformer.setDecPOMDP(decPOMDP);
+    return this;
+  }
+
+  public CombinatorialNodePruner<LP, RESULT> setAgent(AgentWithStateController agent) {
+    this.agent = agent;
+    transformer.setAgent(agent);
+    return this;
+  }
+
+  public CombinatorialNodePruner<LP, RESULT> setBeliefPoints(Collection<Distribution<State>> beliefPoints) {
+    transformer.setBeliefPoints(beliefPoints);
+    return this;
+  }
+
+  public void pruneNodesIfCombinatorialDominated() {
     if (agent.getControllerNodes().size() <= 1) {
       LOG.info("No combinatorial pruning possible, since {} has only {} node(s).", agent, agent.getControllerNodes().size());
       return;
     }
     LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", agent.getControllerNodes().size(), agent);
     for (var node : agent.getControllerNodes()) {
-      pruneNodeIfCombinatorialDominated(decPOMDP, agent, beliefPoints, node);
+      pruneNodeIfCombinatorialDominated(node);
     }
   }
 
-  public void pruneNodeIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
-                                    AgentWithStateController agent,
-                                    Collection<Distribution<State>> beliefPoints,
-                                    Node nodeToCheck) {
+  public void pruneNodeIfCombinatorialDominated(Node nodeToCheck) {
     LOG.debug("Checking {} of {} for pruning", nodeToCheck, agent);
-    transformer.setDecPOMDP(decPOMDP);
-    transformer.setAgent(agent);
-    transformer.setBeliefPoints(beliefPoints);
     var lp = transformer.forNode(nodeToCheck);
     solver.setLinearProgram(lp);
     var results = solver.maximise();

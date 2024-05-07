@@ -150,17 +150,21 @@ class OJAEquationSystemSolverTest {
   void solve_ShouldReturnNoResultForNonSolvableEquationSystem() {
     var matrix = Primitive64Store.FACTORY.make(3,3);
     var vector = Primitive64Store.FACTORY.make(3,1);
+    // x + y = 0
     matrix.set(0,0,1);
     matrix.set(0,1,1);
+    matrix.set(0,2,0);
     vector.set(0, 0, 0);
-
-    matrix.set(1,0,0);
-    matrix.set(1,1,2);
+    // x = 17.8
+    matrix.set(1,0,1);
+    matrix.set(1,1,0);
+    matrix.set(1,2,0);
     vector.set(1, 0, 17.8);
-
-    matrix.set(2,0,1);
-    matrix.set(2,1,0);
-    vector.set(2, 0, 3);
+    // y = -3
+    matrix.set(2,0,0);
+    matrix.set(2,1,1);
+    matrix.set(2,2,0);
+    vector.set(2, 0, -3);
 
     var result = solver.setMatrix(matrix).setVector(vector).solve();
     assertTrue(result.isEmpty());

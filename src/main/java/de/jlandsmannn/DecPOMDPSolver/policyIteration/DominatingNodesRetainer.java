@@ -35,8 +35,8 @@ public class DominatingNodesRetainer {
 
   public void retainDominatingNodes() {
     LOG.info("Retaining dominating nodes");
-    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
-    else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to retain dominating nodes.");
+    else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to retain dominating nodes.");
 
     var nodesToRetain = findDominatingNodes();
     pruneOtherNodes(nodesToRetain);
@@ -72,11 +72,9 @@ public class DominatingNodesRetainer {
   }
 
   private void validateBeliefPoints(Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints) {
-    var agentsWithBeliefPoints = decPOMDP.getAgents().stream()
-      .filter(a -> beliefPoints.containsKey(a) && beliefPoints.get(a) != null)
-      .filter(a -> !beliefPoints.get(a).isEmpty())
-      .count();
-    if (agentsWithBeliefPoints < decPOMDP.getAgents().size()) {
+    var agentMissingInBeliefPoints = !decPOMDP.getAgents().stream().allMatch(beliefPoints::containsKey);
+    var agentHasEmptyBeliefPointSet = decPOMDP.getAgents().stream().map(beliefPoints::get).anyMatch(s -> s == null || s.isEmpty());
+    if (agentMissingInBeliefPoints || agentHasEmptyBeliefPointSet) {
       throw new IllegalArgumentException("Belief points must be defined for every agent of DecPOMDP.");
     };
   }
