@@ -125,8 +125,8 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   private void validateDiscountFactor(double discountFactor) {
-    if (discountFactor <= 0 || 1 <= discountFactor) {
-      throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1");
+    if (discountFactor < 0 || 1 <= discountFactor) {
+      throw new IllegalArgumentException("discountFactor must be a positive number between 0 (inclusive) and 1 (exclusive).");
     }
   }
 

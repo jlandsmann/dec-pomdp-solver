@@ -50,7 +50,7 @@ public class TestCommand {
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
-    return builder.setDiscountFactor(0.99).createDecPOMDP();
+    return builder.setDiscountFactor(0.9).createDecPOMDP();
   }
 
   public Map<Agent, Map<State, Distribution<Action>>> generateInitialPolicies(DecPOMDPWithStateController model) {
