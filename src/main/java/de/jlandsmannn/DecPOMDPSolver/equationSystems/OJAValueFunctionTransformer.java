@@ -100,7 +100,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : nodeCombinations) {
         var value = values.get(index.getAndAdd(1), 0);
-        LOG.info("Value for state {} and node vector {} is {}", state, nodeVector, value);
+        LOG.debug("Value for state {} and node vector {} is {}", state, nodeVector, value);
         decPOMDP.setValue(state, nodeVector, value);
       }
     }

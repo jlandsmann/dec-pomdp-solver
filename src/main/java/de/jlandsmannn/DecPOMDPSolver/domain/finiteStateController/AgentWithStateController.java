@@ -59,7 +59,11 @@ public class AgentWithStateController extends Agent {
     controller.addTransition(node, action, observation, newNode);
   }
 
-  public void pruneNode(Node node, Distribution<Node> nodesToReplace) {
-    controller.pruneNode(node, nodesToReplace);
+  public void pruneNodes(Set<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
+    controller.pruneNodes(nodesToPrune, nodesToReplaceWith);
+  }
+
+  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
+    controller.pruneNode(nodeToPrune, nodesToReplaceWith);
   }
 }

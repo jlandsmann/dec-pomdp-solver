@@ -19,6 +19,7 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
 
   @Override
   public void setLinearProgram(ExpressionsBasedModel linearProgram) {
+    LOG.debug("Receiving linear program: {}", linearProgram);
     this.linearProgram = linearProgram;
   }
 
@@ -26,10 +27,10 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
   public Optional<Map<String, Double>> maximise() {
     var result = linearProgram.maximise();
     if (!result.getState().isSuccess()) {
-      LOG.info("Maximising linear program was not successful: {}", result.getState());
+      LOG.debug("Maximising linear program was not successful: {}", result.getState());
       return Optional.empty();
     }
-    LOG.info("Maximising linear program has feasible solution: {}", result);
+    LOG.debug("Maximising linear program has feasible solution: {}", result);
     var mappedResults = getMapFromResults(result);
     return Optional.of(mappedResults);
   }
@@ -38,10 +39,10 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
   public Optional<Map<String, Double>> minimise() {
     var result = linearProgram.minimise();
     if (!result.getState().isSuccess()) {
-      LOG.info("Minimising linear program was not successful: {}", result.getState());
+      LOG.debug("Minimising linear program was not successful: {}", result.getState());
       return Optional.empty();
     }
-    LOG.info("Minimising linear program has feasible solution: {}", result);
+    LOG.debug("Minimising linear program has feasible solution: {}", result);
     var mappedResults = getMapFromResults(result);
     return Optional.of(mappedResults);
   }

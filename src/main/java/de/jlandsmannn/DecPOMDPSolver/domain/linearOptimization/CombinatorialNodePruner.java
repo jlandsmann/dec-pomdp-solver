@@ -25,24 +25,17 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
   public void pruneNodesIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
                                      AgentWithStateController agent,
                                      Collection<Distribution<State>> beliefPoints) {
-    LOG.info("Iterating over all nodes of {} for pruning", agent);
+    LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", agent.getControllerNodes().size(), agent);
     for (var node : agent.getControllerNodes()) {
       pruneNodeIfCombinatorialDominated(decPOMDP, agent, beliefPoints, node);
     }
-  }
-
-  public void tryPruneNodeIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
-                                                   AgentWithStateController agent,
-                                                   Collection<Distribution<State>> beliefPoints,
-                                                   Node nodeToCheck) {
-    pruneNodeIfCombinatorialDominated(decPOMDP, agent, beliefPoints, nodeToCheck);
   }
 
   public void pruneNodeIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
                                     AgentWithStateController agent,
                                     Collection<Distribution<State>> beliefPoints,
                                     Node nodeToCheck) {
-    LOG.info("Checking {} of {} for pruning", nodeToCheck, agent);
+    LOG.debug("Checking {} of {} for pruning", nodeToCheck, agent);
     transformer.setDecPOMDP(decPOMDP);
     transformer.setAgent(agent);
     transformer.setBeliefPoints(beliefPoints);
@@ -50,12 +43,16 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
     solver.setLinearProgram(lp);
     var results = solver.maximise();
     if (results.isEmpty()) {
-      LOG.info("Linear program has no results, no pruning required.");
+      LOG.debug("Linear program has no results, no pruning required.");
       return;
     }
-    LOG.info("Retrieving pruning nodes distribution for {}", nodeToCheck);
-    var pruningNodes = transformer.getPruningNodes(results.get());
-    LOG.info("Pruning nodes of {} for {}", agent, nodeToCheck);
-    agent.pruneNode(nodeToCheck, pruningNodes.get());
+    LOG.debug("Retrieving pruning nodes distribution for {}", nodeToCheck);
+    var dominatingNodes = transformer.getDominatingNodeDistribution(results.get());
+    if (dominatingNodes.isEmpty()) {
+      LOG.debug("No combination of dominating nodes exist, can't prune {} of {}", nodeToCheck, agent);
+      return;
+    }
+    LOG.debug("Replacing {} with {} nodes of {}", nodeToCheck, dominatingNodes.get().size(), agent);
+    agent.pruneNode(nodeToCheck, dominatingNodes.get());
   }
 }

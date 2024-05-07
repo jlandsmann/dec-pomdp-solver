@@ -5,10 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class FiniteStateController {
   protected long nodeIndex;
@@ -65,9 +62,9 @@ public class FiniteStateController {
     transitionFunction.get(node).get(a).put(o, transition);
   }
 
-  public void pruneNodes(Map<Node, Distribution<Node>> nodesToPrune) {
+  public void pruneNodes(Set<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
     // first remove all outgoing connections from nodes to prune
-    for (var nodeToPrune : nodesToPrune.keySet()) {
+    for (var nodeToPrune : nodesToPrune) {
       nodes.remove(nodeToPrune);
       actionFunction.remove(nodeToPrune);
       transitionFunction.remove(nodeToPrune);
@@ -78,8 +75,8 @@ public class FiniteStateController {
       for (var action : transitionFunction.get(node).keySet()) {
         for (var observation : transitionFunction.get(node).get(action).keySet()) {
           var distribution = transitionFunction.get(node).get(action).get(observation);
-          for (var nodeToPrune : nodesToPrune.keySet()) {
-            distribution.replaceEntryWithDistribution(nodeToPrune, nodesToPrune.get(nodeToPrune));
+          for (var nodeToPrune : nodesToPrune) {
+            distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
           }
         }
       }

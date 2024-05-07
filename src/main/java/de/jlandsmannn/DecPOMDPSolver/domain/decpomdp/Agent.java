@@ -42,4 +42,9 @@ public abstract class Agent {
   public int hashCode() {
     return Objects.hash(getName(), getActions(), getObservations());
   }
+
+  @Override
+  public String toString() {
+    return "Agent " + name;
+  }
 }

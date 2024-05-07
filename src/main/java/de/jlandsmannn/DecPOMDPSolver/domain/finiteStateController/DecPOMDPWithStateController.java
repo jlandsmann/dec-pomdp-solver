@@ -33,6 +33,15 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       .orElse(0D);
   }
 
+  public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
+    var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
+    Stream<Vector<Node>> stream = VectorStreamBuilder.forEachCombination(nodeCombinations);
+    return stream
+      .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
+      .max(Map.Entry.comparingByValue())
+      .orElseThrow(() -> new IllegalStateException()).getKey();
+  }
+
   public double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
     return beliefState
       .entrySet()

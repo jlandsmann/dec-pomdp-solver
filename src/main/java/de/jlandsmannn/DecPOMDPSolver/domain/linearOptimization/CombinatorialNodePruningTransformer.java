@@ -17,5 +17,5 @@ public interface CombinatorialNodePruningTransformer<LP, RESULT> {
 
   LP forNode(Node nodeToPrune);
 
-  Optional<Distribution<Node>> getPruningNodes(RESULT result);
+  Optional<Distribution<Node>> getDominatingNodeDistribution(RESULT result);
 }

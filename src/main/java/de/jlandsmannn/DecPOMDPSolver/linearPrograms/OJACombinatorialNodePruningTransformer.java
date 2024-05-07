@@ -90,14 +90,17 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
 
 
   @Override
-  public Optional<Distribution<Node>> getPruningNodes(Map<String, Double> result) {
+  public Optional<Distribution<Node>> getDominatingNodeDistribution(Map<String, Double> result) {
     if (result.get("epsilon") <= 0) {
-      LOG.info("Epsilon is not positive, no dominating combination exists.");
+      LOG.debug("Epsilon is not positive, no dominating combination exists.");
     }
     Map<Node, Double> mappedResults = new HashMap<>();
     for (var node : agent.getControllerNodes()) {
-      mappedResults.put(node, result.getOrDefault(node.name(), 0D));
+      var probability = result.getOrDefault(node.name(), 0D);
+      if (probability <= 0D) continue;
+      mappedResults.put(node, probability);
     }
+    LOG.debug("Dominating combination consists of {} nodes", mappedResults.keySet().size());
     var distribution = Distribution.of(mappedResults);
     return Optional.of(distribution);
   }

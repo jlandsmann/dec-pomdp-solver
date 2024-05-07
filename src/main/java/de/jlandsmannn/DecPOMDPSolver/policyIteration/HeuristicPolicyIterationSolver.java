@@ -1,9 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionEvaluater;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruner;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -23,23 +23,26 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
 
-  protected Map<Agent, Set<Distribution<State>>> beliefPoints = new HashMap<>();
+  protected Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints = new HashMap<>();
   protected int controllerHash = 0;
   protected int currentIteration = 0;
 
   protected final BeliefPointGenerator beliefPointGenerator;
-  protected final ExhaustiveBackupPerformer exhaustiveBackupPerformer;
   protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater;
+  protected final ExhaustiveBackupPerformer exhaustiveBackupPerformer;
+  protected final DominatingNodesRetainer dominatingNodesRetainer;
   protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
 
   @Autowired
   public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator,
-                                        ExhaustiveBackupPerformer exhaustiveBackupPerformer,
                                         ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater,
+                                        ExhaustiveBackupPerformer exhaustiveBackupPerformer,
+                                        DominatingNodesRetainer dominatingNodesRetainer,
                                         CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
     this.beliefPointGenerator = beliefPointGenerator;
-    this.exhaustiveBackupPerformer = exhaustiveBackupPerformer;
     this.valueFunctionEvaluater = valueFunctionEvaluater;
+    this.exhaustiveBackupPerformer = exhaustiveBackupPerformer;
+    this.dominatingNodesRetainer = dominatingNodesRetainer;
     this.combinatorialNodePruner = combinatorialNodePruner;
   }
 
@@ -89,16 +92,23 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void evaluateValueFunction() {
     LOG.info("Evaluating the value function.");
-    valueFunctionEvaluater.evaluateValueFunction(decPOMDP);
+    valueFunctionEvaluater
+      .evaluateValueFunction(decPOMDP);
   }
 
   protected void performExhaustiveBackup() {
     LOG.info("Performing exhaustive backup.");
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackup();
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .performExhaustiveBackup();
   }
 
   protected void retainDominatingNodes() {
     LOG.info("Retaining dominating nodes.");
+    dominatingNodesRetainer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .retainDominatingNodes();
   }
 
   protected void pruneCombinatorialDominatedNodes() {

@@ -38,6 +38,7 @@ public class ExhaustiveBackupPerformer {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
     long nodesAdded = 0;
     var originalNodes = List.copyOf(agent.getControllerNodes());
+    LOG.info("Starting with {} nodes for Agent {}", originalNodes.size(), agent);
     for (var action : agent.getActions()) {
       var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
       var observationNodeCombinations = VectorStreamBuilder.forEachCombination(rawObservationNodeCombinations).toList();

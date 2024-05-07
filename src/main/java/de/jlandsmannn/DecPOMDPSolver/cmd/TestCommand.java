@@ -35,7 +35,7 @@ public class TestCommand {
     solver.setDecPOMDP(model);
     solver.setInitialBeliefState(initialBeliefState);
     solver.setNumberOfBeliefPoints(10);
-    solver.setMaxIterations(5);
+    solver.setMaxIterations(20);
     var result = solver.solve();
     System.out.println("Result: " + result);
   }
