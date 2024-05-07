@@ -6,6 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
@@ -13,14 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class BeliefPointGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(BeliefPointGenerator.class);
+  private static final int MAX_GENERATION_RUNS = 100;
 
   private DecPOMDPWithStateController decPOMDP;
   private Distribution<State> initialBeliefState;
@@ -75,16 +74,37 @@ public class BeliefPointGenerator {
     if (decPOMDP == null || initialBeliefState == null || randomPolicies == null || numberOfBeliefPoints == 0) {
       throw new IllegalStateException("DecPOMDP, initialBeliefState, randomPolicies and numberOfBeliefPoints must be set, to generate belief points for agents.");
     }
-    LOG.info("Generating {} belief points for {} starting from {}.", numberOfBeliefPoints, agent, initialBeliefState);
+    var generatedBeliefPoints = new HashSet<Distribution<State>>();
+    var generationRun = 0;
     var currentBeliefPoint = initialBeliefState;
-    var collection = new HashSet<Distribution<State>>();
-    collection.add(currentBeliefPoint);
+    do {
+      if (generationRun > 0) {
+        LOG.info("Generating further belief points for {} to increase diversity.", agent);
+      }
+      var newBeliefPoints = doGenerateBeliefPointsForAgent(agent, currentBeliefPoint);
+      generatedBeliefPoints.addAll(newBeliefPoints);
+      generationRun++;
+      generateRandomPolicies();
+      currentBeliefPoint = Distribution.createRandomDistribution(decPOMDP.getStates());
+    } while (generatedBeliefPoints.size() < numberOfBeliefPoints && generationRun < MAX_GENERATION_RUNS);
+    LOG.info("Generated {} belief points for {}.", generatedBeliefPoints.size(), agent);
+    return generatedBeliefPoints;
+  }
+
+  private SequencedSet<Distribution<State>> doGenerateBeliefPointsForAgent(AgentWithStateController agent, Distribution<State> currentBeliefPoint) {
+    var generatedBeliefPoints = new LinkedHashSet<Distribution<State>>();
+    generatedBeliefPoints.add(currentBeliefPoint);
+    LOG.debug("Generating {} belief points for {} starting from {}.", numberOfBeliefPoints, agent, initialBeliefState);
     for (int i = 1; i < numberOfBeliefPoints; i++) {
       var generatedBeliefPoint = generateBeliefPoint(agent, currentBeliefPoint);
-      collection.add(generatedBeliefPoint);
+      if (generatedBeliefPoints.equals(currentBeliefPoint)) {
+        LOG.debug("Stop generating because belief point did not change.");
+        break;
+      }
+      generatedBeliefPoints.add(generatedBeliefPoint);
       currentBeliefPoint = generatedBeliefPoint;
     }
-    return collection;
+    return generatedBeliefPoints;
   }
 
   private Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
