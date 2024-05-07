@@ -21,9 +21,7 @@ public abstract class DecPOMDPSolver<T extends DecPOMDP<? extends Agent>> {
   public abstract double solve();
 
   protected double getValueOfDecPOMDP() {
-    double value = decPOMDP.getValue(initialBeliefState);
-    LOG.info("Retrieving value for initialBeliefState: {}", value);
-    return value;
+    return decPOMDP.getValue(initialBeliefState);
   }
 
 }

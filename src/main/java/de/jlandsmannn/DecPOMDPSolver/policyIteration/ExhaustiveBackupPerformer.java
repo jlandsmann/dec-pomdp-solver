@@ -43,7 +43,7 @@ public class ExhaustiveBackupPerformer {
       var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
       var observationNodeCombinations = VectorStreamBuilder.forEachCombination(rawObservationNodeCombinations).toList();
       for (var observationNodeCombination : observationNodeCombinations) {
-        var node = Node.of("Q" + agent.getControllerNodeIndex());
+        var node = Node.of(agent.getName() + "-Q" + agent.getControllerNodeIndex());
         agent.addNode(node, Distribution.createSingleEntryDistribution(action));
         nodesAdded++;
         var observationIndex = 0;
@@ -60,13 +60,16 @@ public class ExhaustiveBackupPerformer {
     LOG.info("Calculating missing values of value function");
     var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
     var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
+    var updatedCombinations = 0;
     for (var state : decPOMDP.getStates()) {
       for (var nodeCombination : nodeCombinations) {
         if (decPOMDP.getOptionalValue(state, nodeCombination).isPresent()) continue;
         var value = calculateValue(state, nodeCombination);
         decPOMDP.setValue(state, nodeCombination, value);
+        updatedCombinations++;
       }
     }
+    LOG.info("Calculated {} missing values of value function", updatedCombinations);
   }
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {

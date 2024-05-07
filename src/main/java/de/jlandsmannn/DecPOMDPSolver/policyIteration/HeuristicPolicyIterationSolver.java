@@ -19,12 +19,13 @@ import java.util.Set;
 @Service
 public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);
+  private static final double VALUE_CHANGE_THRESHOLD = 1e-6;
 
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
 
   protected Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints = new HashMap<>();
-  protected int controllerHash = 0;
+  protected double controllerState = 0;
   protected int currentIteration = 0;
 
   protected final BeliefPointGenerator beliefPointGenerator;
@@ -62,13 +63,13 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     currentIteration = 0;
     generateBeliefPoints();
     do {
-      LOG.info("Starting iteration #{}", ++currentIteration);
-      saveControllerHash();
+      LOG.info("Starting iteration #{}. Current value: {}", ++currentIteration, getValueOfDecPOMDP());
+      saveControllerState();
       evaluateValueFunction();
       performExhaustiveBackup();
       retainDominatingNodes();
       pruneCombinatorialDominatedNodes();
-    } while (hasControllerHashChanged() && !isIterationLimitReached());
+    } while (hasControllerStateChanged() && !isIterationLimitReached());
     return getValueOfDecPOMDP();
   }
 
@@ -79,6 +80,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       .setInitialBeliefState(initialBeliefState)
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
       .generateRandomPolicies();
+
     for (var agent : decPOMDP.getAgents()) {
       LOG.debug("Generating {} belief points for {} to guide the pruning.", numberOfBeliefPoints, agent);
       var generateBeliefPointsForAgent = beliefPointGenerator.generateBeliefPointsForAgent(agent);
@@ -86,8 +88,9 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     }
   }
 
-  protected void saveControllerHash() {
-    this.controllerHash = decPOMDP.hashCode();
+  protected void saveControllerState() {
+    this.controllerState = getValueOfDecPOMDP();
+    LOG.debug("Saving controller state: {} ", controllerState);
   }
 
   protected void evaluateValueFunction() {
@@ -115,22 +118,22 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     LOG.info("Pruning combinatorial dominated nodes.");
     for (var agent : decPOMDP.getAgents()) {
       var agentBeliefPoints = beliefPoints.get(agent);
-      LOG.info("Pruning combinatorial dominated nodes for Agent {}.", agent);
+      LOG.debug("Pruning combinatorial dominated nodes for Agent {}.", agent);
       combinatorialNodePruner.pruneNodesIfCombinatorialDominated(decPOMDP, agent, agentBeliefPoints);
     }
   }
 
-  protected boolean hasControllerHashChanged() {
-    boolean controllerHashChanged = controllerHash != decPOMDP.hashCode();
-    LOG.debug("Controller hash changed: {}", controllerHashChanged);
-    return controllerHashChanged;
+  protected boolean hasControllerStateChanged() {
+    var valueChange = Math.abs(controllerState - getValueOfDecPOMDP());
+    boolean controllerStateChanged = valueChange >= VALUE_CHANGE_THRESHOLD;
+    LOG.debug("Controller state changed: {}", controllerStateChanged);
+    return controllerStateChanged;
   }
 
   protected boolean isIterationLimitReached() {
     boolean hasIterationLimit = maxIterations != 0;
     boolean isIterationLimitReached = maxIterations <= currentIteration;
-    LOG.debug("Iteration limit enabled: {}", hasIterationLimit);
-    LOG.debug("Iteration limit reached: {}", isIterationLimitReached);
+    LOG.debug("Iteration limit enabled: {} and reached: {}", hasIterationLimit, isIterationLimitReached);
     return hasIterationLimit && isIterationLimitReached;
   }
 }

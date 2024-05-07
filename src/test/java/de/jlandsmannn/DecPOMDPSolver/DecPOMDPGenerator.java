@@ -41,7 +41,7 @@ public class DecPOMDPGenerator {
   private static AgentWithStateController createAgent(String name) {
     var actions = Action.setOf("listen", "open-left", "open-right");
     var observations = Observation.setOf("hear-left", "hear-right");
-    var controller = FiniteStateControllerBuilder.createArbitraryController(actions, observations);
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 

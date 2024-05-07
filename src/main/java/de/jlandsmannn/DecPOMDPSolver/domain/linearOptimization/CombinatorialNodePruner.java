@@ -25,6 +25,10 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
   public void pruneNodesIfCombinatorialDominated(DecPOMDPWithStateController decPOMDP,
                                      AgentWithStateController agent,
                                      Collection<Distribution<State>> beliefPoints) {
+    if (agent.getControllerNodes().size() <= 1) {
+      LOG.info("No combinatorial pruning possible, since {} has only {} node(s).", agent, agent.getControllerNodes().size());
+      return;
+    }
     LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", agent.getControllerNodes().size(), agent);
     for (var node : agent.getControllerNodes()) {
       pruneNodeIfCombinatorialDominated(decPOMDP, agent, beliefPoints, node);

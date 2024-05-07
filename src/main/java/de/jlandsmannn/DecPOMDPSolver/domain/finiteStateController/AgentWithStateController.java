@@ -23,7 +23,7 @@ public class AgentWithStateController extends Agent {
   public static AgentWithStateController createArbitraryAgent(String name, int numberOfActions, int numberOfObservations) {
     Set<Action> actions = IntStream.range(1, numberOfActions).mapToObj(i -> new Action(name + "-A" + i)).collect(Collectors.toSet());
     Set<Observation> observations = IntStream.range(1, numberOfObservations).mapToObj(i -> new Observation(name + "-O" + i)).collect(Collectors.toSet());
-    var controller = FiniteStateControllerBuilder.createArbitraryController(actions, observations);
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 

@@ -93,6 +93,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
   public Optional<Distribution<Node>> getDominatingNodeDistribution(Map<String, Double> result) {
     if (result.get("epsilon") <= 0) {
       LOG.debug("Epsilon is not positive, no dominating combination exists.");
+      return Optional.empty();
     }
     Map<Node, Double> mappedResults = new HashMap<>();
     for (var node : agent.getControllerNodes()) {
