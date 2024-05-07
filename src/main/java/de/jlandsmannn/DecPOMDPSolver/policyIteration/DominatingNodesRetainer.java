@@ -26,7 +26,9 @@ public class DominatingNodesRetainer {
   }
 
   public DominatingNodesRetainer setBeliefPoints(Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints) {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to set belief points.");
     LOG.debug("Retrieving belief points: {}", beliefPoints);
+    validateBeliefPoints(beliefPoints);
     this.beliefPoints = beliefPoints;
     return this;
   }
@@ -67,5 +69,15 @@ public class DominatingNodesRetainer {
       var distribution = Distribution.createUniformDistribution(agentNodesToRetain);
       agent.pruneNodes(agentNodesToPrune, distribution);
     }
+  }
+
+  private void validateBeliefPoints(Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints) {
+    var agentsWithBeliefPoints = decPOMDP.getAgents().stream()
+      .filter(a -> beliefPoints.containsKey(a) && beliefPoints.get(a) != null)
+      .filter(a -> !beliefPoints.get(a).isEmpty())
+      .count();
+    if (agentsWithBeliefPoints < decPOMDP.getAgents().size()) {
+      throw new IllegalArgumentException("Belief points must be defined for every agent of DecPOMDP.");
+    };
   }
 }

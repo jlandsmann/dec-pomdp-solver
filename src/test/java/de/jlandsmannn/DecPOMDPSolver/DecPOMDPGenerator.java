@@ -23,6 +23,15 @@ public class DecPOMDPGenerator {
     initializeObservations(builder);
     return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
+  public static DecPOMDPWithStateController getDecTigerPOMDPWithLargeFSC() {
+    var builder = new DecPOMDPBuilder();
+    initializeStates(builder);
+    initializeLargeAgents(builder);
+    initializeTransitions(builder);
+    initializeRewards(builder);
+    initializeObservations(builder);
+    return builder.setDiscountFactor(0.8).createDecPOMDP();
+  }
 
   private static void initializeStates(DecPOMDPBuilder builder) {
     builder
@@ -38,10 +47,25 @@ public class DecPOMDPGenerator {
     ;
   }
 
+  private static void initializeLargeAgents(DecPOMDPBuilder builder) {
+    builder
+      .addAgent(createLargeAgent("A1"))
+      .addAgent(createLargeAgent("A2"))
+    ;
+
+  }
+
   private static AgentWithStateController createAgent(String name) {
     var actions = Action.setOf("listen", "open-left", "open-right");
     var observations = Observation.setOf("hear-left", "hear-right");
     var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
+    return new AgentWithStateController(name, actions, observations, controller);
+  }
+
+  private static AgentWithStateController createLargeAgent(String name) {
+    var actions = Action.setOf("listen", "open-left", "open-right");
+    var observations = Observation.setOf("hear-left", "hear-right");
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, 4, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 
