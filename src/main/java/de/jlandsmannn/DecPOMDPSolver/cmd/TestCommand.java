@@ -47,7 +47,7 @@ public class TestCommand {
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
-    return builder.setDiscountFactor(0.8).createDecPOMDP();
+    return builder.setDiscountFactor(0.99).createDecPOMDP();
   }
 
   private void initializeStates(DecPOMDPBuilder builder) {
