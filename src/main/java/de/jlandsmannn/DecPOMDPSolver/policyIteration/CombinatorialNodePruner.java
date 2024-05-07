@@ -7,10 +7,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import org.ojalgo.array.operation.COPY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 
 public abstract class CombinatorialNodePruner<LP, RESULT> {
   private static final Logger LOG = LoggerFactory.getLogger(CombinatorialNodePruner.class);
@@ -47,7 +49,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       return;
     }
     LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", agent.getControllerNodes().size(), agent);
-    for (var node : agent.getControllerNodes()) {
+    for (var node : List.copyOf(agent.getControllerNodes())) {
       pruneNodeIfCombinatorialDominated(node);
     }
   }
@@ -67,7 +69,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       LOG.debug("No combination of dominating nodes exist, can't prune {} of {}", nodeToCheck, agent);
       return;
     }
-    LOG.debug("Replacing {} with {} nodes of {}", nodeToCheck, dominatingNodes.get().size(), agent);
+    LOG.debug("Replacing {} with {}", nodeToCheck, dominatingNodes.get());
     agent.pruneNode(nodeToCheck, dominatingNodes.get());
   }
 }
