@@ -43,7 +43,7 @@ public class FiniteStateController {
 
   public void addNode(Node node, Distribution<Action> action) {
     if (nodes.contains(node)) {
-      throw new IllegalStateException("Node " + node + " already exists");
+      throw new IllegalArgumentException("Node " + node + " already exists");
     }
     nodes.add(node);
     nodeIndex++;
@@ -56,7 +56,7 @@ public class FiniteStateController {
 
   public void addTransition(Node node, Action a, Observation o, Distribution<Node> transition) {
     if (!nodes.contains(node)) {
-      throw new IllegalStateException("Node " + node + " does not exist.");
+      throw new IllegalArgumentException("Node " + node + " does not exist.");
     }
     transitionFunction.putIfAbsent(node, new HashMap<>());
     transitionFunction.get(node).putIfAbsent(a, new HashMap<>());

@@ -53,6 +53,13 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
     return preCalculatedValuesForState.getOrDefault(nodes, 0D);
   }
 
+  public Optional<Double> getOptionalValue(State state, Vector<Node> nodes) {
+    var preCalculatedValuesForState = preCalculatedValueFunction.get(state);
+    if (preCalculatedValuesForState == null) return Optional.empty();
+    var value = preCalculatedValuesForState.get(nodes);
+    return Optional.ofNullable(value);
+  }
+
   public void setValue(State state, Vector<Node> nodes, double value) {
     preCalculatedValueFunction.putIfAbsent(state, new HashMap<>());
     preCalculatedValueFunction.get(state).put(nodes, value);

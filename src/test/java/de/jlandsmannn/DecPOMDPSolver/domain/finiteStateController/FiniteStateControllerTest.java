@@ -77,6 +77,15 @@ class FiniteStateControllerTest {
   }
 
   @Test
+  void addNode_ShouldAddNodeThrowIfNodeDoesAlreadyExist() {
+    var existingNode = finiteStateController.getNodes().get(0);
+    var actionDistribution = Distribution.createUniformDistribution(actions);
+    assertThrows(IllegalArgumentException.class, () ->
+      finiteStateController.addNode(existingNode, actionDistribution)
+    );
+  }
+
+  @Test
   void addNode_ShouldAddNodeAndActionDistribution() {
     var newNode = new Node("NN1");
     var actionDistribution = Distribution.createUniformDistribution(actions);
@@ -106,11 +115,23 @@ class FiniteStateControllerTest {
   }
 
   @Test
+  void addTransition_ShouldThrowIfNodeDoesNotExist() {
+    var newNode = new Node("NN1");
+    var action = new Action("A1");
+    var observation = new Observation("O1");
+    var nodeDistribution = Distribution.createUniformDistribution(nodes);
+    assertThrows(IllegalArgumentException.class, () ->
+      finiteStateController.addTransition(newNode, action, observation, nodeDistribution)
+    );
+  }
+
+  @Test
   void addTransition_ShouldUpdateFollowNodeFunction() {
     var newNode = new Node("NN1");
     var action = new Action("A1");
     var observation = new Observation("O1");
     var nodeDistribution = Distribution.createUniformDistribution(nodes);
+    finiteStateController.addNode(newNode, action);
     finiteStateController.addTransition(newNode, action, observation, nodeDistribution);
 
     var actualFollowNode = finiteStateController.getFollowNode(newNode, action, observation);
@@ -123,6 +144,7 @@ class FiniteStateControllerTest {
     var action = new Action("A1");
     var observation = new Observation("O1");
     var followNode = new Node("N1");
+    finiteStateController.addNode(newNode, action);
     finiteStateController.addTransition(newNode, action, observation, followNode);
 
     var expectedFollowNode = Distribution.createSingleEntryDistribution(followNode);

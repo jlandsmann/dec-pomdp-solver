@@ -96,7 +96,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected void performExhaustiveBackup() {
     LOG.info("Performing exhaustive backup.");
-    exhaustiveBackupPerformer.performExhaustiveBackup(decPOMDP);
+    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackup();
   }
 
   protected void retainDominatingNodes() {

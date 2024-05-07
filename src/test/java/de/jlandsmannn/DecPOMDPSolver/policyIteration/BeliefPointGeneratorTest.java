@@ -17,7 +17,7 @@ class BeliefPointGeneratorTest {
   @BeforeEach
   void setUp() {
     beliefPointGenerator = new BeliefPointGenerator();
-    decPOMDP = DecPOMDPGenerator.generateDecPOMDPWithTwoAgents();
+    decPOMDP = DecPOMDPGenerator.getDecTigerPOMDP();
   }
 
   @Test

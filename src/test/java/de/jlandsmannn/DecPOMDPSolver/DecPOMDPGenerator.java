@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
@@ -9,83 +10,131 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateCon
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DecPOMDPGenerator {
-  public static DecPOMDPWithStateController generateDecPOMDPWithTwoAgents() {
-    List<State> states;
-    List<AgentWithStateController> agents;
-    double discountFactor;
-    Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
-    Map<State, java.util.Map<Vector<Action>, Double>> rewardFunction;
-    Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
-
-    var agent1 = createAgentWithStateController("A1");
-    var agent2 = createAgentWithStateController("A2");
-    states = State.listOf("S1", "S2");
-    agents = List.of(agent1, agent2);
-    discountFactor = 0.5D;
-
-    transitionFunction = new HashMap<>();
-    transitionFunction.putIfAbsent(State.from("S1"), new HashMap<>());
-    transitionFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A1")), Distribution.createSingleEntryDistribution(State.from("S2")));
-    transitionFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A2")), Distribution.createSingleEntryDistribution(State.from("S1")));
-    transitionFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A1")), Distribution.createSingleEntryDistribution(State.from("S1")));
-    transitionFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A2")), Distribution.createSingleEntryDistribution(State.from("S2")));
-    transitionFunction.putIfAbsent(State.from("S2"), new HashMap<>());
-    transitionFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A1")), Distribution.createSingleEntryDistribution(State.from("S1")));
-    transitionFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A2")), Distribution.createSingleEntryDistribution(State.from("S2")));
-    transitionFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A1")), Distribution.createSingleEntryDistribution(State.from("S1")));
-    transitionFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A2")), Distribution.createSingleEntryDistribution(State.from("S2")));
-
-    rewardFunction = new HashMap<>();
-    rewardFunction.putIfAbsent(State.from("S1"), new HashMap<>());
-    rewardFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A1")), 5D);
-    rewardFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A2")), -1D);
-    rewardFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A1")), -2D);
-    rewardFunction.get(State.from("S1")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A2")), 4D);
-    rewardFunction.putIfAbsent(State.from("S2"), new HashMap<>());
-    rewardFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A1")), -3D);
-    rewardFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A2")), 7D);
-    rewardFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A1")), -9D);
-    rewardFunction.get(State.from("S2")).putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A2")), 6D);
-
-    observationFunction = new HashMap<>();
-    observationFunction.putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A1")), new HashMap<>());
-    observationFunction.get(Vector.of(Action.listOf("A1-A1", "A2-A1"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
-    observationFunction.get(Vector.of(Action.listOf("A1-A1", "A2-A1"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
-    observationFunction.putIfAbsent(Vector.of(Action.listOf("A1-A1", "A2-A2")), new HashMap<>());
-    observationFunction.get(Vector.of(Action.listOf("A1-A1", "A2-A2"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
-    observationFunction.get(Vector.of(Action.listOf("A1-A1", "A2-A2"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
-    observationFunction.putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A1")), new HashMap<>());
-    observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A1"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
-    observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A1"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
-    observationFunction.putIfAbsent(Vector.of(Action.listOf("A1-A2", "A2-A2")), new HashMap<>());
-    observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
-    observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
-
-    return new DecPOMDPWithStateController(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+  public static DecPOMDPWithStateController getDecTigerPOMDP() {
+    var builder = new DecPOMDPBuilder();
+    initializeStates(builder);
+    initializeAgents(builder);
+    initializeTransitions(builder);
+    initializeRewards(builder);
+    initializeObservations(builder);
+    return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
 
-  private static AgentWithStateController createAgentWithStateController(String name) {
-    var finiteStateController = new FiniteStateControllerBuilder()
-      .addNode(name + "-N1")
-      .addActionSelection(name + "-N1", Distribution.createSingleEntryDistribution(name + "-A1"))
-      .addTransition(name + "-N1", name + "-A1", name + "-O1", Distribution.createSingleEntryDistribution(name + "-N1"))
-      .addTransition(name + "-N1", name + "-A1", name + "-O2", Distribution.createSingleEntryDistribution(name + "-N2"))
-      .addNode(name + "-N2")
-      .addActionSelection(name + "-N2", Distribution.createSingleEntryDistribution(name + "-A2"))
-      .addTransition(name + "-N2", name + "-A2", name + "-O1", Distribution.createSingleEntryDistribution(name + "-N2"))
-      .addTransition(name + "-N2", name + "-A2", name + "-O2", Distribution.createSingleEntryDistribution(name + "-N1"))
-      .createFiniteStateController()
+  private static void initializeStates(DecPOMDPBuilder builder) {
+    builder
+      .addState("tiger-left")
+      .addState("tiger-right")
     ;
-    return new AgentWithStateController(
-      name,
-      Action.setOf(name + "-A1", name + "-A2"),
-      Observation.setOf(name + "-O1", name + "-O2"),
-      finiteStateController
-    );
+  }
+
+  private static void initializeAgents(DecPOMDPBuilder builder) {
+    builder
+      .addAgent(createAgent("A1"))
+      .addAgent(createAgent("A2"))
+    ;
+  }
+
+  private static AgentWithStateController createAgent(String name) {
+    var actions = Action.setOf("listen", "open-left", "open-right");
+    var observations = Observation.setOf("hear-left", "hear-right");
+    var controller = FiniteStateControllerBuilder.createArbitraryController(actions, observations);
+    return new AgentWithStateController(name, actions, observations, controller);
+  }
+
+  private static void initializeTransitions(DecPOMDPBuilder builder) {
+    var uniformStateDistribution = Distribution.createUniformDistribution(State.setOf("tiger-left", "tiger-right"));
+    builder
+      .addTransition("tiger-left", createActionVector("listen", "listen"), "tiger-left")
+      .addTransition("tiger-left", createActionVector("listen", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("listen", "open-right"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-left", "listen"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-left", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-left", "open-right"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-right", "listen"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-right", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-left", createActionVector("open-right", "open-right"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-left")
+      .addTransition("tiger-right", createActionVector("listen", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("listen", "open-right"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-left", "listen"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-left", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-left", "open-right"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-right", "listen"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-right", "open-left"), uniformStateDistribution)
+      .addTransition("tiger-right", createActionVector("open-right", "open-right"), uniformStateDistribution)
+    ;
+  }
+
+  private static void initializeRewards(DecPOMDPBuilder builder) {
+    builder
+      .addReward("tiger-left", createActionVector("listen", "listen"), -2D)
+      .addReward("tiger-left", createActionVector("listen", "open-left"), -101D)
+      .addReward("tiger-left", createActionVector( "listen", "open-right"), 9D)
+      .addReward("tiger-left", createActionVector("open-left", "listen"), -101D)
+      .addReward("tiger-left", createActionVector("open-left", "open-left"), -50D)
+      .addReward("tiger-left", createActionVector("open-left", "open-right"), -100D)
+      .addReward("tiger-left", createActionVector("open-right", "listen"), 9D)
+      .addReward("tiger-left", createActionVector("open-right", "open-left"), -100D)
+      .addReward("tiger-left", createActionVector("open-right", "open-right"), 20D)
+      .addReward("tiger-right", createActionVector("listen", "listen"), -2D)
+      .addReward("tiger-right", createActionVector("listen", "open-left"), 9D)
+      .addReward("tiger-right", createActionVector( "listen", "open-right"), -101D)
+      .addReward("tiger-right", createActionVector("open-left", "listen"), 9D)
+      .addReward("tiger-right", createActionVector("open-left", "open-left"), 20D)
+      .addReward("tiger-right", createActionVector("open-left", "open-right"), -100D)
+      .addReward("tiger-right", createActionVector("open-right", "listen"), -101D)
+      .addReward("tiger-right", createActionVector("open-right", "open-left"), -100D)
+      .addReward("tiger-right", createActionVector("open-right", "open-right"), -50D)
+    ;
+
+  }
+
+  private static void initializeObservations(DecPOMDPBuilder builder) {
+    var uniformObservationDistribution = Distribution.createUniformDistribution(Set.of(
+      Vector.of(Observation.listOf("hear-left", "hear-left")),
+      Vector.of(Observation.listOf("hear-right", "hear-left")),
+      Vector.of(Observation.listOf("hear-left", "hear-right")),
+      Vector.of(Observation.listOf("hear-right", "hear-right"))
+    ));
+    builder
+      .addObservation(createActionVector("listen", "listen"), "tiger-left", Distribution.of(Map.of(
+        Vector.of(Observation.listOf("hear-left", "hear-left")), 0.7225,
+        Vector.of(Observation.listOf("hear-right", "hear-left")), 0.1275,
+        Vector.of(Observation.listOf("hear-left", "hear-right")), 0.1275,
+        Vector.of(Observation.listOf("hear-right", "hear-right")), 0.0225
+      )))
+      .addObservation(createActionVector("listen", "open-left"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-right"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "listen"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-left"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-right"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "listen"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-left"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-right"), "tiger-left", uniformObservationDistribution)
+
+      .addObservation(createActionVector("listen", "listen"), "tiger-right", Distribution.of(Map.of(
+        Vector.of(Observation.listOf("hear-right", "hear-right")), 0.7225,
+        Vector.of(Observation.listOf("hear-right", "hear-left")), 0.1275,
+        Vector.of(Observation.listOf("hear-left", "hear-right")), 0.1275,
+        Vector.of(Observation.listOf("hear-left", "hear-left")), 0.0225
+      )))
+      .addObservation(createActionVector("listen", "open-left"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-right"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "listen"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-left"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-right"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "listen"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-left"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-right"), "tiger-right", uniformObservationDistribution)
+    ;
+  }
+
+  private static Vector<Action> createActionVector(String... actions) {
+    var listOfActions = Action.listOf(actions);
+    return new Vector<>(listOfActions);
   }
 }
