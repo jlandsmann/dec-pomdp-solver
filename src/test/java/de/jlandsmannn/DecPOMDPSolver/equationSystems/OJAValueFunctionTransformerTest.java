@@ -13,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ojalgo.function.aggregator.Aggregator;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.random.Binomial;
-import org.ojalgo.random.DiscreteDistribution;
 import org.ojalgo.random.Uniform;
 
 import java.util.HashMap;

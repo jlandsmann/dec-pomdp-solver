@@ -10,7 +10,8 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.random.Uniform;
 
 import static de.jlandsmannn.DecPOMDPSolver.ApplicationAssertions.assertFuzzyEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OJAEquationSystemSolverTest {
 
