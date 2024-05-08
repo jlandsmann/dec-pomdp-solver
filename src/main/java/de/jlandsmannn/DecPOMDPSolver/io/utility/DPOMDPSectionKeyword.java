@@ -1,19 +1,13 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
-import java.util.Optional;
 import java.util.Set;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
-
-import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.NAME_PATTERN;
-import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.NUMBER_PATTERN;
 
 
 public enum DPOMDPSectionKeyword {
   COMMENT("#"),
   AGENTS("agents"),
   DISCOUNT("discount"),
-  VALUES("values"),
+  REWARD_TYPE("values"),
   STATES("states"),
   START("start"),
   ACTIONS("actions"),
@@ -42,7 +36,7 @@ public enum DPOMDPSectionKeyword {
   }
 
   public static final Set<DPOMDPSectionKeyword> ALL = Set.of(
-    COMMENT, AGENTS, DISCOUNT, VALUES,
+    COMMENT, AGENTS, DISCOUNT, REWARD_TYPE,
     STATES, START, ACTIONS, OBSERVATIONS,
     TRANSITION_ENTRY, REWARD_ENTRY, OBSERVATION_ENTRY
   );

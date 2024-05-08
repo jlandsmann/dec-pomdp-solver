@@ -9,5 +9,5 @@ public final class CommonPattern {
   public static final String NEGATIVE_NUMBER_PATTERN = "-" + POSITIVE_NUMBER_PATTERN;
   public static final String NUMBER_PATTERN = "-?" + POSITIVE_NUMBER_PATTERN;
 
-  public static final String NAME_PATTERN = "[a-zA-Z][a-zA-Z0-9]*";
+  public static final String NAME_PATTERN = "[a-zA-Z][a-zA-Z0-9\\\\ \\/\\-_]*";
 }

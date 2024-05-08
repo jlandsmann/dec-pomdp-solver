@@ -1,6 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,22 +97,70 @@ class DPOMDPFileParserTest {
     "discounts: 1.0",
     "discount: 2",
     "discount: -0.1",
-    "discount: 0.2",
+    "discount: -0.2",
     "discount: 1.1"
   })
   void parseDiscount_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
       IllegalArgumentException.class,
-      () -> parser.parseAgents(invalidSection)
+      () -> parser.parseDiscount(invalidSection)
+    );
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"cost", "reward"})
+  void parseRewardType_ShouldSetRewardType(String rewardType) {
+    var section = "values: " + rewardType;
+    var expected = DPOMDPRewardType.parse(rewardType);
+    parser.parseRewardType(section);
+    var actual = parser.rewardType;
+    assertEquals(expected, actual);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "value: cost",
+    "value: reward",
+    "values: c",
+    "values: r",
+    "values: 1"
+  })
+  void parseRewardType_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseRewardType(invalidSection)
     );
   }
 
   @Test
-  void parseValue() {
+  void parseStates_ShouldCreateStateNamesIfGivenNumerical() {
+    var statesDefinedByNumber = "states: 5";
+    var expectedStateCount = 5;
+    parser.parseStates(statesDefinedByNumber);
+    verify(builder).addStates(argThat(c -> c.size() == expectedStateCount));
   }
 
   @Test
-  void parseStates() {
+  void parseStates_ShouldCreateStateNamesIfGivenByName() {
+    var statesDefinedByName = "states: A B C D";
+    var expectedStateNames = State.listOf("A", "B", "C", "D");
+    parser.parseStates(statesDefinedByName);
+    verify(builder).addStates(expectedStateNames);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "state: A B C D",
+    "state: 2",
+    "states: -2",
+    "states: 0",
+    "states: 2 2"
+  })
+  void parseStates_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseStates(invalidSection)
+    );
   }
 
   @Test

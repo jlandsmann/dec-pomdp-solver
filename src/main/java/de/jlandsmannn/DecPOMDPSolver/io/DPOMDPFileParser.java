@@ -1,10 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPValueType;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class DPOMDPFileParser {
   protected StringBuilder currentSectionBuilder = new StringBuilder();
 
   protected List<String> agentNames = new ArrayList<>();
-  protected DPOMDPValueType valueType = DPOMDPValueType.REWARD;
+  protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
 
   public DPOMDPFileParser() {
     this(new DecPOMDPBuilder());
@@ -93,7 +93,7 @@ public class DPOMDPFileParser {
     switch (keyword) {
       case DPOMDPSectionKeyword.AGENTS: parseAgents(section);
       case DPOMDPSectionKeyword.DISCOUNT: parseDiscount(section);
-      case DPOMDPSectionKeyword.VALUES: parseValue(section);
+      case DPOMDPSectionKeyword.REWARD_TYPE: parseRewardType(section);
       case DPOMDPSectionKeyword.STATES: parseStates(section);
       case DPOMDPSectionKeyword.START: parseStart(section);
       case DPOMDPSectionKeyword.ACTIONS: parseActions(section);
@@ -108,7 +108,7 @@ public class DPOMDPFileParser {
     LOG.debug("Parsing 'agents' section.");
     var match = DPOMDPSectionPattern.AGENTS
       .getMatch(section)
-      .orElseThrow(() -> new IllegalArgumentException("Trying to parse agents section, but found invalid format."));
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'agents' section, but found invalid format."));
     if (match.group("agentCount") != null) {
       var agentCountString = match.group("agentCount");
       var agentCount = Integer.parseInt(agentCountString);
@@ -120,7 +120,7 @@ public class DPOMDPFileParser {
       agentNames = List.of(rawAgentNames.split(" "));
       LOG.debug("Found custom names of agents, creating {} agents with given names.", agentNames.size());
     } else {
-      throw new IllegalStateException("agent section was parsed successfully, but neither agentCount nor agentNames are present.");
+      throw new IllegalStateException("'agents' section was parsed successfully, but neither agentCount nor agentNames are present.");
     }
   }
 
@@ -137,18 +137,47 @@ public class DPOMDPFileParser {
       else if (discount > 1) throw new IllegalArgumentException("discount must be less than or equal to one.");
       builder.setDiscountFactor(discount);
     } else {
-      throw new IllegalStateException("discount section was parsed successfully, but discountFactor could not be found.");
+      throw new IllegalStateException("'discount' section was parsed successfully, but discountFactor could not be found.");
     }
   }
 
-  protected void parseValue(String section) {
+  protected void parseRewardType(String section) {
     LOG.debug("Parsing 'value' section.");
-
+    var match = DPOMDPSectionPattern.REWARD_TYPE
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse value section, but found invalid format."));
+    if (match.group("rewardType") != null) {
+      var rewardTypeString = match.group("rewardType");
+      rewardType = rewardTypeString.equals("cost") ? DPOMDPRewardType.COST : DPOMDPRewardType.REWARD;
+      LOG.debug("Found reward type: {}", rewardType);
+    } else {
+      throw new IllegalStateException("'value' section was parsed successfully, but value could not be found.");
+    }
   }
 
   protected void parseStates(String section) {
     LOG.debug("Parsing 'states' section.");
-
+    var match = DPOMDPSectionPattern.STATES
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'states' section, but found invalid format."));
+    if (match.group("stateCount") != null) {
+      var stateCountString = match.group("stateCount");
+      var stateCount = Integer.parseInt(stateCountString);
+      if (stateCount <= 0) throw new IllegalArgumentException("stateCount must be greater than zero.");
+      LOG.debug("Found number of states, creating {} states with generic names.", stateCount);
+      var states = IntStream.range(0, stateCount)
+        .mapToObj(i -> "S" + i)
+        .map(State::from)
+        .toList();
+      builder.addStates(states);
+    } else if (match.group("stateNames") != null){
+      var rawStateNames = match.group("stateNames");
+      var states = State.listOf(rawStateNames.split(" "));
+      builder.addStates(states);
+      LOG.debug("Found custom names of states, creating {} states with given names.", states.size());
+    } else {
+      throw new IllegalStateException("'states' section was parsed successfully, but neither stateCount nor stateNames are present.");
+    }
   }
 
   protected void parseStart(String section) {

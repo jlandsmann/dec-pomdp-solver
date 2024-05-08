@@ -45,7 +45,7 @@ public class DecPOMDPBuilder {
   }
 
   public DecPOMDPBuilder addStates(Collection<State> states) {
-    states.forEach(state -> addState(state));
+    states.forEach(this::addState);
     return this;
   }
 

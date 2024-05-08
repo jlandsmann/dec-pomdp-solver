@@ -24,8 +24,17 @@ public enum DPOMDPSectionPattern {
     DPOMDPSectionKeyword.DISCOUNT + ": " +
       "(?<discount>" + POSITIVE_NUMBER_PATTERN + ")"
   ),
-  VALUES(),
-  STATES(),
+  REWARD_TYPE(
+    DPOMDPSectionKeyword.REWARD_TYPE + ": "+
+      "(?<rewardType>reward|cost)"
+  ),
+  STATES(
+    DPOMDPSectionKeyword.STATES + ": " +
+      "(?:" +
+      "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")" +
+      "|" +
+      "(?<stateNames>" + "(?:" + NAME_PATTERN + " ?)" + "+)" +
+      ")"),
   START(),
   ACTIONS(),
   OBSERVATIONS(),
