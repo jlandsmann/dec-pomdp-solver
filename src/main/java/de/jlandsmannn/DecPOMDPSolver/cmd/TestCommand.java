@@ -36,9 +36,9 @@ public class TestCommand {
     var result = solver
       .setDecPOMDP(model)
       .setInitialBeliefState(initialBeliefState)
+      .setInitialPolicies(initialPolicies)
       .setNumberOfBeliefPoints(10)
       .setMaxIterations(20)
-      .setInitialPolicies(initialPolicies)
       .solve();
     System.out.println("Result: " + result);
   }
