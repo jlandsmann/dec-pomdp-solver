@@ -21,6 +21,12 @@ public class DecPOMDPBuilder {
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction = new HashMap<>();
   private double discountFactor;
 
+  public DecPOMDPBuilder addAgents(Collection<AgentWithStateController> agents) {
+    this.agents.removeAll(agents);
+    this.agents.addAll(agents);
+    return this;
+  }
+
   public DecPOMDPBuilder addAgent(AgentWithStateController agent) {
     this.agents.remove(agent);
     this.agents.add(agent);
