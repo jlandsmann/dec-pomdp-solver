@@ -64,7 +64,7 @@ class OJACombinatorialNodePrunerTest {
 
   @Test
   void pruneNodesIfCombinatorialDominated_ShouldNotProceedIfAgentHasSingleNode() {
-    when(agent.getControllerNodes()).thenReturn(List.of(Node.of("Q1")));
+    when(agent.getControllerNodes()).thenReturn(Node.listOf("Q1"));
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -76,7 +76,7 @@ class OJACombinatorialNodePrunerTest {
 
   @Test
   void pruneNodesIfCombinatorialDominated_ShouldProceedForEveryNodeOfAgent() {
-    when(agent.getControllerNodes()).thenReturn(List.of(Node.of("Q1"), Node.of("Q2")));
+    when(agent.getControllerNodes()).thenReturn(Node.listOf("Q1", "Q2"));
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -88,7 +88,7 @@ class OJACombinatorialNodePrunerTest {
 
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallTransformerToCreateLinearProgram() {
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -100,7 +100,7 @@ class OJACombinatorialNodePrunerTest {
 
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallSolverSetLinearProgram() {
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -112,7 +112,7 @@ class OJACombinatorialNodePrunerTest {
 
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallSolverMaximise() {
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -125,7 +125,7 @@ class OJACombinatorialNodePrunerTest {
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallTransformToGetDominatingNodesIfLPHasResult() {
     when(solver.maximise()).thenReturn(Optional.of(Map.of()));
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -138,7 +138,7 @@ class OJACombinatorialNodePrunerTest {
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldNotCallTransformToGetDominatingNodesIfLPHasNoResult() {
     when(solver.maximise()).thenReturn(Optional.empty());
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -151,8 +151,8 @@ class OJACombinatorialNodePrunerTest {
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallAgentToPruneNodeIfDominatingNodesExist() {
     when(solver.maximise()).thenReturn(Optional.of(Map.of()));
-    when(transformer.getDominatingNodeDistributionFromResult(any())).thenReturn(Optional.of(Distribution.createSingleEntryDistribution(Node.of("Q2"))));
-    var node = Node.of("Q0");
+    when(transformer.getDominatingNodeDistributionFromResult(any())).thenReturn(Optional.of(Distribution.createSingleEntryDistribution(Node.from("Q2"))));
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)
@@ -166,7 +166,7 @@ class OJACombinatorialNodePrunerTest {
   void pruneNodeIfCombinatorialDominated_ShouldNotCallAgentToPruneNodeIfNoDominatingNodesExist() {
     when(solver.maximise()).thenReturn(Optional.of(Map.of()));
     when(transformer.getDominatingNodeDistributionFromResult(any())).thenReturn(Optional.empty());
-    var node = Node.of("Q0");
+    var node = Node.from("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
       .setAgent(agent)

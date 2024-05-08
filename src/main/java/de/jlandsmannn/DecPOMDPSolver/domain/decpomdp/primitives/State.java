@@ -21,11 +21,10 @@ public record State(String name) {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof State) {
-      return name.equals(((State) obj).name);
-    }
-    return false;
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof State state)) return false;
+    return Objects.equals(name, state.name);
   }
 
   @Override

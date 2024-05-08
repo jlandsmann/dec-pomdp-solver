@@ -43,7 +43,7 @@ public class ExhaustiveBackupPerformer {
       var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
       var observationNodeCombinations = VectorStreamBuilder.forEachCombination(rawObservationNodeCombinations).toList();
       for (var observationNodeCombination : observationNodeCombinations) {
-        var node = Node.of(agent.getName() + "-Q" + agent.getControllerNodeIndex());
+        var node = Node.from(agent.getName() + "-Q" + agent.getControllerNodeIndex());
         agent.addNode(node, Distribution.createSingleEntryDistribution(action));
         nodesAdded++;
         var observationIndex = 0;

@@ -80,14 +80,14 @@ class OJACombinatorialNodePruningTransformerTest {
 
   @Test
   void getLinearProgramForNode_ShouldThrowIfDecPOMDPNotSet() {
-    var node = Node.of("Q1");
+    var node = Node.from("Q1");
     transformer.setBeliefPoints(beliefPoints);
     assertThrows(IllegalStateException.class, () -> transformer.getLinearProgramForNode(node));
   }
 
   @Test
   void getLinearProgramForNode_ShouldThrowIfAgentNotSet() {
-    var node = Node.of("Q1");
+    var node = Node.from("Q1");
     transformer.setDecPOMDP(decPOMDP);
     transformer.setBeliefPoints(beliefPoints);
     assertThrows(IllegalStateException.class, () -> transformer.getLinearProgramForNode(node));
@@ -104,7 +104,7 @@ class OJACombinatorialNodePruningTransformerTest {
 
   @Test
   void getLinearProgramForNode_ShouldThrowIfNodeToCheckIsNotPartOfAgent() {
-    var node2 = Node.of("Hello World");
+    var node2 = Node.from("Hello World");
     transformer.setDecPOMDP(decPOMDP);
     transformer.setAgent(agent);
     transformer.setBeliefPoints(beliefPoints);
@@ -170,9 +170,9 @@ class OJACombinatorialNodePruningTransformerTest {
     @Test
     void getDominatingNodeDistributionFromResult_ShouldReturnNodeDistributionBasedOnResult() {
       var expected = Distribution.of(Map.of(
-        Node.of("A1-Q1"), 0.2,
-        Node.of("A1-Q2"), 0.6,
-        Node.of("A1-Q3"), 0.2
+        Node.from("A1-Q1"), 0.2,
+        Node.from("A1-Q2"), 0.6,
+        Node.from("A1-Q3"), 0.2
       ));
       var result = Map.of(
         "epsilon", 1D,

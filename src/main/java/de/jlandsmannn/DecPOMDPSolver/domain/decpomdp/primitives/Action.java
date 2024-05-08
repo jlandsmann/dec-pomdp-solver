@@ -12,20 +12,19 @@ public record Action(String name) {
     return new Action(name);
   }
 
-  public static Set<Action> setOf(String ...names) {
-    return Arrays.stream(names).map(Action::from).collect(Collectors.toSet());
-  }
-
   public static List<Action> listOf(String ...names) {
     return Arrays.stream(names).map(Action::from).toList();
   }
 
+  public static Set<Action> setOf(String ...names) {
+    return Arrays.stream(names).map(Action::from).collect(Collectors.toSet());
+  }
+
   @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Action) {
-      return name.equals(((Action) obj).name);
-    }
-    return false;
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Action action)) return false;
+    return Objects.equals(name, action.name);
   }
 
   @Override
