@@ -11,7 +11,7 @@ import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 
 
 public enum DPOMDPSectionPattern {
-  COMMENT(".*"),
+  COMMENT(DPOMDPSectionKeyword.COMMENT + ".*"),
   AGENTS(
     DPOMDPSectionKeyword.AGENTS + ": " +
       "(?:" +
@@ -20,17 +20,24 @@ public enum DPOMDPSectionPattern {
       "(?<agentNames>" + "(?:" + NAME_PATTERN + " ?)" + "+)" +
       ")"
   ),
-  DISCOUNT(".*"),
-  VALUES(".*"),
-  STATES(".*"),
-  START(".*"),
-  ACTIONS(".*"),
-  OBSERVATIONS(".*"),
-  TRANSITION_ENTRY(".*"),
-  REWARD_ENTRY(".*"),
-  OBSERVATION_ENTRY(".*");
+  DISCOUNT(
+    DPOMDPSectionKeyword.DISCOUNT + ": " +
+      "(?<discount>" + POSITIVE_NUMBER_PATTERN + ")"
+  ),
+  VALUES(),
+  STATES(),
+  START(),
+  ACTIONS(),
+  OBSERVATIONS(),
+  TRANSITION_ENTRY(),
+  REWARD_ENTRY(),
+  OBSERVATION_ENTRY();
 
   private final Pattern pattern;
+
+  DPOMDPSectionPattern() {
+    this(Pattern.compile(".*"));
+  }
 
   DPOMDPSectionPattern(String pattern) {
     this(Pattern.compile(pattern));

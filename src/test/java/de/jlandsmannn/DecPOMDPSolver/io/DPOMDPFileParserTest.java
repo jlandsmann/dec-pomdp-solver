@@ -3,6 +3,8 @@ package de.jlandsmannn.DecPOMDPSolver.io;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DPOMDPFileParserTest {
@@ -62,25 +65,42 @@ class DPOMDPFileParserTest {
     assertEquals(expectedAgentNames, actualAgentNames);
   }
 
-  @Test
-  void parseAgents_ShouldThrowIfInvalidSectionGiven() {
-    var invalidSections = List.of(
-      "agent: A B C D",
-      "agent: 2",
-      "agents: -2",
-      "agents: 0",
-      "agents: 2 2"
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "agent: A B C D",
+    "agent: 2",
+    "agents: -2",
+    "agents: 0",
+    "agents: 2 2"
+  })
+  void parseAgents_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseAgents(invalidSection)
     );
-    for (var invalidSection : invalidSections) {
-      assertThrows(
-        IllegalArgumentException.class,
-        () -> parser.parseAgents(invalidSection)
-      );
-    }
   }
 
-  @Test
-  void parseDiscount() {
+  @ParameterizedTest
+  @ValueSource(doubles = {0, 0.1, 0.25, 0.5, 0.9, 0.99, 1.0})
+  void parseDiscount_ShouldSetDiscountFactor(double discountFactor) {
+    var section = "discount: " + discountFactor;
+    parser.parseDiscount(section);
+    verify(builder).setDiscountFactor(discountFactor);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "discounts: 1.0",
+    "discount: 2",
+    "discount: -0.1",
+    "discount: 0.2",
+    "discount: 1.1"
+  })
+  void parseDiscount_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseAgents(invalidSection)
+    );
   }
 
   @Test

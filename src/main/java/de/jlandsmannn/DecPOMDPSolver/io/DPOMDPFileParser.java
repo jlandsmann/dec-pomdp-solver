@@ -5,7 +5,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPValueType;
-import org.jline.utils.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,7 @@ public class DPOMDPFileParser {
     this.builder = builder;
   }
 
-  public static Optional<DecPOMDP<?>> parseDecPOMDP(String fileName) {
+  public static Optional<DecPOMDPBuilder> parseDecPOMDP(String fileName) {
     try {
       var parser = new DPOMDPFileParser();
       var decPOMDP = parser.doParseDecPOMDP(fileName);
@@ -46,7 +45,7 @@ public class DPOMDPFileParser {
     }
   }
 
-  protected DecPOMDP<?> doParseDecPOMDP(String fileName) throws IOException {
+  protected DecPOMDPBuilder doParseDecPOMDP(String fileName) throws IOException {
     var path = Path.of(fileName);
     try (var file = Files.newBufferedReader(path)) {
       var currentLine = file.readLine();
@@ -55,16 +54,16 @@ public class DPOMDPFileParser {
         parseLine(currentLine);
       } while (currentLine != null);
     }
-    return builder.createDecPOMDP();
+    return builder;
   }
 
   protected void parseLine(String currentLine) {
     if (currentLine == null) {
-      Log.info("Reached end of file, finishing current section and parsing it.");
+      LOG.info("Reached end of file, finishing current section and parsing it.");
       parseCurrentSection();
       return;
     } else if (DPOMDPSectionKeyword.COMMENT.isAtBeginningOf(currentLine)) {
-      Log.debug("Found comment line, ignoring it.");
+      LOG.debug("Found comment line, ignoring it.");
       return;
     }
     var keywordMatching = DPOMDPSectionKeyword.ALL
@@ -73,11 +72,11 @@ public class DPOMDPFileParser {
       .findFirst();
 
     if (keywordMatching.isPresent()) {
-      Log.debug("Found keyword at beginning of line, finishing current section and parsing it.");
+      LOG.debug("Found keyword at beginning of line, finishing current section and parsing it.");
       parseCurrentSection();
       startNewSection(keywordMatching.get());
     }
-    Log.debug("No keyword matched current line, adding line to current section.");
+    LOG.debug("No keyword matched current line, adding line to current section.");
     currentSectionBuilder.append(currentLine).append(System.lineSeparator());
   }
 
@@ -106,62 +105,76 @@ public class DPOMDPFileParser {
   }
 
   protected void parseAgents(String section) {
-    Log.debug("Parsing 'agents' section.");
+    LOG.debug("Parsing 'agents' section.");
     var match = DPOMDPSectionPattern.AGENTS
       .getMatch(section)
       .orElseThrow(() -> new IllegalArgumentException("Trying to parse agents section, but found invalid format."));
     if (match.group("agentCount") != null) {
       var agentCountString = match.group("agentCount");
       var agentCount = Integer.parseInt(agentCountString);
-      Log.debug("Found number of agents, creating {} agents with generic names.", agentCount);
+      if (agentCount <= 0) throw new IllegalArgumentException("agentCount must be greater than zero.");
+      LOG.debug("Found number of agents, creating {} agents with generic names.", agentCount);
       agentNames = IntStream.range(0, agentCount).mapToObj(i -> "A" + i).toList();
     } else if (match.group("agentNames") != null){
       var rawAgentNames = match.group("agentNames");
       agentNames = List.of(rawAgentNames.split(" "));
-      Log.debug("Found custom names of agents defined, creating {} agents with given names.", agentNames.size());
+      LOG.debug("Found custom names of agents, creating {} agents with given names.", agentNames.size());
     } else {
       throw new IllegalStateException("agent section was parsed successfully, but neither agentCount nor agentNames are present.");
     }
   }
 
   protected void parseDiscount(String section) {
-    Log.debug("Parsing 'discount' section.");
+    LOG.debug("Parsing 'discount' section.");
+    var match = DPOMDPSectionPattern.DISCOUNT
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse discount section, but found invalid format."));
+    if (match.group("discount") != null) {
+      var discountString = match.group("discount");
+      var discount = Double.parseDouble(discountString);
+      LOG.debug("Found discount factor: {}", discount);
+      if (discount < 0) throw new IllegalArgumentException("discount must be greater than or equal to zero.");
+      else if (discount > 1) throw new IllegalArgumentException("discount must be less than or equal to one.");
+      builder.setDiscountFactor(discount);
+    } else {
+      throw new IllegalStateException("discount section was parsed successfully, but discountFactor could not be found.");
+    }
   }
 
   protected void parseValue(String section) {
-    Log.debug("Parsing 'value' section.");
+    LOG.debug("Parsing 'value' section.");
 
   }
 
   protected void parseStates(String section) {
-    Log.debug("Parsing 'states' section.");
+    LOG.debug("Parsing 'states' section.");
 
   }
 
   protected void parseStart(String section) {
-    Log.debug("Parsing 'start' section.");
+    LOG.debug("Parsing 'start' section.");
 
   }
 
   protected void parseActions(String section) {
-    Log.debug("Parsing 'actions' section.");
+    LOG.debug("Parsing 'actions' section.");
 
   }
 
   protected void parseObservations(String section) {
-    Log.debug("Parsing 'observations' section.");
+    LOG.debug("Parsing 'observations' section.");
   }
 
   protected void parseTransitionEntry(String section) {
-    Log.debug("Parsing 'T' section.");
+    LOG.debug("Parsing 'T' section.");
 
   }
 
   protected void parseRewardEntry(String section) {
-    Log.debug("Parsing 'R' section.");
+    LOG.debug("Parsing 'R' section.");
   }
 
   protected void parseObservationEntry(String section) {
-    Log.debug("Parsing 'O' section.");
+    LOG.debug("Parsing 'O' section.");
   }
 }
