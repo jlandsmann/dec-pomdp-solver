@@ -7,7 +7,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import org.ojalgo.array.operation.COPY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
 
   public void pruneNodeIfCombinatorialDominated(Node nodeToCheck) {
     LOG.debug("Checking {} of {} for pruning", nodeToCheck, agent);
-    var lp = transformer.forNode(nodeToCheck);
+    var lp = transformer.getLinearProgramForNode(nodeToCheck);
     solver.setLinearProgram(lp);
     var results = solver.maximise();
     if (results.isEmpty()) {
@@ -64,7 +63,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       return;
     }
     LOG.debug("Retrieving pruning nodes distribution for {}", nodeToCheck);
-    var dominatingNodes = transformer.getDominatingNodeDistribution(results.get());
+    var dominatingNodes = transformer.getDominatingNodeDistributionFromResult(results.get());
     if (dominatingNodes.isEmpty()) {
       LOG.debug("No combination of dominating nodes exist, can't prune {} of {}", nodeToCheck, agent);
       return;

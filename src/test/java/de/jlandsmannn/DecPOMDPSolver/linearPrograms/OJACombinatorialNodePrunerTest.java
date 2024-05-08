@@ -95,7 +95,7 @@ class OJACombinatorialNodePrunerTest {
       .setBeliefPoints(beliefPoints)
       .pruneNodeIfCombinatorialDominated(node);
 
-    verify(transformer).forNode(node);
+    verify(transformer).getLinearProgramForNode(node);
   }
 
   @Test
@@ -132,7 +132,7 @@ class OJACombinatorialNodePrunerTest {
       .setBeliefPoints(beliefPoints)
       .pruneNodeIfCombinatorialDominated(node);
 
-    verify(transformer).getDominatingNodeDistribution(any());
+    verify(transformer).getDominatingNodeDistributionFromResult(any());
   }
 
   @Test
@@ -145,13 +145,13 @@ class OJACombinatorialNodePrunerTest {
       .setBeliefPoints(beliefPoints)
       .pruneNodeIfCombinatorialDominated(node);
 
-    verify(transformer, never()).getDominatingNodeDistribution(any());
+    verify(transformer, never()).getDominatingNodeDistributionFromResult(any());
   }
 
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldCallAgentToPruneNodeIfDominatingNodesExist() {
     when(solver.maximise()).thenReturn(Optional.of(Map.of()));
-    when(transformer.getDominatingNodeDistribution(any())).thenReturn(Optional.of(Distribution.createSingleEntryDistribution(Node.of("Q2"))));
+    when(transformer.getDominatingNodeDistributionFromResult(any())).thenReturn(Optional.of(Distribution.createSingleEntryDistribution(Node.of("Q2"))));
     var node = Node.of("Q0");
     pruner
       .setDecPOMDP(decPOMDP)
@@ -165,7 +165,7 @@ class OJACombinatorialNodePrunerTest {
   @Test
   void pruneNodeIfCombinatorialDominated_ShouldNotCallAgentToPruneNodeIfNoDominatingNodesExist() {
     when(solver.maximise()).thenReturn(Optional.of(Map.of()));
-    when(transformer.getDominatingNodeDistribution(any())).thenReturn(Optional.empty());
+    when(transformer.getDominatingNodeDistributionFromResult(any())).thenReturn(Optional.empty());
     var node = Node.of("Q0");
     pruner
       .setDecPOMDP(decPOMDP)

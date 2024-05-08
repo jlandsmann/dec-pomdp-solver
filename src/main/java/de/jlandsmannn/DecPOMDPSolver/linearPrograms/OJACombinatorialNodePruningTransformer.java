@@ -33,20 +33,27 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
 
   @Override
   public void setAgent(AgentWithStateController agent) {
+    if (decPOMDP == null) {
+      throw new IllegalStateException("DecPOMDP must be set to select agent");
+    } else if (!decPOMDP.getAgents().contains(agent)) {
+      throw new IllegalArgumentException("DecPOMDP does not contain given agent");
+    }
     this.agent = agent;
   }
 
   @Override
   public void setBeliefPoints(Collection<Distribution<State>> beliefPoints) {
+    if (beliefPoints.isEmpty()) {
+      throw new IllegalArgumentException("Belief points must not be empty");
+    }
     this.beliefPoints = beliefPoints;
   }
 
   @Override
-  public ExpressionsBasedModel forNode(Node nodeToCheck) {
+  public ExpressionsBasedModel getLinearProgramForNode(Node nodeToCheck) {
+    validateDependencies(nodeToCheck);
     var linearProgram = new ExpressionsBasedModel();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
-    if (agentIndex < 0) throw new IllegalArgumentException("Agent is not part of DecPOMDP");
-
     var epsilon = linearProgram.newVariable("epsilon").lower(0);
     var constant = linearProgram.newVariable("constant").level(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
@@ -88,7 +95,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
   }
 
   @Override
-  public Optional<Distribution<Node>> getDominatingNodeDistribution(Map<String, Double> result) {
+  public Optional<Distribution<Node>> getDominatingNodeDistributionFromResult(Map<String, Double> result) {
     if (result.get("epsilon") < 0) {
       LOG.debug("Epsilon is negative, no dominating combination exists.");
       return Optional.empty();
@@ -102,5 +109,13 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     LOG.debug("Dominating combination consists of {} nodes", mappedResults.keySet().size());
     var distribution = Distribution.of(mappedResults);
     return Optional.of(distribution);
+  }
+
+  private void validateDependencies(Node node) {
+    if (decPOMDP == null || agent == null || beliefPoints == null) {
+      throw new IllegalStateException("DecPOMDP, agent and beliefPoints must be set to create linear program");
+    } else if (!agent.getControllerNodes().contains(node)) {
+      throw new IllegalArgumentException("NodeToCheck must be part of " + agent);
+    }
   }
 }

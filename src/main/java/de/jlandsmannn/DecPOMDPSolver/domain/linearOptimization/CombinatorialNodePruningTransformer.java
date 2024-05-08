@@ -15,7 +15,7 @@ public interface CombinatorialNodePruningTransformer<LP, RESULT> {
   void setAgent(AgentWithStateController agent);
   void setBeliefPoints(Collection<Distribution<State>> beliefPoints);
 
-  LP forNode(Node nodeToPrune);
+  LP getLinearProgramForNode(Node nodeToPrune);
 
-  Optional<Distribution<Node>> getDominatingNodeDistribution(RESULT result);
+  Optional<Distribution<Node>> getDominatingNodeDistributionFromResult(RESULT result);
 }
