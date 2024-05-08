@@ -1,13 +1,12 @@
-package de.jlandsmannn.DecPOMDPSolver.io;
+package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
-public enum DPOMDPCommonKeyword {
-  IDENTITY("identity"),
-  UNIFORM("uniform"),
-  ANY("*");
+public enum DPOMDPStateKeyword {
+  INCLUDE("include"),
+  EXCLUDE("exclude");
 
   private final String keyword;
 
-  DPOMDPCommonKeyword(String keyword) {
+  DPOMDPStateKeyword(String keyword) {
     this.keyword = keyword;
   }
 

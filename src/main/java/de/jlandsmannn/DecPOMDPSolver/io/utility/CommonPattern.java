@@ -1,4 +1,4 @@
-package de.jlandsmannn.DecPOMDPSolver.io;
+package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
 public final class CommonPattern {
   public static final String POSITIVE_INTEGER_PATTERN = "[1-9][0-9]*";

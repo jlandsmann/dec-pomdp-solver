@@ -1,4 +1,4 @@
-package de.jlandsmannn.DecPOMDPSolver.io;
+package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
 public enum DPOMDPValueType {
   REWARD("reward"),

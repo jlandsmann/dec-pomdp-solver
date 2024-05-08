@@ -2,6 +2,9 @@ package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPValueType;
 import org.jline.utils.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +19,22 @@ import java.util.stream.IntStream;
 
 public class DPOMDPFileParser {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
-  protected final DecPOMDPBuilder builder = new DecPOMDPBuilder();
+
+  protected final DecPOMDPBuilder builder;
+
   protected DPOMDPSectionKeyword currentKeyword = DPOMDPSectionKeyword.COMMENT;
   protected StringBuilder currentSectionBuilder = new StringBuilder();
 
   protected List<String> agentNames = new ArrayList<>();
   protected DPOMDPValueType valueType = DPOMDPValueType.REWARD;
+
+  public DPOMDPFileParser() {
+    this(new DecPOMDPBuilder());
+  }
+
+  public DPOMDPFileParser(DecPOMDPBuilder builder) {
+    this.builder = builder;
+  }
 
   public static Optional<DecPOMDP<?>> parseDecPOMDP(String fileName) {
     try {
@@ -94,19 +107,20 @@ public class DPOMDPFileParser {
 
   protected void parseAgents(String section) {
     Log.debug("Parsing 'agents' section.");
-    var matcher = DPOMDPSectionKeyword.AGENTS.getMatcher(section);
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException("Trying to parse agents section, but found invalid format.");
-    }
-    if (matcher.namedGroups().containsKey("agentCount")) {
-      var agentCountString = matcher.group("agentCount");
+    var match = DPOMDPSectionPattern.AGENTS
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse agents section, but found invalid format."));
+    if (match.group("agentCount") != null) {
+      var agentCountString = match.group("agentCount");
       var agentCount = Integer.parseInt(agentCountString);
       Log.debug("Found number of agents, creating {} agents with generic names.", agentCount);
       agentNames = IntStream.range(0, agentCount).mapToObj(i -> "A" + i).toList();
+    } else if (match.group("agentNames") != null){
+      var rawAgentNames = match.group("agentNames");
+      agentNames = List.of(rawAgentNames.split(" "));
+      Log.debug("Found custom names of agents defined, creating {} agents with given names.", agentNames.size());
     } else {
-      var agentCount = matcher.groupCount();
-      Log.debug("Found custom names of agents defined, creating {} agents with given names.", agentCount);
-      agentNames = IntStream.range(0, agentCount).mapToObj(matcher::group).toList();
+      throw new IllegalStateException("agent section was parsed successfully, but neither agentCount nor agentNames are present.");
     }
   }
 
