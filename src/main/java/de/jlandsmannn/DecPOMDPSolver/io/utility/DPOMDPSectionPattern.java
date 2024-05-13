@@ -14,13 +14,13 @@ public enum DPOMDPSectionPattern {
   AGENTS(
     DPOMDPSectionKeyword.AGENTS + ": " +
       OR(
-        "(?<agentCount>" + POSITIVE_INTEGER_PATTERN + ")",
+        "(?<agentCount>" + COUNT_PATTERN + ")",
         "(?<agentNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
       )
   ),
   DISCOUNT(
     DPOMDPSectionKeyword.DISCOUNT + ": " +
-      "(?<discount>" + POSITIVE_NUMBER_PATTERN + ")"
+      "(?<discount>" + PROBABILITY_PATTERN + ")"
   ),
   REWARD_TYPE(
     DPOMDPSectionKeyword.REWARD_TYPE + ": " +
@@ -29,7 +29,7 @@ public enum DPOMDPSectionPattern {
   STATES(
     DPOMDPSectionKeyword.STATES + ": " +
       OR(
-        "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")",
+        "(?<stateCount>" + COUNT_PATTERN + ")",
         "(?<stateNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
       )
   ),
@@ -37,46 +37,62 @@ public enum DPOMDPSectionPattern {
     DPOMDPSectionKeyword.START +
       OR(
         "(?:: " + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")",
-        "(?:: " + "(?<startStateIndex>" + POSITIVE_INTEGER_PATTERN + ")" + ")",
+        "(?:: " + "(?<startStateIndex>" + INDEX_PATTERN + ")" + ")",
         "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM.getPattern() + ")" + ")",
-        "(?:: ?\n" + "(?<distribution>" + LIST_OF(POSITIVE_NUMBER_PATTERN) + ")" + ")",
-        "(?: include: " + "(?<includeStates>" + LIST_OF(OR(POSITIVE_INTEGER_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")",
-        "(?: exclude: " + "(?<excludeStates>" + LIST_OF(OR(POSITIVE_INTEGER_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")"
+        "(?:: ?\n" + "(?<distribution>" + LIST_OF(PROBABILITY_PATTERN) + ")" + ")",
+        "(?: include: " + "(?<includeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")",
+        "(?: exclude: " + "(?<excludeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")"
       )
   ),
   ACTIONS(
     DPOMDPSectionKeyword.ACTIONS + ": ?\n" +
-      "(?<agentActions>" + ROWS_OF(OR(POSITIVE_INTEGER_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
+      "(?<agentActions>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
   ),
   OBSERVATIONS(
     DPOMDPSectionKeyword.OBSERVATIONS + ": ?\n" +
-      "(?<agentObservations>" + ROWS_OF(OR(POSITIVE_INTEGER_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
+      "(?<agentObservations>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
   ),
   TRANSITION_ENTRY(
     DPOMDPSectionKeyword.TRANSITION_ENTRY + ": " +
-      NAMED_GROUP("actionVector", LIST_OF(OR(IDENTIFIER_PATTERN, POSITIVE_INTEGER_PATTERN, ANY.getPattern()))) +
+      NAMED_GROUP("actionVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
       " :" +
       OR(
         // start state defined for given action vector
-        " " + NAMED_GROUP("startState", OR(IDENTIFIER_PATTERN, POSITIVE_INTEGER_PATTERN, ANY.getPattern())) +
+        " " + NAMED_GROUP("startState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
           " :" +
           OR(
             // end state and probability explicitly given
-            " " + NAMED_GROUP("endState", OR(IDENTIFIER_PATTERN, POSITIVE_INTEGER_PATTERN, ANY.getPattern())) +
-              " : " +
-              NAMED_GROUP("probability", POSITIVE_NUMBER_PATTERN),
+            " " + NAMED_GROUP("endState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
+              " : " + NAMED_GROUP("probability", PROBABILITY_PATTERN),
             // probability distribution given explicitly
-            " ?\n" + NAMED_GROUP("probabilityDistribution", LIST_OF(POSITIVE_NUMBER_PATTERN))
+            " ?\n" + NAMED_GROUP("probabilityDistribution", LIST_OF(PROBABILITY_PATTERN))
           ),
         // uniform probability distribution
         " ?\n" + NAMED_GROUP("probabilityUniformDistribution", UNIFORM.getPattern()),
         // end state = start state‚
         " ?\n" + NAMED_GROUP("probabilityIdentityDistribution", IDENTITY.getPattern()),
         // matrix defined for given action vector
-        " ?\n" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(POSITIVE_NUMBER_PATTERN)))
+        " ?\n" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(PROBABILITY_PATTERN)))
       )
   ),
-  OBSERVATION_ENTRY(),
+  OBSERVATION_ENTRY(
+    DPOMDPSectionKeyword.OBSERVATION_ENTRY + ": " +
+      NAMED_GROUP("actionVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
+      " :" +
+      OR(
+        " " + NAMED_GROUP("endState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
+          " :" +
+          OR(
+            " " + NAMED_GROUP("observationVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
+              " : " + NAMED_GROUP("probability", PROBABILITY_PATTERN),
+            " ?\n" + NAMED_GROUP("probabilityDistribution", LIST_OF(PROBABILITY_PATTERN))
+          ),
+        // uniform probability distribution
+        " ?\n" + NAMED_GROUP("probabilityUniformDistribution", UNIFORM.getPattern()),
+        // matrix defined for given action vector
+        " ?\n" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(PROBABILITY_PATTERN)))
+      )
+  ),
   REWARD_ENTRY();
 
   private final Pattern pattern;

@@ -35,6 +35,7 @@ public class DPOMDPFileParser {
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
   protected Distribution<State> initialBeliefState;
   protected Map<State, Map<Vector<Action>, Map<State, Double>>> transitions = new HashMap<>();
+  protected Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations = new HashMap<>();
 
   public DPOMDPFileParser() {
     this(new DecPOMDPBuilder());
@@ -225,7 +226,7 @@ public class DPOMDPFileParser {
       var rawStates = rawStatesString.split(" ");
       var allStates = builder.getStates();
       var statesToInclude = Arrays.stream(rawStates).map(s -> {
-        if (s.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+        if (s.matches(CommonPattern.INDEX_PATTERN)) {
           var index = Integer.parseInt(s);
           return allStates.get(index);
         } else {
@@ -239,7 +240,7 @@ public class DPOMDPFileParser {
       var rawStates = rawStatesString.split(" ");
       var allStates = builder.getStates();
       var statesToExclude = Arrays.stream(rawStates).map(s -> {
-        if (s.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+        if (s.matches(CommonPattern.INDEX_PATTERN)) {
           var index = Integer.parseInt(s);
           return allStates.get(index);
         } else {
@@ -269,7 +270,7 @@ public class DPOMDPFileParser {
     for (int i = 0; i < rawActionsPerAgent.length; i++) {
       var rawActionsForAgent = rawActionsPerAgent[i];
       var agentName = agentNames.get(i);
-      if (rawActionsForAgent.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+      if (rawActionsForAgent.matches(CommonPattern.INDEX_PATTERN)) {
         var numberOfActions = Integer.parseInt(rawActionsForAgent);
         if (numberOfActions == 0) throw new IllegalArgumentException("Number of actions must be greater than 0.");
         var actions = IntStream.range(0, numberOfActions).mapToObj(idx -> agentName + "-A" + idx).map(Action::from).toList();
@@ -301,7 +302,7 @@ public class DPOMDPFileParser {
     for (int i = 0; i < rawObservationsPerAgent.length; i++) {
       var rawObservationsForAgent = rawObservationsPerAgent[i];
       var agentName = agentNames.get(i);
-      if (rawObservationsForAgent.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+      if (rawObservationsForAgent.matches(CommonPattern.INDEX_PATTERN)) {
         var numberOfObservations = Integer.parseInt(rawObservationsForAgent);
         var observations = IntStream.range(0, numberOfObservations).mapToObj(idx -> agentName + "-O" + idx).map(Observation::from).toList();
         agentObservations.add(i, observations);
@@ -325,10 +326,8 @@ public class DPOMDPFileParser {
       .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'T' section, but found invalid format."));
     if (match.group("actionVector") == null) throw new IllegalStateException("'T' section was parsed successfully, but actionVector is not present.");
     var actionVectors = parseActionVector(match.group("actionVector"));
-
     if (match.group("startState") != null) {
       var startStates = parseStateOrWildcard(match.group("startState"));
-
       if (match.group("endState") != null && match.group("probability") != null) {
         var endStates = parseStateOrWildcard(match.group("endState"));
         var probability = Double.parseDouble(match.group("probability"));
@@ -347,7 +346,6 @@ public class DPOMDPFileParser {
           });
         });
       }
-
     } else if (match.group("probabilityUniformDistribution") != null) {
       var startStates = builder.getStates();
       var distribution = Distribution.createUniformDistribution(builder.getStates());
@@ -357,7 +355,6 @@ public class DPOMDPFileParser {
           saveTransitionRule(startState, actionVector, probabilities);
         });
       });
-
     } else if (match.group("probabilityIdentityDistribution") != null) {
       var startStates = builder.getStates();
       actionVectors.forEach(actionVector -> {
@@ -382,6 +379,61 @@ public class DPOMDPFileParser {
 
   protected void parseObservationEntry(String section) {
     LOG.debug("Parsing 'O' section.");
+    if (builder.getStates().isEmpty()) {
+      throw new IllegalStateException("'O' section was parsed, before 'states' have been initialized.");
+    } else if (agentActions.isEmpty()) {
+      throw new IllegalStateException("'O' section was parsed, before 'actions' have been initialized.");
+    } else if (agentObservations.isEmpty()) {
+      throw new IllegalStateException("'O' section was parsed, before 'observations' have been initialized.");
+    }
+    var match = DPOMDPSectionPattern.OBSERVATION_ENTRY
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'O' section, but found invalid format."));
+    if (match.group("actionVector") == null) throw new IllegalStateException("'O' section was parsed successfully, but actionVector is not present.");
+    var actionVectors = parseActionVector(match.group("actionVector"));
+    if (match.group("endState") != null) {
+      var endStates = parseStateOrWildcard(match.group("endState"));
+      if (match.group("observationVector") != null && match.group("probability") != null) {
+        var observationVectors = parseObservationVector(match.group("observationVector"));
+        var probability = Double.parseDouble(match.group("probability"));
+        actionVectors.forEach(actionVector -> {
+          endStates.forEach(startState -> {
+            observationVectors.forEach(observationVector -> {
+              saveObservationRule(actionVector, startState, observationVector, probability);
+            });
+          });
+        });
+      } else if (match.group("probabilityDistribution") != null) {
+        var probabilities = parseObservationVectorsAndTheirDistributions(match.group("probabilityDistribution"));
+        actionVectors.forEach(actionVector -> {
+          endStates.forEach(endState -> {
+            saveObservationRule(actionVector, endState, probabilities);
+          });
+        });
+      }
+    } else if (match.group("probabilityUniformDistribution") != null) {
+      var endStates = builder.getStates();
+      var observationCombinations = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+      var distribution = Distribution.createUniformDistribution(observationCombinations);
+      var probabilities = distribution.toMap();
+      actionVectors.forEach(actionVector -> {
+        endStates.forEach(endState -> {
+          saveObservationRule(actionVector, endState, probabilities);
+        });
+      });
+    } else if (match.group("probabilityMatrix") != null) {
+      var rawProbabilityDistributionRows = match.group("probabilityMatrix").split("\n");
+
+      for (int i = 0; i < rawProbabilityDistributionRows.length; i++) {
+        var endState = builder.getStates().get(i);
+        var rawProbabilityDistribution = rawProbabilityDistributionRows[i];
+        var probabilities = parseObservationVectorsAndTheirDistributions(rawProbabilityDistribution);
+
+        actionVectors.forEach(actionVector -> {
+          saveObservationRule(actionVector, endState, probabilities);
+        });
+      }
+    }
   }
 
   protected void parseRewardEntry(String section) {
@@ -402,6 +454,21 @@ public class DPOMDPFileParser {
     return rawDistribution;
   }
 
+  private Map<Vector<Observation>, Double> parseObservationVectorsAndTheirDistributions(String rawProbabilities) {
+    var observationCombinations = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+    var probabilities = rawProbabilities.split(" ");
+    if (probabilities.length > observationCombinations.size()) {
+      throw new IllegalArgumentException("Distribution of observation vectors consists of more vectors than defined.");
+    }
+    var rawDistribution = new HashMap<Vector<Observation>, Double>();
+    for (int i = 0; i < probabilities.length; i++) {
+      var vector = observationCombinations.get(i);
+      var probability = Double.parseDouble(probabilities[i]);
+      rawDistribution.put(vector, probability);
+    }
+    return rawDistribution;
+  }
+
   private List<Vector<Action>> parseActionVector(String rawActionVector) {
     if (rawActionVector.equals("*")) {
       return VectorStreamBuilder.forEachCombination(agentActions).toList();
@@ -418,6 +485,24 @@ public class DPOMDPFileParser {
       };
     }
     return VectorStreamBuilder.forEachCombination(listOfActions).toList();
+  }
+
+  private List<Vector<Observation>> parseObservationVector(String rawObservationVector) {
+    if (rawObservationVector.equals("*")) {
+      return VectorStreamBuilder.forEachCombination(agentObservations).toList();
+    }
+    var observations = rawObservationVector.split(" ");
+    var listOfObservations = new ArrayList<List<Observation>>();
+    for (int i = 0; i < observations.length; i++) {
+      var observationName = observations[i];
+      var possibleObservations = agentObservations.get(i);
+      if (observationName.equals("*")) {
+        listOfObservations.add(i, possibleObservations);
+      } else if (possibleObservations.contains(Observation.from(observationName))) {
+        listOfObservations.add(i, Observation.listOf(observationName));
+      };
+    }
+    return VectorStreamBuilder.forEachCombination(listOfObservations).toList();
   }
 
   private List<State> parseStateOrWildcard(String rawStateString) {
@@ -442,6 +527,18 @@ public class DPOMDPFileParser {
     transitions.putIfAbsent(start, new HashMap<>());
     transitions.get(start).putIfAbsent(actionVector, new HashMap<>());
     transitions.get(start).get(actionVector).putAll(transitionProbabilities);
+  }
+
+  private void saveObservationRule(Vector<Action> actionVector, State endState, Vector<Observation> observationVector, double probability) {
+    observations.putIfAbsent(actionVector, new HashMap<>());
+    observations.get(actionVector).putIfAbsent(endState, new HashMap<>());
+    observations.get(actionVector).get(endState).put(observationVector, probability);
+  }
+
+  private void saveObservationRule(Vector<Action> actionVector, State endState, Map<Vector<Observation>, Double> observationProbabilities) {
+    observations.putIfAbsent(actionVector, new HashMap<>());
+    observations.get(actionVector).putIfAbsent(endState, new HashMap<>());
+    observations.get(actionVector).get(endState).putAll(observationProbabilities);
   }
 
   private void gatherAgentsAndAddToBuilder() {
