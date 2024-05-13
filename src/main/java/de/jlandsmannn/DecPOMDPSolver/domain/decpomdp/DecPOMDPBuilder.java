@@ -85,4 +85,8 @@ public class DecPOMDPBuilder {
       agents.size(), states.size(), transitionFunction.size(), rewardFunction.size(), observationFunction.size());
     return new DecPOMDPWithStateController(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
   }
+
+  public List<State> getStates() {
+    return states;
+  }
 }

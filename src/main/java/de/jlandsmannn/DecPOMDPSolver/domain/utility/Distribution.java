@@ -57,10 +57,11 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
-  public static <T> Distribution<T> createUniformDistribution(Set<T> entries) {
+  public static <T> Distribution<T> createUniformDistribution(Collection<T> entries) {
+    var entriesAsSet = Set.copyOf(entries);
     try {
-      var distribution = entries.stream()
-        .map(e -> Map.entry(e, 1D / entries.size()))
+      var distribution = entriesAsSet.stream()
+        .map(e -> Map.entry(e, 1D / entriesAsSet.size()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
       return new Distribution<>(distribution);
     } catch (DistributionEmptyException | DistributionSumNotOneException e) {

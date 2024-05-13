@@ -2,18 +2,16 @@ package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.NumberUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class DPOMDPFileParser {
@@ -26,6 +24,7 @@ public class DPOMDPFileParser {
 
   protected List<String> agentNames = new ArrayList<>();
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
+  protected Distribution<State> initialBeliefState;
 
   public DPOMDPFileParser() {
     this(new DecPOMDPBuilder());
@@ -182,16 +181,91 @@ public class DPOMDPFileParser {
 
   protected void parseStart(String section) {
     LOG.debug("Parsing 'start' section.");
+    if (builder.getStates().isEmpty()) {
+      throw new IllegalStateException("'start' section was parsed, before states have been initialized.");
+    }
+    var match = DPOMDPSectionPattern.START
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'start' section, but found invalid format."));
+    if (match.group("startState") != null) {
+      var stateName = match.group("startState");
+      var state = State.from(stateName);
+      initialBeliefState = Distribution.createSingleEntryDistribution(state);
+    }
+    else if (match.group("startStateIndex") != null) {
+      var rawStateIndex = match.group("startStateIndex");
+      var stateIndex = Integer.parseInt(rawStateIndex);
+      var state = builder.getStates().get(stateIndex);
+      initialBeliefState = Distribution.createSingleEntryDistribution(state);
+    }
+    else if (match.group("uniformDistribution") != null) {
+      var states = builder.getStates();
+      initialBeliefState = Distribution.createUniformDistribution(states);
+    }
+    else if (match.group("distribution") != null) {
+      var rawStateProbabilities = match.group("distribution");
+      var rawDistribution = getStatesAndTheirProbabilities(rawStateProbabilities);
+      initialBeliefState = Distribution.of(rawDistribution);
+    }
+    else if (match.group("includeStates") != null) {
+      var rawStatesString = match.group("includeStates");
+      var rawStates = rawStatesString.split(" ");
+      var allStates = builder.getStates();
+      var statesToInclude = Arrays.stream(rawStates).map(s -> {
+        if (s.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+          var index = Integer.parseInt(s);
+          return allStates.get(index);
+        } else {
+          return State.from(s);
+        }
+      }).toList();
+      initialBeliefState = Distribution.createUniformDistribution(statesToInclude);
+    }
+    else if (match.group("excludeStates") != null) {
+      var rawStatesString = match.group("excludeStates");
+      var rawStates = rawStatesString.split(" ");
+      var allStates = builder.getStates();
+      var statesToExclude = Arrays.stream(rawStates).map(s -> {
+        if (s.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+          var index = Integer.parseInt(s);
+          return allStates.get(index);
+        } else {
+          return State.from(s);
+        }
+      }).toList();
+      var statesToInclude = new ArrayList<>(allStates);
+      statesToInclude.removeAll(statesToExclude);
+      initialBeliefState = Distribution.createUniformDistribution(statesToInclude);
+    }
+  }
 
+  private HashMap<State, Double> getStatesAndTheirProbabilities(String rawStateProbabilities) {
+    var stateProbabilities = rawStateProbabilities.split(" ");
+    if (stateProbabilities.length > builder.getStates().size()) {
+      throw new IllegalArgumentException("Distribution of start states consists of more states than defined.");
+    }
+    var rawDistribution = new HashMap<State, Double>();
+    for (int i = 0; i < stateProbabilities.length; i++) {
+      var state = builder.getStates().get(i);
+      var probability = Double.parseDouble(stateProbabilities[i]);
+      rawDistribution.put(state, probability);
+    }
+    return rawDistribution;
   }
 
   protected void parseActions(String section) {
     LOG.debug("Parsing 'actions' section.");
+    if (agentNames.isEmpty()) {
+      throw new IllegalStateException("'actions' section was parsed, before agents have been initialized.");
+    }
 
   }
 
   protected void parseObservations(String section) {
     LOG.debug("Parsing 'observations' section.");
+    if (agentNames.isEmpty()) {
+      throw new IllegalStateException("'observations' section was parsed, before agents have been initialized.");
+    }
   }
 
   protected void parseTransitionEntry(String section) {

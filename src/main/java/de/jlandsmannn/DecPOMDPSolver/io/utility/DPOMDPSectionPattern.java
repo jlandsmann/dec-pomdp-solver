@@ -1,13 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
-import org.springframework.util.PatternMatchUtils;
-
 import java.util.Optional;
 import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.UNIFORM;
 
 
 public enum DPOMDPSectionPattern {
@@ -17,7 +15,7 @@ public enum DPOMDPSectionPattern {
       "(?:" +
       "(?<agentCount>" + POSITIVE_INTEGER_PATTERN + ")" +
       "|" +
-      "(?<agentNames>" + "(?:" + NAME_PATTERN + " ?)" + "+)" +
+      "(?<agentNames>" + "(?:" + IDENTIFIER_PATTERN + " ?)" + "+)" +
       ")"
   ),
   DISCOUNT(
@@ -25,7 +23,7 @@ public enum DPOMDPSectionPattern {
       "(?<discount>" + POSITIVE_NUMBER_PATTERN + ")"
   ),
   REWARD_TYPE(
-    DPOMDPSectionKeyword.REWARD_TYPE + ": "+
+    DPOMDPSectionKeyword.REWARD_TYPE + ": " +
       "(?<rewardType>reward|cost)"
   ),
   STATES(
@@ -33,9 +31,23 @@ public enum DPOMDPSectionPattern {
       "(?:" +
       "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")" +
       "|" +
-      "(?<stateNames>" + "(?:" + NAME_PATTERN + " ?)" + "+)" +
+      "(?<stateNames>" + "(?:" + IDENTIFIER_PATTERN + " ?)" + "+)" +
       ")"),
-  START(),
+  START(
+    DPOMDPSectionKeyword.START + "(?:" +
+      "(?:: " + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")" +
+      "|" +
+      "(?:: " + "(?<startStateIndex>" + POSITIVE_INTEGER_PATTERN + ")" + ")" +
+      "|" +
+      "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM + ")" + ")" +
+      "|" +
+      "(?:: ?\n" + "(?<distribution>" + "(?:" + POSITIVE_NUMBER_PATTERN + " ?)" + "+)" + ")" +
+      "|" +
+      "(?: include: " + "(?<includeStates>" + "(?:" + "(?:" + IDENTIFIER_PATTERN + "|" + POSITIVE_INTEGER_PATTERN + ")" + " ?)" + "+)" + ")" +
+      "|" +
+      "(?: exclude: " + "(?<excludeStates>" + "(?:" + "(?:" + IDENTIFIER_PATTERN + "|" + POSITIVE_INTEGER_PATTERN + ")" + " ?)" + "+)" + ")" +
+      ")"
+  ),
   ACTIONS(),
   OBSERVATIONS(),
   TRANSITION_ENTRY(),
@@ -45,7 +57,7 @@ public enum DPOMDPSectionPattern {
   private final Pattern pattern;
 
   DPOMDPSectionPattern() {
-    this(Pattern.compile(".*"));
+    this(".*");
   }
 
   DPOMDPSectionPattern(String pattern) {
