@@ -3,12 +3,17 @@ package de.jlandsmannn.DecPOMDPSolver.io.utility;
 public enum DPOMDPCommonKeyword {
   IDENTITY("identity"),
   UNIFORM("uniform"),
-  ANY("*");
+  ANY("*", "\\*");
 
   private final String keyword;
+  private final String pattern;
 
   DPOMDPCommonKeyword(String keyword) {
+    this(keyword, keyword);
+  }
+  DPOMDPCommonKeyword(String keyword, String pattern) {
     this.keyword = keyword;
+    this.pattern = pattern;
   }
 
   public String getKeyword() {
@@ -18,5 +23,9 @@ public enum DPOMDPCommonKeyword {
   @Override
   public String toString() {
     return keyword;
+  }
+
+  public String getPattern() {
+    return pattern;
   }
 }

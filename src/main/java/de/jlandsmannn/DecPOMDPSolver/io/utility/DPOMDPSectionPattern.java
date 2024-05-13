@@ -5,18 +5,17 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
-import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.UNIFORM;
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.*;
 
 
 public enum DPOMDPSectionPattern {
   COMMENT(DPOMDPSectionKeyword.COMMENT + ".*"),
   AGENTS(
     DPOMDPSectionKeyword.AGENTS + ": " +
-      "(?:" +
-      "(?<agentCount>" + POSITIVE_INTEGER_PATTERN + ")" +
-      "|" +
-      "(?<agentNames>" + LIST_OF_IDENTIFIERS + ")" +
-      ")"
+      OR(
+        "(?<agentCount>" + POSITIVE_INTEGER_PATTERN + ")",
+        "(?<agentNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
+      )
   ),
   DISCOUNT(
     DPOMDPSectionKeyword.DISCOUNT + ": " +
@@ -28,57 +27,29 @@ public enum DPOMDPSectionPattern {
   ),
   STATES(
     DPOMDPSectionKeyword.STATES + ": " +
-      "(?:" +
-      "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")" +
-      "|" +
-      "(?<stateNames>" + LIST_OF_IDENTIFIERS + ")" +
-      ")"),
+      OR(
+        "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")",
+        "(?<stateNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
+      )
+  ),
   START(
-    DPOMDPSectionKeyword.START + "(?:" +
-      "(?:: " + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")" +
-      "|" +
-      "(?:: " + "(?<startStateIndex>" + POSITIVE_INTEGER_PATTERN + ")" + ")" +
-      "|" +
-      "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM + ")" + ")" +
-      "|" +
-      "(?:: ?\n" + "(?<distribution>" + "(?:" + POSITIVE_NUMBER_PATTERN + " ?)" + "+)" + ")" +
-      "|" +
-      "(?: include: " + "(?<includeStates>" + "(?:" + "(?:" + IDENTIFIER_PATTERN + "|" + POSITIVE_INTEGER_PATTERN + ")" + " ?)" + "+)" + ")" +
-      "|" +
-      "(?: exclude: " + "(?<excludeStates>" + "(?:" + "(?:" + IDENTIFIER_PATTERN + "|" + POSITIVE_INTEGER_PATTERN + ")" + " ?)" + "+)" + ")" +
-      ")"
+    DPOMDPSectionKeyword.START +
+      OR(
+        "(?:: " + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")",
+          "(?:: " + "(?<startStateIndex>" + POSITIVE_INTEGER_PATTERN + ")" + ")",
+          "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM.getPattern() + ")" + ")",
+          "(?:: ?\n" + "(?<distribution>" + LIST_OF(POSITIVE_NUMBER_PATTERN) + ")" + ")",
+          "(?: include: " + "(?<includeStates>" + LIST_OF(OR(POSITIVE_INTEGER_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")",
+          "(?: exclude: " + "(?<excludeStates>" + LIST_OF(OR(POSITIVE_INTEGER_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")"
+      )
   ),
   ACTIONS(
-    DPOMDPSectionKeyword.ACTIONS + ": ?\n" + "(?<agentActions>" +
-      "(?:" +
-      "(?:" +
-      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
-      "|" +
-      "(?:" + LIST_OF_IDENTIFIERS + ")" +
-      ")" +
-      " ?\n)*" +
-      "(?:" +
-      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
-      "|" +
-      "(?:" + LIST_OF_IDENTIFIERS + ")" +
-      ") ?" +
-      ")"
+    DPOMDPSectionKeyword.ACTIONS + ": ?\n" +
+      "(?<agentActions>" + ROWS_OF(OR(POSITIVE_INTEGER_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
   ),
   OBSERVATIONS(
-    DPOMDPSectionKeyword.OBSERVATIONS + ": ?\n" + "(?<agentObservations>" +
-      "(?:" +
-      "(?:" +
-      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
-      "|" +
-      "(?:" + LIST_OF_IDENTIFIERS + ")" +
-      ")" +
-      " ?\n)*" +
-      "(?:" +
-      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
-      "|" +
-      "(?:" + LIST_OF_IDENTIFIERS + ")" +
-      ") ?" +
-      ")"
+    DPOMDPSectionKeyword.OBSERVATIONS + ": ?\n" +
+      "(?<agentObservations>" + ROWS_OF(OR(POSITIVE_INTEGER_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
   ),
   TRANSITION_ENTRY(),
   REWARD_ENTRY(),
