@@ -93,13 +93,27 @@ public enum DPOMDPSectionPattern {
         " ?\n" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(PROBABILITY_PATTERN)))
       )
   ),
-  REWARD_ENTRY();
+  REWARD_ENTRY(
+    DPOMDPSectionKeyword.REWARD_ENTRY + ": " +
+      NAMED_GROUP("actionVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
+      " : " +
+      NAMED_GROUP("startState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
+      " :" +
+      OR(
+        " " + NAMED_GROUP("endState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
+          " :" +
+          OR(
+            " " + NAMED_GROUP("observationVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
+              " : " + NAMED_GROUP("reward", NUMBER_PATTERN),
+            " ?\n" + NAMED_GROUP("rewardDistribution", LIST_OF(NUMBER_PATTERN))
+          ),
+        // matrix defined for given action vector
+        " ?\n" + NAMED_GROUP("rewardMatrix", ROWS_OF(LIST_OF(NUMBER_PATTERN)))
+      )
+
+  );
 
   private final Pattern pattern;
-
-  DPOMDPSectionPattern() {
-    this(".*");
-  }
 
   DPOMDPSectionPattern(String pattern) {
     this(Pattern.compile(pattern));

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DPOMDPFileParser {
@@ -35,6 +36,7 @@ public class DPOMDPFileParser {
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
   protected Distribution<State> initialBeliefState;
   protected Map<State, Map<Vector<Action>, Map<State, Double>>> transitions = new HashMap<>();
+  protected Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards = new HashMap<>();
   protected Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations = new HashMap<>();
 
   public DPOMDPFileParser() {
@@ -438,6 +440,59 @@ public class DPOMDPFileParser {
 
   protected void parseRewardEntry(String section) {
     LOG.debug("Parsing 'R' section.");
+    if (builder.getStates().isEmpty()) {
+      throw new IllegalStateException("'R' section was parsed, before 'states' have been initialized.");
+    } else if (agentActions.isEmpty()) {
+      throw new IllegalStateException("'R' section was parsed, before 'actions' have been initialized.");
+    } else if (agentObservations.isEmpty()) {
+      throw new IllegalStateException("'R' section was parsed, before 'observations' have been initialized.");
+    }
+    var match = DPOMDPSectionPattern.REWARD_ENTRY
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'R' section, but found invalid format."));
+    if (match.group("actionVector") == null) throw new IllegalStateException("'R' section was parsed successfully, but actionVector is not present.");
+    if (match.group("startState") == null) throw new IllegalStateException("'R' section was parsed successfully, but startState is not present.");
+    var actionVectors = parseActionVector(match.group("actionVector"));
+    var startStates = parseStateOrWildcard(match.group("startState"));
+    if (match.group("endState") != null) {
+      var endStates = parseStateOrWildcard(match.group("endState"));
+      if (match.group("observationVector") != null && match.group("reward") != null) {
+        var observationVectors = parseObservationVector(match.group("observationVector"));
+        var reward = Double.parseDouble(match.group("reward"));
+        startStates.forEach(startState -> {
+          actionVectors.forEach(actionVector -> {
+            endStates.forEach(endState -> {
+              observationVectors.forEach(observationVector -> {
+                saveRewardRule(startState, actionVector, endState, observationVector, reward);
+              });
+            });
+          });
+        });
+      } else if (match.group("rewardDistribution") != null) {
+        var rewards = parseObservationVectorsAndTheirDistributions(match.group("rewardDistribution"));
+        startStates.forEach(startState -> {
+          actionVectors.forEach(actionVector -> {
+            endStates.forEach(endState -> {
+              saveRewardRule(startState, actionVector, endState, rewards);
+            });
+          });
+        });
+      }
+    } else if (match.group("rewardMatrix") != null) {
+      var rawRewardDistributionRows = match.group("rewardMatrix").split("\n");
+
+      for (int i = 0; i < rawRewardDistributionRows.length; i++) {
+        var endState = builder.getStates().get(i);
+        var rawRewardsDistribution = rawRewardDistributionRows[i];
+        var rewards = parseObservationVectorsAndTheirDistributions(rawRewardsDistribution);
+
+        startStates.forEach(startState -> {
+          actionVectors.forEach(actionVector -> {
+            saveRewardRule(startState, actionVector, endState, rewards);
+          });
+        });
+      }
+    }
   }
 
   private Map<State, Double> parseStatesAndTheirDistributions(String rawStateProbabilities) {
@@ -539,6 +594,20 @@ public class DPOMDPFileParser {
     observations.putIfAbsent(actionVector, new HashMap<>());
     observations.get(actionVector).putIfAbsent(endState, new HashMap<>());
     observations.get(actionVector).get(endState).putAll(observationProbabilities);
+  }
+
+  private void saveRewardRule(State startState, Vector<Action> actionVector, State endState, Vector<Observation> observationVector, double reward) {
+    rewards.putIfAbsent(startState, new HashMap<>());
+    rewards.get(startState).putIfAbsent(actionVector, new HashMap<>());
+    rewards.get(startState).get(actionVector).putIfAbsent(endState, new HashMap<>());
+    rewards.get(startState).get(actionVector).get(endState).putIfAbsent(observationVector, reward);
+  }
+
+  private void saveRewardRule(State startState, Vector<Action> actionVector, State endState, Map<Vector<Observation>, Double> observationRewards) {
+    rewards.putIfAbsent(startState, new HashMap<>());
+    rewards.get(startState).putIfAbsent(actionVector, new HashMap<>());
+    rewards.get(startState).get(actionVector).putIfAbsent(endState, new HashMap<>());
+    rewards.get(startState).get(actionVector).get(endState).putAll(observationRewards);
   }
 
   private void gatherAgentsAndAddToBuilder() {
