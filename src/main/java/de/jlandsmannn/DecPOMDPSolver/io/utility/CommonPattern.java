@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public final class CommonPattern {
   public static final String POSITIVE_INTEGER_PATTERN = "[0-9]+";
@@ -15,7 +16,7 @@ public final class CommonPattern {
 
   public static String OR(String ...patterns) {
     var joined = Arrays.stream(patterns).reduce((a,b) -> a + "|" + b).orElse("");
-    return "(?:" + joined + ")";
+    return GROUP(joined);
   }
 
   public static String ROWS_OF(String pattern) {
@@ -27,6 +28,14 @@ public final class CommonPattern {
   }
 
   private static String LIST_OF(String pattern, String separator) {
-    return "(?:" + "(?:" + pattern + separator + ")*" + "(?:" + pattern + ")" + ")";
+    return  GROUP(GROUP(pattern + separator) + "*" + GROUP(pattern));
+  }
+
+  public static String NAMED_GROUP(String name, String pattern) {
+    return "(?<" + name + ">" + pattern + ")";
+  }
+
+  public static String GROUP(String pattern) {
+    return "(?:" + pattern + ")";
   }
 }

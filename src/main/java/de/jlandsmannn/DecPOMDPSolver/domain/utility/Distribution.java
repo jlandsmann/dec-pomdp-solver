@@ -144,6 +144,10 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
+  public Map<T, Double> toMap() {
+    return Map.copyOf(distribution);
+  }
+
   @Override
   public Iterator<T> iterator() {
     return keySet().iterator();

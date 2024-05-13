@@ -1,13 +1,13 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
@@ -34,6 +34,7 @@ public class DPOMDPFileParser {
   protected List<List<Observation>> agentObservations = new ArrayList<>();
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
   protected Distribution<State> initialBeliefState;
+  protected Map<State, Map<Vector<Action>, Map<State, Double>>> transitions = new HashMap<>();
 
   public DPOMDPFileParser() {
     this(new DecPOMDPBuilder());
@@ -84,9 +85,11 @@ public class DPOMDPFileParser {
       LOG.debug("Found keyword at beginning of line, finishing current section and parsing it.");
       parseCurrentSection();
       startNewSection(keywordMatching.get());
+      currentSectionBuilder.append(currentLine.trim());
+      return;
     }
     LOG.debug("No keyword matched current line, adding line to current section.");
-    currentSectionBuilder.append(currentLine).append(System.lineSeparator());
+    currentSectionBuilder.append(System.lineSeparator()).append(currentLine.trim());
   }
 
   protected void parseCurrentSection() {
@@ -214,7 +217,7 @@ public class DPOMDPFileParser {
     }
     else if (match.group("distribution") != null) {
       var rawStateProbabilities = match.group("distribution");
-      var rawDistribution = getStatesAndTheirProbabilities(rawStateProbabilities);
+      var rawDistribution = parseStatesAndTheirDistributions(rawStateProbabilities);
       initialBeliefState = Distribution.of(rawDistribution);
     }
     else if (match.group("includeStates") != null) {
@@ -249,20 +252,6 @@ public class DPOMDPFileParser {
     }
   }
 
-  private HashMap<State, Double> getStatesAndTheirProbabilities(String rawStateProbabilities) {
-    var stateProbabilities = rawStateProbabilities.split(" ");
-    if (stateProbabilities.length > builder.getStates().size()) {
-      throw new IllegalArgumentException("Distribution of start states consists of more states than defined.");
-    }
-    var rawDistribution = new HashMap<State, Double>();
-    for (int i = 0; i < stateProbabilities.length; i++) {
-      var state = builder.getStates().get(i);
-      var probability = Double.parseDouble(stateProbabilities[i]);
-      rawDistribution.put(state, probability);
-    }
-    return rawDistribution;
-  }
-
   protected void parseActions(String section) {
     LOG.debug("Parsing 'actions' section.");
     if (agentNames.isEmpty()) {
@@ -282,6 +271,7 @@ public class DPOMDPFileParser {
       var agentName = agentNames.get(i);
       if (rawActionsForAgent.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
         var numberOfActions = Integer.parseInt(rawActionsForAgent);
+        if (numberOfActions == 0) throw new IllegalArgumentException("Number of actions must be greater than 0.");
         var actions = IntStream.range(0, numberOfActions).mapToObj(idx -> agentName + "-A" + idx).map(Action::from).toList();
         agentActions.add(i, actions);
       } else {
@@ -325,15 +315,133 @@ public class DPOMDPFileParser {
 
   protected void parseTransitionEntry(String section) {
     LOG.debug("Parsing 'T' section.");
+    if (builder.getStates().isEmpty()) {
+      throw new IllegalStateException("'T' section was parsed, before 'states' have been initialized.");
+    } else if (agentActions.isEmpty()) {
+      throw new IllegalStateException("'T' section was parsed, before 'actions' have been initialized.");
+    }
+    var match = DPOMDPSectionPattern.TRANSITION_ENTRY
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'T' section, but found invalid format."));
+    if (match.group("actionVector") == null) throw new IllegalStateException("'T' section was parsed successfully, but actionVector is not present.");
+    var actionVectors = parseActionVector(match.group("actionVector"));
 
+    if (match.group("startState") != null) {
+      var startStates = parseStateOrWildcard(match.group("startState"));
+
+      if (match.group("endState") != null && match.group("probability") != null) {
+        var endStates = parseStateOrWildcard(match.group("endState"));
+        var probability = Double.parseDouble(match.group("probability"));
+        actionVectors.forEach(actionVector -> {
+          startStates.forEach(startState -> {
+            endStates.forEach(endState -> {
+              saveTransitionRule(startState, actionVector, endState, probability);
+            });
+          });
+        });
+      } else if (match.group("probabilityDistribution") != null) {
+        var probabilities = parseStatesAndTheirDistributions(match.group("probabilityDistribution"));
+        actionVectors.forEach(actionVector -> {
+          startStates.forEach(startState -> {
+            saveTransitionRule(startState, actionVector, probabilities);
+          });
+        });
+      }
+
+    } else if (match.group("probabilityUniformDistribution") != null) {
+      var startStates = builder.getStates();
+      var distribution = Distribution.createUniformDistribution(builder.getStates());
+      var probabilities = distribution.toMap();
+      actionVectors.forEach(actionVector -> {
+        startStates.forEach(startState -> {
+          saveTransitionRule(startState, actionVector, probabilities);
+        });
+      });
+
+    } else if (match.group("probabilityIdentityDistribution") != null) {
+      var startStates = builder.getStates();
+      actionVectors.forEach(actionVector -> {
+        startStates.forEach(startState -> {
+          saveTransitionRule(startState, actionVector, startState, 1D);
+        });
+      });
+    } else if (match.group("probabilityMatrix") != null) {
+      var rawProbabilityDistributionRows = match.group("probabilityMatrix").split("\n");
+
+      for (int i = 0; i < rawProbabilityDistributionRows.length; i++) {
+        var startState = builder.getStates().get(i);
+        var rawProbabilityDistribution = rawProbabilityDistributionRows[i];
+        var probabilities = parseStatesAndTheirDistributions(rawProbabilityDistribution);
+
+        actionVectors.forEach(actionVector -> {
+          saveTransitionRule(startState, actionVector, probabilities);
+        });
+      }
+    }
+  }
+
+  protected void parseObservationEntry(String section) {
+    LOG.debug("Parsing 'O' section.");
   }
 
   protected void parseRewardEntry(String section) {
     LOG.debug("Parsing 'R' section.");
   }
 
-  protected void parseObservationEntry(String section) {
-    LOG.debug("Parsing 'O' section.");
+  private Map<State, Double> parseStatesAndTheirDistributions(String rawStateProbabilities) {
+    var stateProbabilities = rawStateProbabilities.split(" ");
+    if (stateProbabilities.length > builder.getStates().size()) {
+      throw new IllegalArgumentException("Distribution of states consists of more states than defined.");
+    }
+    var rawDistribution = new HashMap<State, Double>();
+    for (int i = 0; i < stateProbabilities.length; i++) {
+      var state = builder.getStates().get(i);
+      var probability = Double.parseDouble(stateProbabilities[i]);
+      rawDistribution.put(state, probability);
+    }
+    return rawDistribution;
+  }
+
+  private List<Vector<Action>> parseActionVector(String rawActionVector) {
+    if (rawActionVector.equals("*")) {
+      return VectorStreamBuilder.forEachCombination(agentActions).toList();
+    }
+    var actions = rawActionVector.split(" ");
+    var listOfActions = new ArrayList<List<Action>>();
+    for (int i = 0; i < actions.length; i++) {
+      var actionName = actions[i];
+      var possibleActions = agentActions.get(i);
+      if (actionName.equals("*")) {
+        listOfActions.add(i, possibleActions);
+      } else if (possibleActions.contains(Action.from(actionName))) {
+        listOfActions.add(i, Action.listOf(actionName));
+      };
+    }
+    return VectorStreamBuilder.forEachCombination(listOfActions).toList();
+  }
+
+  private List<State> parseStateOrWildcard(String rawStateString) {
+    var allStates = builder.getStates();
+    var state = State.from(rawStateString);
+    if (rawStateString.equals("*")) {
+      return allStates;
+    } else if (allStates.contains(state)) {
+      return List.of(state);
+    } else {
+      throw new IllegalArgumentException("state contains unknown state.");
+    }
+  }
+
+  private void saveTransitionRule(State start, Vector<Action> actionVector, State end, Double probability) {
+    transitions.putIfAbsent(start, new HashMap<>());
+    transitions.get(start).putIfAbsent(actionVector, new HashMap<>());
+    transitions.get(start).get(actionVector).put(end, probability);
+  }
+
+  private void saveTransitionRule(State start, Vector<Action> actionVector, Map<State, Double> transitionProbabilities) {
+    transitions.putIfAbsent(start, new HashMap<>());
+    transitions.get(start).putIfAbsent(actionVector, new HashMap<>());
+    transitions.get(start).get(actionVector).putAll(transitionProbabilities);
   }
 
   private void gatherAgentsAndAddToBuilder() {
