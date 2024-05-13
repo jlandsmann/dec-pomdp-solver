@@ -15,7 +15,7 @@ public enum DPOMDPSectionPattern {
       "(?:" +
       "(?<agentCount>" + POSITIVE_INTEGER_PATTERN + ")" +
       "|" +
-      "(?<agentNames>" + "(?:" + IDENTIFIER_PATTERN + " ?)" + "+)" +
+      "(?<agentNames>" + LIST_OF_IDENTIFIERS + ")" +
       ")"
   ),
   DISCOUNT(
@@ -31,7 +31,7 @@ public enum DPOMDPSectionPattern {
       "(?:" +
       "(?<stateCount>" + POSITIVE_INTEGER_PATTERN + ")" +
       "|" +
-      "(?<stateNames>" + "(?:" + IDENTIFIER_PATTERN + " ?)" + "+)" +
+      "(?<stateNames>" + LIST_OF_IDENTIFIERS + ")" +
       ")"),
   START(
     DPOMDPSectionKeyword.START + "(?:" +
@@ -48,8 +48,38 @@ public enum DPOMDPSectionPattern {
       "(?: exclude: " + "(?<excludeStates>" + "(?:" + "(?:" + IDENTIFIER_PATTERN + "|" + POSITIVE_INTEGER_PATTERN + ")" + " ?)" + "+)" + ")" +
       ")"
   ),
-  ACTIONS(),
-  OBSERVATIONS(),
+  ACTIONS(
+    DPOMDPSectionKeyword.ACTIONS + ": ?\n" + "(?<agentActions>" +
+      "(?:" +
+      "(?:" +
+      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
+      "|" +
+      "(?:" + LIST_OF_IDENTIFIERS + ")" +
+      ")" +
+      " ?\n)*" +
+      "(?:" +
+      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
+      "|" +
+      "(?:" + LIST_OF_IDENTIFIERS + ")" +
+      ") ?" +
+      ")"
+  ),
+  OBSERVATIONS(
+    DPOMDPSectionKeyword.OBSERVATIONS + ": ?\n" + "(?<agentObservations>" +
+      "(?:" +
+      "(?:" +
+      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
+      "|" +
+      "(?:" + LIST_OF_IDENTIFIERS + ")" +
+      ")" +
+      " ?\n)*" +
+      "(?:" +
+      "(?:" + POSITIVE_NUMBER_PATTERN + ")" +
+      "|" +
+      "(?:" + LIST_OF_IDENTIFIERS + ")" +
+      ") ?" +
+      ")"
+  ),
   TRANSITION_ENTRY(),
   REWARD_ENTRY(),
   OBSERVATION_ENTRY();

@@ -1,12 +1,19 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.*;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.NumberUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +30,8 @@ public class DPOMDPFileParser {
   protected StringBuilder currentSectionBuilder = new StringBuilder();
 
   protected List<String> agentNames = new ArrayList<>();
+  protected List<List<Action>> agentActions = new ArrayList<>();
+  protected List<List<Observation>> agentObservations = new ArrayList<>();
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
   protected Distribution<State> initialBeliefState;
 
@@ -53,6 +62,7 @@ public class DPOMDPFileParser {
         parseLine(currentLine);
       } while (currentLine != null);
     }
+    gatherAgentsAndAddToBuilder();
     return builder;
   }
 
@@ -259,12 +269,57 @@ public class DPOMDPFileParser {
       throw new IllegalStateException("'actions' section was parsed, before agents have been initialized.");
     }
 
+    var match = DPOMDPSectionPattern.ACTIONS
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'actions' section, but found invalid format."));
+    var rawActions = match.group("agentActions");
+    var rawActionsPerAgent = rawActions.split("\n");
+    if (rawActionsPerAgent.length != agentNames.size()) {
+      throw new IllegalArgumentException("'actions' does not have same number of agents as 'agents' section.");
+    }
+    for (int i = 0; i < rawActionsPerAgent.length; i++) {
+      var rawActionsForAgent = rawActionsPerAgent[i];
+      var agentName = agentNames.get(i);
+      if (rawActionsForAgent.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+        var numberOfActions = Integer.parseInt(rawActionsForAgent);
+        var actions = IntStream.range(0, numberOfActions).mapToObj(idx -> agentName + "-A" + idx).map(Action::from).toList();
+        agentActions.add(i, actions);
+      } else {
+        var actionNames = rawActionsForAgent.split(" ");
+        var actions = Action.listOf(actionNames);
+        agentActions.add(i, actions);
+      }
+    }
   }
 
   protected void parseObservations(String section) {
     LOG.debug("Parsing 'observations' section.");
     if (agentNames.isEmpty()) {
-      throw new IllegalStateException("'observations' section was parsed, before agents have been initialized.");
+      throw new IllegalStateException("'observations' section was parsed, before 'agents' have been initialized.");
+    } else if (agentActions.isEmpty()) {
+      throw new IllegalStateException("'observations' section was parsed, before 'actions' have been initialized.");
+    }
+
+    var match = DPOMDPSectionPattern.OBSERVATIONS
+      .getMatch(section)
+      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'observations' section, but found invalid format."));
+    var rawObservations = match.group("agentObservations");
+    var rawObservationsPerAgent = rawObservations.split("\n");
+    if (rawObservationsPerAgent.length != agentNames.size()) {
+      throw new IllegalArgumentException("'observations' does not have same number of agents as 'agents' section.");
+    }
+    for (int i = 0; i < rawObservationsPerAgent.length; i++) {
+      var rawObservationsForAgent = rawObservationsPerAgent[i];
+      var agentName = agentNames.get(i);
+      if (rawObservationsForAgent.matches(CommonPattern.POSITIVE_INTEGER_PATTERN)) {
+        var numberOfObservations = Integer.parseInt(rawObservationsForAgent);
+        var observations = IntStream.range(0, numberOfObservations).mapToObj(idx -> agentName + "-O" + idx).map(Observation::from).toList();
+        agentObservations.add(i, observations);
+      } else {
+        var observationNames = rawObservationsForAgent.split(" ");
+        var observations = Observation.listOf(observationNames);
+        agentObservations.add(i, observations);
+      }
     }
   }
 
@@ -279,5 +334,15 @@ public class DPOMDPFileParser {
 
   protected void parseObservationEntry(String section) {
     LOG.debug("Parsing 'O' section.");
+  }
+
+  private void gatherAgentsAndAddToBuilder() {
+    for (int i = 0; i < agentNames.size(); i++) {
+      var name = agentNames.get(i);
+      var actions = agentActions.get(i);
+      var observations = agentObservations.get(i);
+      var agent = new AgentBuilder().setName(name).setActions(actions).setObservations(observations).createAgent();
+      builder.addAgent(agent);
+    }
   }
 }

@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import org.junit.jupiter.api.Test;
@@ -316,11 +317,155 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseActions() {
+  void parseActions_ShouldThrowIfAgentsNotInitialized() {
+    var section = "actions:\n" + "5";
+    assertThrows(
+      IllegalStateException.class,
+      () -> parser.parseActions(section)
+    );
   }
 
   @Test
-  void parseObservations() {
+  void parseActions_ShouldThrowIfActionsNotGivenForEveryAgent() {
+    parser.agentNames = List.of("A1", "A2", "A3");
+    var section = "actions:\n" + "5\n" + "5";
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseActions(section)
+    );
+  }
+
+  @Test
+  void parseActions_ShouldThrowIfMoreActionsGivenThanAgents() {
+    parser.agentNames = List.of("A1");
+    var section = "actions:\n" + "5\n" + "5";
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseActions(section)
+    );
+  }
+
+  @Test
+  void parseActions_ShouldGenerateActionNamesIfGivenNumerical() {
+    parser.agentNames = List.of("A1");
+    var section = "actions:\n" + "5";
+    parser.parseActions(section);
+    var expectedActionCount = 5;
+    var actualActionCount = parser.agentActions.get(0).size();
+    assertEquals(expectedActionCount, actualActionCount);
+  }
+
+  @Test
+  void parseActions_ShouldGenerateActionNamesIfGivenByNames() {
+    parser.agentNames = List.of("A1");
+    var section = "actions:\n" + "A B C D";
+    parser.parseActions(section);
+    var expectedActionCount = 4;
+    var actualActionCount = parser.agentActions.get(0).size();
+    assertEquals(expectedActionCount, actualActionCount);
+
+    var actualActions = parser.agentActions.get(0);
+    assertEquals("A", actualActions.get(0).name());
+    assertEquals("B", actualActions.get(1).name());
+    assertEquals("C", actualActions.get(2).name());
+    assertEquals("D", actualActions.get(3).name());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "actions: 5",
+    "actions: A B",
+    "actions:\n0 5",
+    "actions:\n-2",
+    "actions:\n2 A",
+    "actions:\nB 2",
+  })
+  void parseActions_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    parser.agentNames = List.of("A1");
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseActions(invalidSection)
+    );
+  }
+
+  @Test
+  void parseObservations_ShouldThrowIfAgentsNotInitialized() {
+    var section = "observations:\n" + "5";
+    assertThrows(
+      IllegalStateException.class,
+      () -> parser.parseObservations(section)
+    );
+  }
+
+  @Test
+  void parseObservations_ShouldThrowIfActionsNotInitialized() {
+    parser.agentNames = List.of("A1", "A2", "A3");
+    var section = "observations:\n" + "5";
+    assertThrows(
+      IllegalStateException.class,
+      () -> parser.parseObservations(section)
+    );
+  }
+
+  @Test
+  void parseObservations_ShouldThrowIfActionsNotGivenForEveryAgent() {
+    parser.agentNames = List.of("A1", "A2", "A3");
+    parser.agentActions = List.of(
+      Action.listOf("A1-A1"),
+      Action.listOf("A2-A1"),
+      Action.listOf("A3-A1")
+    );
+    var section = "observations:\n" + "5\n" + "5";
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseObservations(section)
+    );
+  }
+
+  @Test
+  void parseObservations_ShouldGenerateObservationNamesIfGivenNumerical() {
+    parser.agentNames = List.of("A1");
+    parser.agentActions = List.of(List.of());
+    var section = "observations:\n" + "5";
+    parser.parseObservations(section);
+    var expectedObservationCount = 5;
+    var actualObservationCount = parser.agentObservations.get(0).size();
+    assertEquals(expectedObservationCount, actualObservationCount);
+  }
+
+  @Test
+  void parseObservations_ShouldGenerateObservationNamesIfGivenByNames() {
+    parser.agentNames = List.of("A1");
+    parser.agentActions = List.of(List.of());
+    var section = "observations:\n" + "A B C D";
+    parser.parseObservations(section);
+    var expectedObservationCount = 4;
+    var actualObservationCount = parser.agentObservations.get(0).size();
+    assertEquals(expectedObservationCount, actualObservationCount);
+
+    var actualObservations = parser.agentObservations.get(0);
+    assertEquals("A", actualObservations.get(0).name());
+    assertEquals("B", actualObservations.get(1).name());
+    assertEquals("C", actualObservations.get(2).name());
+    assertEquals("D", actualObservations.get(3).name());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "observations: 5",
+    "observations: A B",
+    "observations:\n0 5",
+    "observations:\n-2",
+    "observations:\n2 A",
+    "observations:\nB 2",
+  })
+  void parseObservations_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+    parser.agentNames = List.of("A1");
+    parser.agentActions = List.of(List.of());
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> parser.parseObservations(invalidSection)
+    );
   }
 
   @Test
