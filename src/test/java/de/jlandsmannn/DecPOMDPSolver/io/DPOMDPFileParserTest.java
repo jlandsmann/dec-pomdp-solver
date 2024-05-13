@@ -55,5 +55,5 @@ class DPOMDPFileParserTest {
   @Test
   void parseSection() {
   }
-  
+
 }

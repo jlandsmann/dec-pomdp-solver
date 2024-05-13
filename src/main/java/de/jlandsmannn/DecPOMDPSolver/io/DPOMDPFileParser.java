@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.sectionParsers.*;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
@@ -62,7 +63,7 @@ public class DPOMDPFileParser {
         parseLine(currentLine);
       } while (currentLine != null);
     }
-    gatherAgentsAndAddToBuilder();
+    gatherDataAndAddToBuilder();
     return builder;
   }
 
@@ -206,6 +207,13 @@ public class DPOMDPFileParser {
     rewards = parser.getRewards();
   }
 
+  protected void gatherDataAndAddToBuilder() {
+    gatherAgentsAndAddToBuilder();
+    gatherTransitionsAndAddToBuilder();
+    gatherObservationsAndAddToBuilder();
+    gatherRewardsAndAddToBuilder();
+  }
+
   private void gatherAgentsAndAddToBuilder() {
     for (int i = 0; i < agentNames.size(); i++) {
       var name = agentNames.get(i);
@@ -213,6 +221,58 @@ public class DPOMDPFileParser {
       var observations = agentObservations.get(i);
       var agent = new AgentBuilder().setName(name).setActions(actions).setObservations(observations).createAgent();
       builder.addAgent(agent);
+    }
+  }
+
+  private void gatherTransitionsAndAddToBuilder() {
+    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
+    for (var state : builder.getStates()) {
+      var actionMap = transitions.get(state);
+      if (actionMap == null) throw new IllegalStateException("State " + state + " has no transitions.");
+      for (var actionVector : actionCombinations) {
+        var transitionMap = actionMap.get(actionVector);
+        if (transitionMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " has no transitions.");
+        var distribution = Distribution.of(transitionMap);
+        builder.addTransition(state, actionVector, distribution);
+      }
+    }
+  }
+
+  private void gatherObservationsAndAddToBuilder() {
+    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
+
+    for (var actionVector : actionCombinations) {
+      var stateMap = observations.get(actionVector);
+      if (stateMap == null) throw new IllegalStateException("Actions " + actionVector + " have no observations.");
+      for (var state : builder.getStates()) {
+        var observationMap = stateMap.get(state);
+        if (observationMap == null) throw new IllegalStateException("State " + state + " has no observations for actions " + actionVector + ".");
+        var distribution = Distribution.of(observationMap);
+        builder.addObservation(actionVector, state, distribution);
+      }
+    }
+  }
+
+  private void gatherRewardsAndAddToBuilder() {
+    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
+    var observationCombination = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+
+    for (var state : builder.getStates()) {
+      var actionMap = rewards.get(state);
+      if (actionMap == null) throw new IllegalStateException("State " + state + " has no rewards.");
+      for (var actionVector : actionCombinations) {
+        var transitionMap = actionMap.get(actionVector);
+        if (transitionMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " has no rewards.");
+        for (var followState : builder.getStates()) {
+          var observationMap = transitionMap.get(followState);
+          if (observationMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " and follow state " + state + " has no rewards.");
+          for (var observationVector : observationCombination) {
+            var reward = observationMap.getOrDefault(observationVector, 0D);
+            builder.addReward(state, actionVector, reward);
+          }
+
+        }
+      }
     }
   }
 }
