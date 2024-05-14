@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +23,7 @@ class ActionsParserTest {
   void parseActions_ShouldThrowIfAgentsNotInitialized() {
     var section = "actions:\n" + "5";
     assertThrows(
-      IllegalStateException.class,
+      ParsingFailedException.class,
       () -> parser.parseActions(section)
     );
   }
@@ -32,7 +33,7 @@ class ActionsParserTest {
     parser.setAgentNames(List.of("A1", "A2", "A3"));
     var section = "actions:\n" + "5\n" + "5";
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseActions(section)
     );
   }
@@ -42,7 +43,7 @@ class ActionsParserTest {
     parser.setAgentNames(List.of("A1"));
     var section = "actions:\n" + "5\n" + "5";
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseActions(section)
     );
   }
@@ -85,7 +86,7 @@ class ActionsParserTest {
   void parseActions_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setAgentNames(List.of("A1"));
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseActions(invalidSection)
     );
   }

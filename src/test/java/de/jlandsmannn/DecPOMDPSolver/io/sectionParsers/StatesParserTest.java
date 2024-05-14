@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,7 +50,7 @@ class StatesParserTest {
   })
   void parseStates_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseStates(invalidSection)
     );
   }

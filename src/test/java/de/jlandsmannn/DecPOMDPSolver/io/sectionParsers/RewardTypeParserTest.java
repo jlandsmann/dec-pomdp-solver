@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,7 +37,7 @@ class RewardTypeParserTest {
   })
   void parseRewardType_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseRewardType(invalidSection)
     );
   }

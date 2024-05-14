@@ -1,6 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
 import org.slf4j.Logger;
@@ -22,11 +24,11 @@ public class StatesParser {
     LOG.debug("Parsing 'states' section.");
     var match = DPOMDPSectionPattern.STATES
       .getMatch(section)
-      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'states' section, but found invalid format."));
+      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'states' section, but found invalid format."));
     if (match.group("stateCount") != null) {
       var stateCountString = match.group("stateCount");
-      var stateCount = Integer.parseInt(stateCountString);
-      if (stateCount <= 0) throw new IllegalArgumentException("stateCount must be greater than zero.");
+      var stateCount = CommonParser.parseIntegerOrThrow(stateCountString);
+      if (stateCount <= 0) throw new ParsingFailedException("stateCount must be greater than zero.");
       LOG.debug("Found number of states, creating {} states with generic names.", stateCount);
       states = IntStream.range(0, stateCount)
         .mapToObj(i -> "S" + i)
@@ -37,7 +39,7 @@ public class StatesParser {
       states = State.listOf(rawStateNames.split(" "));
       LOG.debug("Found custom names of states, creating {} states with given names.", states.size());
     } else {
-      throw new IllegalStateException("'states' section was parsed successfully, but neither stateCount nor stateNames are present.");
+      throw new ParsingFailedException("'states' section was parsed successfully, but neither stateCount nor stateNames are present.");
     }
   }
 }

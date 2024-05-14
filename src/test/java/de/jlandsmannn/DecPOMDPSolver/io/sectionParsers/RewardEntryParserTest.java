@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ class RewardEntryParserTest {
   @Test
   void parseRewardEntry_ShouldThrowIfStatesNotInitialized() {
     var section = "R: * : * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseRewardEntry(section);
     });
   }
@@ -34,7 +35,7 @@ class RewardEntryParserTest {
     var states = State.listOf("A", "B");
     parser.setStates(states);
     var section = "R: * : * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseRewardEntry(section);
     });
   }
@@ -47,7 +48,7 @@ class RewardEntryParserTest {
       .setStates(states)
       .setAgentActions(List.of(actions, actions));
     var section = "R: * : * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseRewardEntry(section);
     });
   }

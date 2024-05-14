@@ -1,27 +1,17 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DPOMDPFileParserTest {
@@ -32,6 +22,11 @@ class DPOMDPFileParserTest {
   @InjectMocks
   private DPOMDPFileParser parser;
 
+  @BeforeEach
+  void setUp() {
+    parser = spy(new DPOMDPFileParser(builder));
+  }
+
   @Test
   void parseDecPOMDP() {
   }
@@ -41,19 +36,83 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseLine() {
+  void parseLine_ShouldStartNewSectionIfLineStartsWithKeyword() {
+    var expectedKeyword = DPOMDPSectionKeyword.AGENTS;
+    var currentLine = "agents: 5";
+    parser.parseLine(currentLine);
+
+    verify(parser).startNewSection(expectedKeyword);
   }
 
   @Test
-  void parseCurrentSection() {
+  void parseLine_ShouldNotStartNewSectionIfLineStartsWithComment() {
+    var currentLine = "# agents: 5";
+    parser.parseLine(currentLine);
+
+    verify(parser, times(0)).startNewSection(any());
   }
 
   @Test
-  void startNewSection() {
+  void parseLine_ShouldParseCurrentSectionIfLineStartsWithKeyword() {
+    var currentLine = "agents: 5";
+    parser.parseLine(currentLine);
+
+    verify(parser).parseCurrentSection();
   }
 
   @Test
-  void parseSection() {
+  void parseLine_ShouldNotParseCurrentSectionIfLineStartsWithComment() {
+    var currentLine = "# agents: 5";
+    parser.parseLine(currentLine);
+
+    verify(parser, times(0)).parseCurrentSection();
+  }
+
+  @Test
+  void parseLine_ShouldParseCurrentSectionIfLineIsNull() {
+    String currentLine = null;
+    parser.parseLine(currentLine);
+
+    verify(parser).parseCurrentSection();
+  }
+
+  @Test
+  void parseLine_ShouldAppendCurrentLineToCurrentSectionIfKeywordOccurs() {
+    String currentLine = "states: 5";
+    parser.parseLine(currentLine);
+    String expectedSection = currentLine;
+    String actualSection = parser.currentSectionBuilder.toString();
+    assertEquals(expectedSection, actualSection);
+  }
+
+  @Test
+  void parseLine_ShouldAppendCurrentLineToCurrentSectionIfNoKeywordOccurs() {
+    String previousSection = parser.currentSectionBuilder.toString();
+    String currentLine = "uniform";
+    parser.parseLine(currentLine);
+    String expectedSection = previousSection + "\nuniform";
+    String actualSection = parser.currentSectionBuilder.toString();
+    assertEquals(expectedSection, actualSection);
+  }
+
+  @Test
+  void parseCurrentSection_ShouldCallParseSectionWithCurrentKeywordAndCurrentSection() {
+    parser.currentKeyword = DPOMDPSectionKeyword.AGENTS;
+    parser.currentSectionBuilder = new StringBuilder().append("agents: 5");
+    var expectedKeyword = parser.currentKeyword;
+    var expectedSection = parser.currentSectionBuilder.toString();
+    parser.parseCurrentSection();
+    verify(parser).parseSection(expectedKeyword, expectedSection);
+  }
+
+  @Test
+  void startNewSection_ShouldClearCurrentSectionBuilder() {
+    var keyword = DPOMDPSectionKeyword.ACTIONS;
+    parser.startNewSection(keyword);
+
+    assertEquals("", parser.currentSectionBuilder.toString());
+    assertEquals(keyword, parser.currentKeyword);
+
   }
 
 }

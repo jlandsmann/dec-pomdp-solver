@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +22,7 @@ class StartParserTest {
   @Test
   void parseStart_ShouldThrowIfNoStatesHaveBeenInitialized() {
     var section = "start:\n" + "uniform";
-    assertThrows(IllegalStateException.class, () ->
+    assertThrows(ParsingFailedException.class, () ->
       parser.parseStart(section)
     );
   }
@@ -165,7 +166,7 @@ class StartParserTest {
   void parseStart_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setStates(State.listOf("A", "B", "C", "D"));
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseStart(invalidSection)
     );
   }

@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
 import org.slf4j.Logger;
@@ -43,20 +44,20 @@ public class TransitionEntryParser {
   public void parseTransitionEntry(String section) {
     LOG.debug("Parsing 'T' section.");
     if (states.isEmpty()) {
-      throw new IllegalStateException("'T' section was parsed, before 'states' have been initialized.");
+      throw new ParsingFailedException("'T' section was parsed, before 'states' have been initialized.");
     } else if (agentActions.isEmpty()) {
-      throw new IllegalStateException("'T' section was parsed, before 'actions' have been initialized.");
+      throw new ParsingFailedException("'T' section was parsed, before 'actions' have been initialized.");
     }
     var match = DPOMDPSectionPattern.TRANSITION_ENTRY
       .getMatch(section)
-      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'T' section, but found invalid format."));
-    if (match.group("actionVector") == null) throw new IllegalStateException("'T' section was parsed successfully, but actionVector is not present.");
+      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'T' section, but found invalid format."));
+    if (match.group("actionVector") == null) throw new ParsingFailedException("'T' section was parsed successfully, but actionVector is not present.");
     var actionVectors = CommonParser.parseActionVector(agentActions, match.group("actionVector"));
     if (match.group("startState") != null) {
       var startStates = CommonParser.parseStateOrWildcard(states, match.group("startState"));
       if (match.group("endState") != null && match.group("probability") != null) {
         var endStates = CommonParser.parseStateOrWildcard(states, match.group("endState"));
-        var probability = Double.parseDouble(match.group("probability"));
+        var probability = CommonParser.parseDoubleOrThrow(match.group("probability"));
         actionVectors.forEach(actionVector -> {
           startStates.forEach(startState -> {
             endStates.forEach(endState -> {

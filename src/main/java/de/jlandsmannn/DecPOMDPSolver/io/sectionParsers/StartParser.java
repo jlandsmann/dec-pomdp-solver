@@ -2,6 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
@@ -30,11 +31,11 @@ public class StartParser {
   public void parseStart(String section) {
     LOG.debug("Parsing 'start' section.");
     if (states.isEmpty()) {
-      throw new IllegalStateException("'start' section was parsed, before states have been initialized.");
+      throw new ParsingFailedException("'start' section was parsed, before states have been initialized.");
     }
     var match = DPOMDPSectionPattern.START
       .getMatch(section)
-      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'start' section, but found invalid format."));
+      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'start' section, but found invalid format."));
     if (match.group("startState") != null) {
       var stateName = match.group("startState");
       var state = State.from(stateName);
@@ -42,7 +43,7 @@ public class StartParser {
     }
     else if (match.group("startStateIndex") != null) {
       var rawStateIndex = match.group("startStateIndex");
-      var stateIndex = Integer.parseInt(rawStateIndex);
+      var stateIndex = CommonParser.parseIntegerOrThrow(rawStateIndex);
       var state = states.get(stateIndex);
       initialBeliefState = Distribution.createSingleEntryDistribution(state);
     }
@@ -59,7 +60,7 @@ public class StartParser {
       var rawStates = rawStatesString.split(" ");
       var statesToInclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {
-          var index = Integer.parseInt(s);
+          var index = CommonParser.parseIntegerOrThrow(s);
           return states.get(index);
         } else {
           return State.from(s);
@@ -72,7 +73,7 @@ public class StartParser {
       var rawStates = rawStatesString.split(" ");
       var statesToExclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {
-          var index = Integer.parseInt(s);
+          var index = CommonParser.parseIntegerOrThrow(s);
           return states.get(index);
         } else {
           return State.from(s);

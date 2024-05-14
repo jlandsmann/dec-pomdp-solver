@@ -14,6 +14,7 @@ import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,13 +57,7 @@ public class DPOMDPFileParser {
   }
 
   protected DecPOMDPBuilder doParseDecPOMDP(String fileName) throws IOException {
-    var classLoader = getClass().getClassLoader();
-    var url = classLoader.getResource(fileName);
-    if (url == null) {
-      throw new FileNotFoundException(fileName);
-    }
-    var path = Path.of(url.getPath());
-    try (var file = Files.newBufferedReader(path)) {
+    try (var file = readFile(fileName)) {
       String currentLine = null;
       do {
         currentLine = file.readLine();
@@ -71,6 +66,14 @@ public class DPOMDPFileParser {
     }
     gatherDataAndAddToBuilder();
     return builder;
+  }
+
+  protected BufferedReader readFile(String fileName) throws IOException {
+    var classLoader = getClass().getClassLoader();
+    var url = classLoader.getResource(fileName);
+    if (url == null) throw new FileNotFoundException(fileName);
+    var path = Path.of(url.getPath());
+    return Files.newBufferedReader(path);
   }
 
   protected void parseLine(String currentLine) {

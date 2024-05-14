@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +27,7 @@ class TransitionEntryParserTest {
   @Test
   void parseTransitionEntry_ShouldThrowIfStatesNotInitialized() {
     var section = "T: * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseTransitionEntry(section);
     });
   }
@@ -35,7 +36,7 @@ class TransitionEntryParserTest {
   void parseTransitionEntry_ShouldThrowIfAgentActionsNotInitialized() {
     parser.setStates(State.listOf("A", "B"));
     var section = "T: * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseTransitionEntry(section);
     });
   }
@@ -212,7 +213,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseTransitionEntry(invalidSection)
     );
   }

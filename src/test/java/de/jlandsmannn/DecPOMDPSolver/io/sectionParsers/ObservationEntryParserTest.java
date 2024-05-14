@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class ObservationEntryParserTest {
   @Test
   void parseObservationEntry_ShouldThrowIfStatesNotInitialized() {
     var section = "O: * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseObservationEntry(section);
     });
   }
@@ -35,7 +36,7 @@ class ObservationEntryParserTest {
     var states = State.listOf("A", "B");
     parser.setStates(states);
     var section = "O: * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseObservationEntry(section);
     });
   }
@@ -48,7 +49,7 @@ class ObservationEntryParserTest {
       .setStates(states)
       .setAgentActions(List.of(actions, actions));
     var section = "O: * : * : * : 0.1";
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(ParsingFailedException.class, () -> {
       parser.parseObservationEntry(section);
     });
   }

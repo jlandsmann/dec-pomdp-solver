@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
 import org.slf4j.Logger;
@@ -51,24 +52,24 @@ public class RewardEntryParser {
   public void parseRewardEntry(String section) {
     LOG.debug("Parsing 'R' section.");
     if (states.isEmpty()) {
-      throw new IllegalStateException("'R' section was parsed, before 'states' have been initialized.");
+      throw new ParsingFailedException("'R' section was parsed, before 'states' have been initialized.");
     } else if (agentActions.isEmpty()) {
-      throw new IllegalStateException("'R' section was parsed, before 'actions' have been initialized.");
+      throw new ParsingFailedException("'R' section was parsed, before 'actions' have been initialized.");
     } else if (agentObservations.isEmpty()) {
-      throw new IllegalStateException("'R' section was parsed, before 'observations' have been initialized.");
+      throw new ParsingFailedException("'R' section was parsed, before 'observations' have been initialized.");
     }
     var match = DPOMDPSectionPattern.REWARD_ENTRY
       .getMatch(section)
-      .orElseThrow(() -> new IllegalArgumentException("Trying to parse 'R' section, but found invalid format."));
-    if (match.group("actionVector") == null) throw new IllegalStateException("'R' section was parsed successfully, but actionVector is not present.");
-    if (match.group("startState") == null) throw new IllegalStateException("'R' section was parsed successfully, but startState is not present.");
+      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'R' section, but found invalid format."));
+    if (match.group("actionVector") == null) throw new ParsingFailedException("'R' section was parsed successfully, but actionVector is not present.");
+    if (match.group("startState") == null) throw new ParsingFailedException("'R' section was parsed successfully, but startState is not present.");
     var actionVectors = CommonParser.parseActionVector(agentActions, match.group("actionVector"));
     var startStates = CommonParser.parseStateOrWildcard(states, match.group("startState"));
     if (match.group("endState") != null) {
       var endStates = CommonParser.parseStateOrWildcard(states, match.group("endState"));
       if (match.group("observationVector") != null && match.group("reward") != null) {
         var observationVectors = CommonParser.parseObservationVector(agentObservations, match.group("observationVector"));
-        var reward = Double.parseDouble(match.group("reward"));
+        var reward = CommonParser.parseDoubleOrThrow(match.group("reward"));
         startStates.forEach(startState -> {
           actionVectors.forEach(actionVector -> {
             endStates.forEach(endState -> {

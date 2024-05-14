@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,7 +48,7 @@ class AgentParserTest {
   })
   void parseAgents_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseAgents(invalidSection)
     );
   }

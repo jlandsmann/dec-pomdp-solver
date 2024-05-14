@@ -14,12 +14,15 @@ public class CommonParser {
   public static Map<State, Double> parseStatesAndTheirDistributions(List<State> states, String rawStateProbabilities) {
     var stateProbabilities = rawStateProbabilities.split(" ");
     if (stateProbabilities.length > states.size()) {
-      throw new IllegalArgumentException("Distribution of states consists of more states than defined.");
+      throw new ParsingFailedException("Distribution of states consists of more states than defined.");
+    } else if (stateProbabilities.length < states.size()) {
+      throw new ParsingFailedException("Distribution of states consists of less states than defined.");
     }
     var rawDistribution = new HashMap<State, Double>();
     for (int i = 0; i < stateProbabilities.length; i++) {
       var state = states.get(i);
       var probability = parseDoubleOrThrow(stateProbabilities[i]);
+      if (probability < 0) throw new ParsingFailedException("Probability at index " + i + " is negative.");
       rawDistribution.put(state, probability);
     }
     return rawDistribution;
@@ -29,12 +32,15 @@ public class CommonParser {
     var observationCombinations = VectorStreamBuilder.forEachCombination(agentObservations).toList();
     var probabilities = rawProbabilities.split(" ");
     if (probabilities.length > observationCombinations.size()) {
-      throw new IllegalArgumentException("Distribution of observation vectors consists of more vectors than defined.");
+      throw new ParsingFailedException("Distribution of observation vectors consists of more vectors than defined.");
+    } else if (probabilities.length < observationCombinations.size()) {
+      throw new ParsingFailedException("Distribution of observation vectors consists of less vectors than defined.");
     }
     var rawDistribution = new HashMap<Vector<Observation>, Double>();
     for (int i = 0; i < probabilities.length; i++) {
       var vector = observationCombinations.get(i);
       var probability = parseDoubleOrThrow(probabilities[i]);
+      if (probability < 0) throw new ParsingFailedException("Probability at index " + i + " is negative.");
       rawDistribution.put(vector, probability);
     }
     return rawDistribution;
@@ -45,6 +51,11 @@ public class CommonParser {
       return VectorStreamBuilder.forEachCombination(agentActions).toList();
     }
     var rawActions = rawActionVector.split(" ");
+    if (rawActions.length > agentActions.size()) {
+      throw new ParsingFailedException("Action vector consists of more actions than agents defined.");
+    } else if (rawActions.length < agentActions.size()) {
+      throw new ParsingFailedException("Action vector consists of less actions than agents defined.");
+    }
     var listOfActions = new ArrayList<List<Action>>();
     for (int i = 0; i < rawActions.length; i++) {
       var rawAction = rawActions[i];
@@ -60,6 +71,11 @@ public class CommonParser {
       return VectorStreamBuilder.forEachCombination(agentObservations).toList();
     }
     var rawObservations = rawObservationVector.split(" ");
+    if (rawObservations.length > agentObservations.size()) {
+      throw new ParsingFailedException("Observation vector consists of more observations than agents defined.");
+    } else if (rawObservations.length < agentObservations.size()) {
+      throw new ParsingFailedException("Observation vector consists of less observations than agents defined.");
+    }
     var listOfObservations = new ArrayList<List<Observation>>();
     for (int i = 0; i < rawObservations.length; i++) {
       var rawObservation = rawObservations[i];
@@ -76,11 +92,15 @@ public class CommonParser {
     if (rawStateString.equals("*")) {
       return states;
     } else if (index.isPresent()) {
-      return List.of(states.get(index.get()));
+      int realIndex = index.get();
+      if (realIndex < 0 || realIndex > states.size()) {
+        throw new ParsingFailedException("Index: " + realIndex + " is out of bounds.");
+      }
+      return List.of(states.get(realIndex));
     } else if (states.contains(state)) {
       return List.of(state);
     } else {
-      throw new IllegalArgumentException("state contains unknown state: " + rawStateString);
+      throw new ParsingFailedException("state contains unknown state: " + rawStateString);
     }
   }
 
@@ -90,11 +110,15 @@ public class CommonParser {
     if (rawActionString.equals("*")) {
       return actions;
     } else if (index.isPresent()) {
-      return List.of(actions.get(index.get()));
+      int realIndex = index.get();
+      if (realIndex < 0 || realIndex > actions.size()) {
+        throw new ParsingFailedException("Index: " + realIndex + " is out of bounds.");
+      }
+      return List.of(actions.get(realIndex));
     } else if (actions.contains(action)) {
       return List.of(action);
     } else {
-      throw new IllegalArgumentException("action contains unknown action: " + rawActionString);
+      throw new ParsingFailedException("action contains unknown action: " + rawActionString);
     }
   }
 
@@ -104,11 +128,15 @@ public class CommonParser {
     if (rawObservationString.equals("*")) {
       return observations;
     } else if (index.isPresent()) {
-      return List.of(observations.get(index.get()));
+      int realIndex = index.get();
+      if (realIndex < 0 || realIndex > observations.size()) {
+        throw new ParsingFailedException("Index: " + realIndex + " is out of bounds.");
+      }
+      return List.of(observations.get(realIndex));
     } else if (observations.contains(observation)) {
       return List.of(observation);
     } else {
-      throw new IllegalArgumentException("observation contains unknown observation: " + rawObservationString);
+      throw new ParsingFailedException("observation contains unknown observation: " + rawObservationString);
     }
   }
 

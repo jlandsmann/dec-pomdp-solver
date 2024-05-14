@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +24,7 @@ class ObservationsParserTest {
   void parseObservations_ShouldThrowIfAgentsNotInitialized() {
     var section = "observations:\n" + "5";
     assertThrows(
-      IllegalStateException.class,
+      ParsingFailedException.class,
       () -> parser.parseObservations(section)
     );
   }
@@ -33,7 +34,7 @@ class ObservationsParserTest {
     parser.setAgentNames(List.of("A1", "A2", "A3"));
     var section = "observations:\n" + "5\n" + "5";
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseObservations(section)
     );
   }
@@ -76,7 +77,7 @@ class ObservationsParserTest {
   void parseObservations_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setAgentNames(List.of("A1"));
     assertThrows(
-      IllegalArgumentException.class,
+      ParsingFailedException.class,
       () -> parser.parseObservations(invalidSection)
     );
   }
