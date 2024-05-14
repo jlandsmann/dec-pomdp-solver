@@ -287,14 +287,11 @@ public class DPOMDPFileParser {
     var observationCombination = VectorStreamBuilder.forEachCombination(agentObservations).toList();
 
     for (var state : builder.getStates()) {
-      var actionMap = rewards.get(state);
-      if (actionMap == null) throw new IllegalStateException("State " + state + " has no rewards.");
+      var actionMap = rewards.getOrDefault(state, Map.of());
       for (var actionVector : actionCombinations) {
-        var transitionMap = actionMap.get(actionVector);
-        if (transitionMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " has no rewards.");
+        var transitionMap = actionMap.getOrDefault(actionVector, Map.of());
         for (var followState : builder.getStates()) {
-          var observationMap = transitionMap.get(followState);
-          if (observationMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " and follow state " + state + " has no rewards.");
+          var observationMap = transitionMap.getOrDefault(followState, Map.of());
           for (var observationVector : observationCombination) {
             var reward = observationMap.getOrDefault(observationVector, 0D);
             if (rewardType == DPOMDPRewardType.COST) reward *= -1;

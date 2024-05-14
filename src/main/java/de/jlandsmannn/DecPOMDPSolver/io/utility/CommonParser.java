@@ -5,11 +5,9 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommonParser {
 
@@ -21,7 +19,7 @@ public class CommonParser {
     var rawDistribution = new HashMap<State, Double>();
     for (int i = 0; i < stateProbabilities.length; i++) {
       var state = states.get(i);
-      var probability = Double.parseDouble(stateProbabilities[i]);
+      var probability = parseDoubleOrThrow(stateProbabilities[i]);
       rawDistribution.put(state, probability);
     }
     return rawDistribution;
@@ -36,7 +34,7 @@ public class CommonParser {
     var rawDistribution = new HashMap<Vector<Observation>, Double>();
     for (int i = 0; i < probabilities.length; i++) {
       var vector = observationCombinations.get(i);
-      var probability = Double.parseDouble(probabilities[i]);
+      var probability = parseDoubleOrThrow(probabilities[i]);
       rawDistribution.put(vector, probability);
     }
     return rawDistribution;
@@ -46,16 +44,13 @@ public class CommonParser {
     if (rawActionVector.equals("*")) {
       return VectorStreamBuilder.forEachCombination(agentActions).toList();
     }
-    var actions = rawActionVector.split(" ");
+    var rawActions = rawActionVector.split(" ");
     var listOfActions = new ArrayList<List<Action>>();
-    for (int i = 0; i < actions.length; i++) {
-      var actionName = actions[i];
+    for (int i = 0; i < rawActions.length; i++) {
+      var rawAction = rawActions[i];
       var possibleActions = agentActions.get(i);
-      if (actionName.equals("*")) {
-        listOfActions.add(i, possibleActions);
-      } else if (possibleActions.contains(Action.from(actionName))) {
-        listOfActions.add(i, Action.listOf(actionName));
-      };
+      var actions = parseActionOrWildcard(possibleActions, rawAction);
+      listOfActions.add(i, actions);
     }
     return VectorStreamBuilder.forEachCombination(listOfActions).toList();
   }
@@ -64,28 +59,82 @@ public class CommonParser {
     if (rawObservationVector.equals("*")) {
       return VectorStreamBuilder.forEachCombination(agentObservations).toList();
     }
-    var observations = rawObservationVector.split(" ");
+    var rawObservations = rawObservationVector.split(" ");
     var listOfObservations = new ArrayList<List<Observation>>();
-    for (int i = 0; i < observations.length; i++) {
-      var observationName = observations[i];
+    for (int i = 0; i < rawObservations.length; i++) {
+      var rawObservation = rawObservations[i];
       var possibleObservations = agentObservations.get(i);
-      if (observationName.equals("*")) {
-        listOfObservations.add(i, possibleObservations);
-      } else if (possibleObservations.contains(Observation.from(observationName))) {
-        listOfObservations.add(i, Observation.listOf(observationName));
-      };
+      var observations = parseObservationOrWildcard(possibleObservations, rawObservation);
+      listOfObservations.add(i, observations);
     }
     return VectorStreamBuilder.forEachCombination(listOfObservations).toList();
   }
 
   public static List<State> parseStateOrWildcard(List<State> states, String rawStateString) {
     var state = State.from(rawStateString);
+    var index = parseInteger(rawStateString);
     if (rawStateString.equals("*")) {
       return states;
+    } else if (index.isPresent()) {
+      return List.of(states.get(index.get()));
     } else if (states.contains(state)) {
       return List.of(state);
     } else {
-      throw new IllegalArgumentException("state contains unknown state.");
+      throw new IllegalArgumentException("state contains unknown state: " + rawStateString);
     }
+  }
+
+  public static List<Action> parseActionOrWildcard(List<Action> actions, String rawActionString) {
+    var action = Action.from(rawActionString);
+    var index = parseInteger(rawActionString);
+    if (rawActionString.equals("*")) {
+      return actions;
+    } else if (index.isPresent()) {
+      return List.of(actions.get(index.get()));
+    } else if (actions.contains(action)) {
+      return List.of(action);
+    } else {
+      throw new IllegalArgumentException("action contains unknown action: " + rawActionString);
+    }
+  }
+
+  public static List<Observation> parseObservationOrWildcard(List<Observation> observations, String rawObservationString) {
+    var observation = Observation.from(rawObservationString);
+    var index = parseInteger(rawObservationString);
+    if (rawObservationString.equals("*")) {
+      return observations;
+    } else if (index.isPresent()) {
+      return List.of(observations.get(index.get()));
+    } else if (observations.contains(observation)) {
+      return List.of(observation);
+    } else {
+      throw new IllegalArgumentException("observation contains unknown observation: " + rawObservationString);
+    }
+  }
+
+  public static Optional<Integer> parseInteger(String rawInteger) {
+    try {
+      var x = Integer.parseInt(rawInteger);
+      return Optional.of(x);
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
+  public static int parseIntegerOrThrow(String rawInteger) {
+    return parseInteger(rawInteger).orElseThrow(() -> new ParsingFailedException("Found invalid integer: " + rawInteger));
+  }
+
+  public static Optional<Double> parseDouble(String rawDouble) {
+    try {
+      var x = Double.parseDouble(rawDouble);
+      return Optional.of(x);
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
+  public static double parseDoubleOrThrow(String rawDouble) {
+    return parseDouble(rawDouble).orElseThrow(() -> new ParsingFailedException("Found invalid double: " + rawDouble));
   }
 }
