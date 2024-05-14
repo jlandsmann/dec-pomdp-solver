@@ -35,6 +35,11 @@ public class TransitionEntryParser {
     return this;
   }
 
+  public TransitionEntryParser setTransitions(Map<State, Map<Vector<Action>, Map<State, Double>>> transitions) {
+    this.transitions = transitions;
+    return this;
+  }
+
   public void parseTransitionEntry(String section) {
     LOG.debug("Parsing 'T' section.");
     if (states.isEmpty()) {
@@ -101,12 +106,14 @@ public class TransitionEntryParser {
   private void saveTransitionRule(State start, Vector<Action> actionVector, State end, Double probability) {
     transitions.putIfAbsent(start, new HashMap<>());
     transitions.get(start).putIfAbsent(actionVector, new HashMap<>());
+    if (transitions.get(start).get(actionVector).containsKey(end)) {
+      transitions.get(start).put(actionVector, new HashMap<>());
+    }
     transitions.get(start).get(actionVector).put(end, probability);
   }
 
   private void saveTransitionRule(State start, Vector<Action> actionVector, Map<State, Double> transitionProbabilities) {
     transitions.putIfAbsent(start, new HashMap<>());
-    transitions.get(start).putIfAbsent(actionVector, new HashMap<>());
-    transitions.get(start).get(actionVector).putAll(transitionProbabilities);
+    transitions.get(start).putIfAbsent(actionVector, transitionProbabilities);
   }
 }

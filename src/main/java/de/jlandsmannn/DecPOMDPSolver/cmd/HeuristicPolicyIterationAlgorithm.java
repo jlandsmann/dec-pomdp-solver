@@ -1,5 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
 import org.hibernate.validator.constraints.CodePointLength;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,7 @@ public class HeuristicPolicyIterationAlgorithm {
     solver
       .setNumberOfBeliefPoints(numberOfBeliefPoints)
       .setMaxIterations(maxIterations);
+    initialized = true;
 
     return new StringBuilder()
       .append("Initialized heuristic policy iteration with ")
@@ -57,10 +61,16 @@ public class HeuristicPolicyIterationAlgorithm {
   }
 
   @Command(command = "load", alias = "l", description = "Load a problem instance to solve.")
-  public void loadDecPOMDP(
+  public String loadDecPOMDP(
     @Option(shortNames = 'f', required = true) String filename,
-    @Option(shortNames = 'd', defaultValue = "0") double discountFactor
+    @Option(shortNames = 'd', defaultValue = "0.9") double discountFactor
   ) {
+    var builder = DPOMDPFileParser.parseDecPOMDP(filename).orElseThrow();
+    if (discountFactor >= 0) builder.setDiscountFactor(discountFactor);
+    var decPOMDP = builder.createDecPOMDP();
+    solver.setDecPOMDP(decPOMDP);
+    loaded = true;
+    return "Successfully loaded DecPOMDP";
   }
 
   @Command(command = "solve", alias = "s", description = "Solve the loaded problem instance.")
@@ -73,5 +83,4 @@ public class HeuristicPolicyIterationAlgorithm {
     var result = solver.solve();
     return "Heuristic Policy Iteration finished. Result: " + result;
   }
-
 }

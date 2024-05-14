@@ -43,6 +43,11 @@ public class RewardEntryParser {
     return this;
   }
 
+  public RewardEntryParser setRewards(Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards) {
+    this.rewards = rewards;
+    return this;
+  }
+
   public void parseRewardEntry(String section) {
     LOG.debug("Parsing 'R' section.");
     if (states.isEmpty()) {

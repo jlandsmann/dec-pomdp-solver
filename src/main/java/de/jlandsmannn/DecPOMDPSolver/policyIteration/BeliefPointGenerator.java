@@ -21,7 +21,6 @@ public class BeliefPointGenerator {
   private static final int MAX_GENERATION_RUNS = 100;
 
   private DecPOMDPWithStateController decPOMDP;
-  private Distribution<State> initialBeliefState;
   private Distribution<State> currentBeliefState;
   private Map<Agent, Map<State, Distribution<Action>>> policies;
   private int numberOfBeliefPoints;
@@ -29,18 +28,13 @@ public class BeliefPointGenerator {
   public BeliefPointGenerator setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
+    this.currentBeliefState = decPOMDP.getInitialBeliefState();
     return this;
   }
 
   public BeliefPointGenerator setDesiredNumberOfBeliefPoints(int numberOfBeliefPoints) {
     LOG.debug("Retrieving desired number of belief-points: {}", numberOfBeliefPoints);
     this.numberOfBeliefPoints = numberOfBeliefPoints;
-    return this;
-  }
-
-  public BeliefPointGenerator setInitialBeliefState(Distribution<State> initialBeliefState) {
-    LOG.debug("Retrieving initial belief state: {}", initialBeliefState);
-    this.initialBeliefState = this.currentBeliefState = initialBeliefState;
     return this;
   }
 
@@ -86,7 +80,7 @@ public class BeliefPointGenerator {
   }
 
   protected void assertAllDependenciesAreSet() {
-    if (decPOMDP == null || initialBeliefState == null || policies == null || numberOfBeliefPoints == 0) {
+    if (decPOMDP == null || policies == null || numberOfBeliefPoints == 0) {
       throw new IllegalStateException("DecPOMDP, initialBeliefState, policies and numberOfBeliefPoints must be set, to generate belief points for agents.");
     }
   }

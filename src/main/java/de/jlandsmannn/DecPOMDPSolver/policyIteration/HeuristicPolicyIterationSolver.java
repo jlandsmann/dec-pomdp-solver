@@ -83,7 +83,6 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     LOG.info("Generating {} belief points for each agent to guide the pruning.", numberOfBeliefPoints);
     beliefPointGenerator
       .setDecPOMDP(decPOMDP)
-      .setInitialBeliefState(initialBeliefState)
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
       .setPolicies(initialPolicies);
 

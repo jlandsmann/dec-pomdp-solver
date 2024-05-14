@@ -43,6 +43,11 @@ public class ObservationEntryParser {
     return this;
   }
 
+  public ObservationEntryParser setObservations(Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations) {
+    this.observations = observations;
+    return this;
+  }
+
   public void parseObservationEntry(String section) {
     LOG.debug("Parsing 'O' section.");
     if (states.isEmpty()) {

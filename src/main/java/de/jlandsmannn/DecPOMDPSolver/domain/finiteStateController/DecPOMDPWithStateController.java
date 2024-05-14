@@ -18,10 +18,11 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   public DecPOMDPWithStateController(List<AgentWithStateController> agents,
                                      List<State> states,
                                      double discountFactor,
+                                     Distribution<State> initialBeliefState,
                                      Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                                      Map<State, Map<Vector<Action>, Double>> rewardFunction,
                                      Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
-    super(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+    super(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
   public double getValue(Distribution<State> beliefState) {

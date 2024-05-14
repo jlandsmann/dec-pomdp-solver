@@ -31,11 +31,9 @@ public class TestCommand {
   @Command(command = "init")
   public void initDecPOMDP() {
     var model = initializeDecPOMDP();
-    var initialBeliefState = Distribution.createUniformDistribution(Set.copyOf(model.getStates()));
     var initialPolicies = generateInitialPolicies(model);
     var result = solver
       .setDecPOMDP(model)
-      .setInitialBeliefState(initialBeliefState)
       .setInitialPolicies(initialPolicies)
       .setNumberOfBeliefPoints(10)
       .setMaxIterations(20)
@@ -50,7 +48,11 @@ public class TestCommand {
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
-    return builder.setDiscountFactor(0.9).createDecPOMDP();
+    var initialBeliefState = Distribution.createUniformDistribution(builder.getStates());
+    return builder
+      .setInitialBeliefState(initialBeliefState)
+      .setDiscountFactor(0.9)
+      .createDecPOMDP();
   }
 
   public Map<Agent, Map<State, Distribution<Action>>> generateInitialPolicies(DecPOMDPWithStateController model) {

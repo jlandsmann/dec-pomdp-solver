@@ -17,11 +17,12 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;
+  protected final Distribution<State> initialBeliefState;
   private final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   private final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
 
-  public DecPOMDP(List<AGENT> agents, List<State> states, double discountFactor,
+  public DecPOMDP(List<AGENT> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState,
                   Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                   Map<State, Map<Vector<Action>, Double>> rewardFunction,
                   Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
@@ -30,6 +31,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     this.stateCount = states.size();
     this.states = states;
     this.discountFactor = discountFactor;
+    this.initialBeliefState = initialBeliefState;
     this.transitionFunction = transitionFunction;
     this.rewardFunction = rewardFunction;
     this.observationFunction = observationFunction;
@@ -45,6 +47,10 @@ public abstract class DecPOMDP<AGENT extends Agent> {
 
   public List<AGENT> getAgents() {
     return agents;
+  }
+
+  public Distribution<State> getInitialBeliefState() {
+    return initialBeliefState;
   }
 
   public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
@@ -100,6 +106,10 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public abstract double getValue(Distribution<State> beliefSate);
+
+  public double getValue() {
+    return getValue(initialBeliefState);
+  }
 
   @Override
   public boolean equals(Object o) {

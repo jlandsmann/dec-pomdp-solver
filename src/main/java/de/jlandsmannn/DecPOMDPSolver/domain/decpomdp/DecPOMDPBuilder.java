@@ -20,6 +20,7 @@ public class DecPOMDPBuilder {
   private final Map<State, Map<Vector<Action>, Double>> rewardFunction = new HashMap<>();
   private final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction = new HashMap<>();
   private double discountFactor;
+  private Distribution<State> initialBeliefState;
 
   public DecPOMDPBuilder addAgents(Collection<AgentWithStateController> agents) {
     this.agents.removeAll(agents);
@@ -92,10 +93,15 @@ public class DecPOMDPBuilder {
     return this;
   }
 
+  public DecPOMDPBuilder setInitialBeliefState(Distribution<State> initialBeliefState) {
+    this.initialBeliefState = initialBeliefState;
+    return this;
+  }
+
   public DecPOMDPWithStateController createDecPOMDP() {
     logger.info("Creating CommonDecPOMDP with {} agents, {} states, {} transitions, {} rewards and {} observations.",
       agents.size(), states.size(), transitionFunction.size(), rewardFunction.size(), observationFunction.size());
-    return new DecPOMDPWithStateController(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+    return new DecPOMDPWithStateController(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
   public List<State> getStates() {

@@ -14,6 +14,7 @@ import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +32,6 @@ public class DPOMDPFileParser {
   protected List<List<Action>> agentActions = new ArrayList<>();
   protected List<List<Observation>> agentObservations = new ArrayList<>();
   protected DPOMDPRewardType rewardType = DPOMDPRewardType.REWARD;
-  protected Distribution<State> initialBeliefState;
   protected Map<State, Map<Vector<Action>, Map<State, Double>>> transitions = new HashMap<>();
   protected Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards = new HashMap<>();
   protected Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations = new HashMap<>();
@@ -50,14 +50,20 @@ public class DPOMDPFileParser {
       var decPOMDP = parser.doParseDecPOMDP(fileName);
       return Optional.of(decPOMDP);
     } catch (Exception e) {
+      LOG.warn("Could not parse decPOMDP file: {}", fileName, e);
       return Optional.empty();
     }
   }
 
   protected DecPOMDPBuilder doParseDecPOMDP(String fileName) throws IOException {
-    var path = Path.of(fileName);
+    var classLoader = getClass().getClassLoader();
+    var url = classLoader.getResource(fileName);
+    if (url == null) {
+      throw new FileNotFoundException(fileName);
+    }
+    var path = Path.of(url.getPath());
     try (var file = Files.newBufferedReader(path)) {
-      var currentLine = file.readLine();
+      String currentLine = null;
       do {
         currentLine = file.readLine();
         parseLine(currentLine);
@@ -103,16 +109,36 @@ public class DPOMDPFileParser {
 
   protected void parseSection(DPOMDPSectionKeyword keyword, String section) {
     switch (keyword) {
-      case DPOMDPSectionKeyword.AGENTS: parseAgents(section);
-      case DPOMDPSectionKeyword.DISCOUNT: parseDiscount(section);
-      case DPOMDPSectionKeyword.REWARD_TYPE: parseRewardType(section);
-      case DPOMDPSectionKeyword.STATES: parseStates(section);
-      case DPOMDPSectionKeyword.START: parseStart(section);
-      case DPOMDPSectionKeyword.ACTIONS: parseActions(section);
-      case DPOMDPSectionKeyword.OBSERVATIONS: parseObservations(section);
-      case DPOMDPSectionKeyword.TRANSITION_ENTRY: parseTransitionEntry(section);
-      case DPOMDPSectionKeyword.REWARD_ENTRY: parseRewardEntry(section);
-      case DPOMDPSectionKeyword.OBSERVATION_ENTRY: parseObservationEntry(section);
+      case DPOMDPSectionKeyword.AGENTS:
+        parseAgents(section);
+        break;
+      case DPOMDPSectionKeyword.DISCOUNT:
+        parseDiscount(section);
+        break;
+      case DPOMDPSectionKeyword.REWARD_TYPE:
+        parseRewardType(section);
+        break;
+      case DPOMDPSectionKeyword.STATES:
+        parseStates(section);
+        break;
+      case DPOMDPSectionKeyword.START:
+        parseStart(section);
+        break;
+      case DPOMDPSectionKeyword.ACTIONS:
+        parseActions(section);
+        break;
+      case DPOMDPSectionKeyword.OBSERVATIONS:
+        parseObservations(section);
+        break;
+      case DPOMDPSectionKeyword.TRANSITION_ENTRY:
+        parseTransitionEntry(section);
+        break;
+      case DPOMDPSectionKeyword.REWARD_ENTRY:
+        parseRewardEntry(section);
+        break;
+      case DPOMDPSectionKeyword.OBSERVATION_ENTRY:
+        parseObservationEntry(section);
+        break;
     }
   }
 
@@ -151,7 +177,7 @@ public class DPOMDPFileParser {
     parser
       .setStates(states)
       .parseStart(section);
-    initialBeliefState = parser.getInitialBeliefState();
+    builder.setInitialBeliefState(parser.getInitialBeliefState());
   }
 
   protected void parseActions(String section) {
@@ -179,6 +205,7 @@ public class DPOMDPFileParser {
     parser
       .setStates(states)
       .setAgentActions(agentActions)
+      .setTransitions(transitions)
       .parseTransitionEntry(section);
     transitions = parser.getTransitions();
   }
@@ -191,6 +218,7 @@ public class DPOMDPFileParser {
       .setStates(states)
       .setAgentActions(agentActions)
       .setAgentObservations(agentObservations)
+      .setObservations(observations)
       .parseObservationEntry(section);
     observations = parser.getObservations();
   }
@@ -203,6 +231,7 @@ public class DPOMDPFileParser {
       .setStates(states)
       .setAgentActions(agentActions)
       .setAgentObservations(agentObservations)
+      .setRewards(rewards)
       .parseRewardEntry(section);
     rewards = parser.getRewards();
   }
@@ -268,6 +297,7 @@ public class DPOMDPFileParser {
           if (observationMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " and follow state " + state + " has no rewards.");
           for (var observationVector : observationCombination) {
             var reward = observationMap.getOrDefault(observationVector, 0D);
+            if (rewardType == DPOMDPRewardType.COST) reward *= -1;
             builder.addReward(state, actionVector, reward);
           }
 
