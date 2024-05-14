@@ -131,6 +131,7 @@ class OJAValueFunctionTransformerTest {
     states = State.listOf("S1", "S2");
     agents = List.of(agent1, agent2);
     discountFactor = 0.5D;
+    var beliefState = Distribution.createUniformDistribution(states);
 
     transitionFunction = new HashMap<>();
     transitionFunction.putIfAbsent(State.from("S1"), new HashMap<>());
@@ -170,6 +171,6 @@ class OJAValueFunctionTransformerTest {
     observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
     observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
 
-    return new DecPOMDPWithStateController(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+    return new DecPOMDPWithStateController(agents, states, discountFactor, beliefState, transitionFunction, rewardFunction, observationFunction);
   }
 }

@@ -134,13 +134,13 @@ public abstract class DecPOMDP<AGENT extends Agent> {
       observationFunction);
   }
 
-  private void validateDiscountFactor(double discountFactor) {
-    if (discountFactor < 0 || 1 <= discountFactor) {
-      throw new IllegalArgumentException("discountFactor must be a positive number between 0 (inclusive) and 1 (exclusive).");
+  protected void validateDiscountFactor(double discountFactor) {
+    if (discountFactor < 0 || 1 < discountFactor) {
+      throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1.");
     }
   }
 
-  private void validateTransitionFunction() {
+  protected void validateTransitionFunction() {
     if (transitionFunction.size() != stateCount) {
       throw new IllegalArgumentException("Transition function does not match state count");
     }
@@ -154,7 +154,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     }
   }
 
-  private void validateRewardFunction() {
+  protected void validateRewardFunction() {
     for (var state : rewardFunction.keySet()) {
       var innerMap = rewardFunction.get(state);
       for (var actionVector : innerMap.keySet()) {
@@ -165,7 +165,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     }
   }
 
-  private void validateObservationFunction() {
+  protected void validateObservationFunction() {
     for (var actionVector : observationFunction.keySet()) {
       if (actionVector.size() != agentCount) {
         throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");

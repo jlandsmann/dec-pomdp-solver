@@ -39,8 +39,13 @@ public class BeliefPointGenerator {
   }
 
   public BeliefPointGenerator setPolicies(Map<Agent, Map<State, Distribution<Action>>> policies) {
-    if (policies == null) policies = generateRandomPolicies();
+    if (policies == null) return setPolicies();
     this.policies = policies;
+    return this;
+  }
+
+  public BeliefPointGenerator setPolicies() {
+    policies = generateRandomPolicies();
     return this;
   }
 

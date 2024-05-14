@@ -11,8 +11,14 @@ import java.util.Map;
 
 public class TestDecPOMDP extends DecPOMDP<TestAgent> {
 
-  public TestDecPOMDP(List<TestAgent> testAgents, List<State> states, double discountFactor, Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction, Map<State, Map<Vector<Action>, Double>> rewardFunction, Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
-    super(testAgents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+  public TestDecPOMDP(List<TestAgent> testAgents,
+                      List<State> states,
+                      double discountFactor,
+                      Distribution<State> initialBeliefState,
+                      Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
+                      Map<State, Map<Vector<Action>, Double>> rewardFunction,
+                      Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
+    super(testAgents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
   @Override

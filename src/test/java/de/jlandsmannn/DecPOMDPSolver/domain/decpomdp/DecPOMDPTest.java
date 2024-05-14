@@ -19,6 +19,7 @@ class DecPOMDPTest {
   private List<State> states;
   private List<TestAgent> agents;
   private double discountFactor;
+  private Distribution<State> initialBeliefState;
   private Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   private Map<State, java.util.Map<Vector<Action>, Double>> rewardFunction;
   private Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
@@ -30,6 +31,7 @@ class DecPOMDPTest {
     states = State.listOf("S1", "S2");
     agents = List.of(agent1, agent2);
     discountFactor = 0.5D;
+    initialBeliefState = Distribution.createUniformDistribution(states);
 
     transitionFunction = new HashMap<>();
     transitionFunction.putIfAbsent(State.from("S1"), new HashMap<>());
@@ -69,7 +71,7 @@ class DecPOMDPTest {
     observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S1"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O1", "A2-O1"))));
     observationFunction.get(Vector.of(Action.listOf("A1-A2", "A2-A2"))).putIfAbsent(State.from("S2"), Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2"))));
 
-    decPOMDP = new TestDecPOMDP(agents, states, discountFactor, transitionFunction, rewardFunction, observationFunction);
+    decPOMDP = new TestDecPOMDP(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
   @Test

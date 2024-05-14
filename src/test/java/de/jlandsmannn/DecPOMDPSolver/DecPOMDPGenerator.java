@@ -21,8 +21,10 @@ public class DecPOMDPGenerator {
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
+    initializeInitialBeliefState(builder);
     return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
+
   public static DecPOMDPWithStateController getDecTigerPOMDPWithLargeFSC() {
     var builder = new DecPOMDPBuilder();
     initializeStates(builder);
@@ -30,6 +32,7 @@ public class DecPOMDPGenerator {
     initializeTransitions(builder);
     initializeRewards(builder);
     initializeObservations(builder);
+    initializeInitialBeliefState(builder);
     return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
 
@@ -67,6 +70,11 @@ public class DecPOMDPGenerator {
     var observations = Observation.setOf("hear-left", "hear-right");
     var controller = FiniteStateControllerBuilder.createArbitraryController(name, 4, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
+  }
+
+  private static void initializeInitialBeliefState(DecPOMDPBuilder builder) {
+    var beliefState = Distribution.createUniformDistribution(builder.getStates());
+    builder.setInitialBeliefState(beliefState);
   }
 
   private static void initializeTransitions(DecPOMDPBuilder builder) {

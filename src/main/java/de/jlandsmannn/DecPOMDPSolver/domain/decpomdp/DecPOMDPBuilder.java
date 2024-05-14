@@ -107,4 +107,8 @@ public class DecPOMDPBuilder {
   public List<State> getStates() {
     return states;
   }
+
+  public double getDiscountFactor() {
+    return discountFactor;
+  }
 }
