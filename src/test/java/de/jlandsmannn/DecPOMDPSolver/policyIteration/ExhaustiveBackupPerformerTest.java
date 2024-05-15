@@ -103,7 +103,8 @@ class ExhaustiveBackupPerformerTest {
 
     for (var state : decPOMDP.getStates()) {
       for (var nodeCombination : newNodeCombinations) {
-        assertTrue(decPOMDP.getOptionalValue(state, nodeCombination).isPresent());
+        var optionalValue = decPOMDP.getOptionalValue(state, nodeCombination);
+        assertTrue(optionalValue.isPresent(), "Missing value for " + state + " and " + nodeCombination);
       }
     }
   }

@@ -1,8 +1,3 @@
-# Read Me First
-The following was discovered as part of building this project:
-
-* The original package name 'de.jlandsmannn.Dec-POMDP-Solver' is invalid and this project uses 'de.jlandsmannn.DecPOMDPSolver' instead.
-
 # Getting Started
 
 ### Reference Documentation

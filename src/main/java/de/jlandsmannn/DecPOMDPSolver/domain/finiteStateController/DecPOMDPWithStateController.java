@@ -10,10 +10,11 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
-  private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new HashMap<>();
+  private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new ConcurrentHashMap<>();
 
   public DecPOMDPWithStateController(List<AgentWithStateController> agents,
                                      List<State> states,

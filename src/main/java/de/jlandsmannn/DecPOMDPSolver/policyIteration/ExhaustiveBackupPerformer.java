@@ -67,7 +67,7 @@ public class ExhaustiveBackupPerformer {
       .forEach(state -> {
         nodeCombinations.stream()
           .parallel()
-          .filter(nodeVector -> decPOMDP.getOptionalValue(state, nodeVector).isPresent())
+          .filter(nodeVector -> decPOMDP.getOptionalValue(state, nodeVector).isEmpty())
           .forEach(nodeCombination -> {
             var value = calculateValue(state, nodeCombination);
             decPOMDP.setValue(state, nodeCombination, value);
@@ -78,7 +78,7 @@ public class ExhaustiveBackupPerformer {
   }
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {
-    LOG.info("Calculating missing value of value function for {} and {}", state, nodeVector);
+    LOG.debug("Calculating missing value of value function for {} and {}", state, nodeVector);
     var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
     var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
     var rawActionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
