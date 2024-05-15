@@ -96,8 +96,8 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
 
   @Override
   public Optional<Distribution<Node>> getDominatingNodeDistributionFromResult(Map<String, Double> result) {
-    if (result.get("epsilon") < 0) {
-      LOG.debug("Epsilon is negative, no dominating combination exists.");
+    if (result.get("epsilon") <= 0) {
+      LOG.debug("Epsilon is not positive, no dominating combination exists.");
       return Optional.empty();
     }
     Map<Node, Double> mappedResults = new HashMap<>();

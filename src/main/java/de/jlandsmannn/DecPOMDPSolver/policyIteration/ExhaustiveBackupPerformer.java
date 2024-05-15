@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ExhaustiveBackupPerformer {
@@ -60,19 +61,24 @@ public class ExhaustiveBackupPerformer {
     LOG.info("Calculating missing values of value function");
     var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
     var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
-    var updatedCombinations = 0;
-    for (var state : decPOMDP.getStates()) {
-      for (var nodeCombination : nodeCombinations) {
-        if (decPOMDP.getOptionalValue(state, nodeCombination).isPresent()) continue;
-        var value = calculateValue(state, nodeCombination);
-        decPOMDP.setValue(state, nodeCombination, value);
-        updatedCombinations++;
-      }
-    }
+    AtomicInteger updatedCombinations = new AtomicInteger();
+    decPOMDP.getStates().stream()
+      .parallel()
+      .forEach(state -> {
+        nodeCombinations.stream()
+          .parallel()
+          .filter(nodeVector -> decPOMDP.getOptionalValue(state, nodeVector).isPresent())
+          .forEach(nodeCombination -> {
+            var value = calculateValue(state, nodeCombination);
+            decPOMDP.setValue(state, nodeCombination, value);
+            updatedCombinations.getAndIncrement();
+          });
+      });
     LOG.info("Calculated {} missing values of value function", updatedCombinations);
   }
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {
+    LOG.info("Calculating missing value of value function for {} and {}", state, nodeVector);
     var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
     var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
     var rawActionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
