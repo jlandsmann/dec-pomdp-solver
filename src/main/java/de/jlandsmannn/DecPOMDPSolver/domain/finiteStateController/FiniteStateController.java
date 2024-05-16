@@ -62,39 +62,13 @@ public class FiniteStateController {
     transitionFunction.get(node).get(a).put(o, transition);
   }
 
-  public void pruneNodes(Set<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
-    // first remove all outgoing connections from nodes to prune
-    for (var nodeToPrune : nodesToPrune) {
-      nodes.remove(nodeToPrune);
-      actionFunction.remove(nodeToPrune);
-      transitionFunction.remove(nodeToPrune);
-    }
-
-    // update distributions of remaining nodes
-    for (var node : transitionFunction.keySet()) {
-      for (var action : transitionFunction.get(node).keySet()) {
-        for (var observation : transitionFunction.get(node).get(action).keySet()) {
-          var distribution = transitionFunction.get(node).get(action).get(observation);
-          for (var nodeToPrune : nodesToPrune) {
-            distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
-          }
-        }
-      }
-    }
+  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
+    pruneNodes(Set.of(nodeToPrune), nodesToReplaceWith);
   }
 
-  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
-    nodes.remove(nodeToPrune);
-    actionFunction.remove(nodeToPrune);
-    transitionFunction.remove(nodeToPrune);
-    for (var node : transitionFunction.keySet()) {
-      for (var action : transitionFunction.get(node).keySet()) {
-        for (var observation : transitionFunction.get(node).get(action).keySet()) {
-          var distribution = transitionFunction.get(node).get(action).get(observation);
-          distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
-        }
-      }
-    }
+  public void pruneNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
+    removeOutgoingConnections(nodesToPrune);
+    updateDistributionOfRemainingNodes(nodesToPrune, nodesToReplaceWith);
   }
 
   @Override
@@ -110,4 +84,28 @@ public class FiniteStateController {
   public int hashCode() {
     return Objects.hash(getNodes(), actionFunction, transitionFunction);
   }
+
+  private void removeOutgoingConnections(Collection<Node> nodes) {
+    nodes.forEach(this::removeOutgoingConnections);
+  }
+
+  private void removeOutgoingConnections(Node node) {
+    nodes.remove(node);
+    actionFunction.remove(node);
+    transitionFunction.remove(node);
+  }
+
+  private void updateDistributionOfRemainingNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
+    for (var node : transitionFunction.keySet()) {
+      for (var action : transitionFunction.get(node).keySet()) {
+        for (var observation : transitionFunction.get(node).get(action).keySet()) {
+          var distribution = transitionFunction.get(node).get(action).get(observation);
+          for (var nodeToPrune : nodesToPrune) {
+            distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
+          }
+        }
+      }
+    }
+  }
+
 }

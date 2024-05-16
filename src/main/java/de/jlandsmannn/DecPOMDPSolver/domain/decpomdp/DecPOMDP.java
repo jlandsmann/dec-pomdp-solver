@@ -35,7 +35,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     this.transitionFunction = transitionFunction;
     this.rewardFunction = rewardFunction;
     this.observationFunction = observationFunction;
-    validateDiscountFactor(discountFactor);
+    validateDiscountFactor();
     validateTransitionFunction();
     validateRewardFunction();
     validateObservationFunction();
@@ -134,7 +134,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
       observationFunction);
   }
 
-  protected void validateDiscountFactor(double discountFactor) {
+  protected void validateDiscountFactor() {
     if (discountFactor < 0 || 1 < discountFactor) {
       throw new IllegalArgumentException("discountFactor must be a positive number between 0 and 1.");
     }
