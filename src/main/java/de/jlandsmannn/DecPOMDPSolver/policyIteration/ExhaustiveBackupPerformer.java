@@ -96,7 +96,7 @@ public class ExhaustiveBackupPerformer {
         for (var newNodeVector : nodeCombinations) {
           for (var newState : decPOMDP.getStates()) {
             var discount = decPOMDP.getDiscountFactor();
-            var stateTransitionProbability = decPOMDP.getStateTransitionProbability(state, actionVector, observationVector, newState);
+            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
             var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
             var followValue = decPOMDP.getValue(newState, newNodeVector);
             value += discount * actionVectorProbability * stateTransitionProbability * nodeTransitionProbability * followValue;

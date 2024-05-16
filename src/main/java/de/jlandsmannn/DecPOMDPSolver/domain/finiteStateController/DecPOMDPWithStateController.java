@@ -41,7 +41,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
     return stream
       .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
       .max(Map.Entry.comparingByValue())
-      .orElseThrow(() -> new IllegalStateException()).getKey();
+      .orElseThrow(IllegalStateException::new).getKey();
   }
 
   public double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
@@ -59,14 +59,12 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public double getValue(State state, Vector<Node> nodes) {
-    var preCalculatedValuesForState = preCalculatedValueFunction.get(state);
-    if (preCalculatedValuesForState == null) return 0D;
-    return preCalculatedValuesForState.getOrDefault(nodes, 0D);
+    return getOptionalValue(state, nodes).orElse(0D);
+
   }
 
   public Optional<Double> getOptionalValue(State state, Vector<Node> nodes) {
-    var preCalculatedValuesForState = preCalculatedValueFunction.get(state);
-    if (preCalculatedValuesForState == null) return Optional.empty();
+    var preCalculatedValuesForState = preCalculatedValueFunction.getOrDefault(state, Map.of());
     var value = preCalculatedValuesForState.get(nodes);
     return Optional.ofNullable(value);
   }
@@ -82,15 +80,9 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
-      probability *= agent.getAction(node).getProbability(action);
+      probability *= agent.getActionSelection(node).getProbability(action);
     }
     return probability;
-  }
-
-  public double getStateTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
-    var stateProbability = getTransition(state, actions).getProbability(newState);
-    var observationProbability = getObservations(actions, newState).getProbability(observations);
-    return stateProbability * observationProbability;
   }
 
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
@@ -101,7 +93,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       var action = actions.get(i);
       var observation = observations.get(i);
       var newNode = newNodes.get(i);
-      var transition = agent.getTransition(node, action, observation);
+      var transition = agent.getNodeTransition(node, action, observation);
       probability *= transition == null ? 0 : transition.getProbability(newNode);
     }
     return probability;

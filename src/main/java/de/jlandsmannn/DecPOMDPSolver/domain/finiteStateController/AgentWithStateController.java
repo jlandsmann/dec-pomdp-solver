@@ -26,12 +26,12 @@ public class AgentWithStateController extends Agent {
     return controller.getNodes();
   }
 
-  public Distribution<Action> getAction(Node node) {
-    return controller.getAction(node);
+  public Distribution<Action> getActionSelection(Node node) {
+    return controller.getActionSelection(node);
   }
 
-  public Distribution<Node> getTransition(Node node, Action action, Observation observation) {
-    return controller.getFollowNode(node, action, observation);
+  public Distribution<Node> getNodeTransition(Node node, Action action, Observation observation) {
+    return controller.getTransition(node, action, observation);
   }
 
   public void addNode(Node node, Distribution<Action> actionDistribution) {

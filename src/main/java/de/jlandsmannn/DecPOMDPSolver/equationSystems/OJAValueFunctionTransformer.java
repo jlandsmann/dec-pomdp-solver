@@ -117,7 +117,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     for (var actionVector : actionCombinations) {
       for (var observationVector : observationsCombinations) {
         var action = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-        var stateTransition = decPOMDP.getStateTransitionProbability(state, actionVector, observationVector, newState);
+        var stateTransition = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
         var nodeTransition = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
         coefficient += action * stateTransition * nodeTransition;
       }

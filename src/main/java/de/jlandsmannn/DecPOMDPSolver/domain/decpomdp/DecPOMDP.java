@@ -111,6 +111,12 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return getValue(initialBeliefState);
   }
 
+  public double getTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
+    var stateProbability = getTransition(state, actions).getProbability(newState);
+    var observationProbability = getObservations(actions, newState).getProbability(observations);
+    return stateProbability * observationProbability;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

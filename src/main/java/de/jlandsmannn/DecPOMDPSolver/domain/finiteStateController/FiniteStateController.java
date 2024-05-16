@@ -28,11 +28,11 @@ public class FiniteStateController {
     return nodeIndex;
   }
 
-  public Distribution<Action> getAction(Node q) {
+  public Distribution<Action> getActionSelection(Node q) {
     return actionFunction.get(q);
   }
 
-  public Distribution<Node> getFollowNode(Node q, Action a, Observation o) {
+  public Distribution<Node> getTransition(Node q, Action a, Observation o) {
     return transitionFunction.getOrDefault(q, Map.of()).getOrDefault(a, Map.of()).get(o);
   }
 
