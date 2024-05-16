@@ -26,18 +26,16 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
   @Override
   public Optional<Map<String, Double>> maximise() {
     var result = linearProgram.maximise();
-    if (!result.getState().isSuccess()) {
-      LOG.debug("Maximising linear program was not successful: {}", result.getState());
-      return Optional.empty();
-    }
-    LOG.debug("Maximising linear program has feasible solution: {}", result);
-    var mappedResults = getMapFromResults(result);
-    return Optional.of(mappedResults);
+    return transformResultIntoMap(result);
   }
 
   @Override
   public Optional<Map<String, Double>> minimise() {
     var result = linearProgram.minimise();
+    return transformResultIntoMap(result);
+  }
+
+  private Optional<Map<String, Double>> transformResultIntoMap(Optimisation.Result result) {
     if (!result.getState().isSuccess()) {
       LOG.debug("Minimising linear program was not successful: {}", result.getState());
       return Optional.empty();
