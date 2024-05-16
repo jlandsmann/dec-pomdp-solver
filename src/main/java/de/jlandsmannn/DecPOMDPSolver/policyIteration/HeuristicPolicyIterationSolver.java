@@ -4,7 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int maxIterations = 0;
 
   protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
-  protected Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints = new HashMap<>();
+  protected Set<Distribution<State>> beliefPoints = new HashSet<>();
   protected double controllerState = 0;
   protected int currentIteration = 0;
 
@@ -83,17 +82,13 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   }
 
   protected void generateBeliefPoints() {
-    LOG.info("Generating {} belief points for each agent to guide the pruning.", numberOfBeliefPoints);
+    LOG.info("Generating {} belief points to guide the pruning.", numberOfBeliefPoints);
     beliefPointGenerator
       .setDecPOMDP(decPOMDP)
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
       .setPolicies(initialPolicies);
-
-    for (var agent : decPOMDP.getAgents()) {
-      LOG.debug("Generating {} belief points for {} to guide the pruning.", numberOfBeliefPoints, agent);
-      var generateBeliefPointsForAgent = beliefPointGenerator.generateBeliefPointsForAgent(agent);
-      beliefPoints.put(agent, generateBeliefPointsForAgent);
-    }
+    var generateBeliefPointsForAgent = beliefPointGenerator.generateBeliefPoints();
+    beliefPoints.addAll(generateBeliefPointsForAgent);
   }
 
   protected void saveControllerState() {
@@ -127,11 +122,10 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     LOG.info("Pruning combinatorial dominated nodes.");
     combinatorialNodePruner.setDecPOMDP(decPOMDP);
     for (var agent : decPOMDP.getAgents()) {
-      var agentBeliefPoints = beliefPoints.get(agent);
       LOG.debug("Pruning combinatorial dominated nodes for Agent {}.", agent);
       combinatorialNodePruner
         .setAgent(agent)
-        .setBeliefPoints(agentBeliefPoints)
+        .setBeliefPoints(beliefPoints)
         .pruneNodesIfCombinatorialDominated();
     }
   }

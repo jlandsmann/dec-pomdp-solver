@@ -49,6 +49,34 @@ public class BeliefPointGenerator {
     return this;
   }
 
+  public Set<Distribution<State>> generateBeliefPoints() {
+    assertAllDependenciesAreSet();
+    var generatedBeliefPoints = new HashSet<Distribution<State>>();
+    var enoughBeliefPointsGenerated = false;
+    for (int i = 0; i < MAX_GENERATION_RUNS && !enoughBeliefPointsGenerated; i++) {
+      if (i > 0) LOG.info("Generating further belief points to increase diversity.");
+      var pointsNeeded = numberOfBeliefPoints - generatedBeliefPoints.size();
+      var newBeliefPoints = doGenerateBeliefPoints(pointsNeeded);
+      generatedBeliefPoints.addAll(newBeliefPoints);
+      enoughBeliefPointsGenerated = generatedBeliefPoints.size() >= numberOfBeliefPoints;
+      randomizePoliciesAndBeliefStateToIncreaseDiversity();
+    }
+    LOG.info("Generated {} belief points.", generatedBeliefPoints.size());
+    return generatedBeliefPoints;
+  }
+
+  protected Set<Distribution<State>> doGenerateBeliefPoints(int numberOfBeliefPoints) {
+    var generatedBeliefPoints = new HashSet<Distribution<State>>();
+    generatedBeliefPoints.add(currentBeliefState);
+    for (int i = 0; i < numberOfBeliefPoints; i++) {
+      var agent = decPOMDP.getAgents().get(i % decPOMDP.getAgents().size());
+      var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, currentBeliefState);
+      generatedBeliefPoints.add(newBeliefPoint);
+      currentBeliefState = newBeliefPoint;
+    }
+    return generatedBeliefPoints;
+  }
+
   public Set<Distribution<State>> generateBeliefPointsForAgent(AgentWithStateController agent) {
     assertAllDependenciesAreSet();
 
@@ -106,7 +134,7 @@ public class BeliefPointGenerator {
     return randomPolicies;
   }
 
-  protected Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
+  private Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
     LOG.info("Generating random policies for {}", agent);
     Map<State, Distribution<Action>> policy = new HashMap<>();
     for (var state : decPOMDP.getStates()) {
@@ -139,7 +167,7 @@ public class BeliefPointGenerator {
     return Distribution.of(beliefStateMap);
   }
 
-  protected Double getProbabilityForAgentTransition(AgentWithStateController agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
+  private Double getProbabilityForAgentTransition(AgentWithStateController agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
     var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
 
@@ -160,7 +188,7 @@ public class BeliefPointGenerator {
     return probability;
   }
 
-  protected double getProbabilityForActionVector(State state, Vector<Action> actionVector, Agent agentToIgnore) {
+  private double getProbabilityForActionVector(State state, Vector<Action> actionVector, Agent agentToIgnore) {
     var probability = 1D;
     for (int i = 0; i < actionVector.size(); i++) {
       var agent = decPOMDP.getAgents().get(i);
@@ -174,15 +202,15 @@ public class BeliefPointGenerator {
     return probability;
   }
 
-  protected double getTransitionProbability(State state, Vector<Action> actionVector, State followState) {
+  private double getTransitionProbability(State state, Vector<Action> actionVector, State followState) {
     return decPOMDP.getTransition(state, actionVector).getProbability(followState);
   }
 
-  protected double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
+  private double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
     return decPOMDP.getObservations(actionVector, followState).getProbability(observationVector);
   }
 
-  protected List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, Agent agent) {
+  private List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, Agent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
       if (agent.equals(a)) return Set.of(action);
       else return a.getActions();
@@ -190,7 +218,7 @@ public class BeliefPointGenerator {
     return VectorStreamBuilder.forEachCombination(rawCombinations).toList();
   }
 
-  protected List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, Agent agent) {
+  private List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, Agent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
       if (agent.equals(a)) return Set.of(observation);
       else return a.getObservations();

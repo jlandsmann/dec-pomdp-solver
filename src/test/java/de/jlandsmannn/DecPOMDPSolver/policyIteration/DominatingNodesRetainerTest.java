@@ -20,26 +20,19 @@ class DominatingNodesRetainerTest {
 
   private DominatingNodesRetainer dominatingNodesRetainer;
   private DecPOMDPWithStateController decPOMDP;
-  private Map<AgentWithStateController, Set<Distribution<State>>> beliefPoints;
+  private Set<Distribution<State>> beliefPoints;
 
   @BeforeEach
   void setUp() {
     dominatingNodesRetainer = spy(new DominatingNodesRetainer());
     decPOMDP = spy(DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC());
-    beliefPoints = generateBeliefPoints(10);
+    beliefPoints = generateRandomBeliefPoints(10);
   }
 
   @Test
   void setDecPOMDP_ShouldNotThrow() {
     assertDoesNotThrow(() ->
       dominatingNodesRetainer.setDecPOMDP(decPOMDP)
-    );
-  }
-
-  @Test
-  void setBeliefPoints_ShouldThrowIfDecPOMDPNotSet() {
-    assertThrows(IllegalStateException.class, () ->
-      dominatingNodesRetainer.setBeliefPoints(beliefPoints)
     );
   }
 
@@ -52,13 +45,12 @@ class DominatingNodesRetainerTest {
   }
 
   @Test
-  void setBeliefPoints_ShouldThrowIfAgentHasNoBeliefPoints() {
-    beliefPoints.remove(decPOMDP.getAgents().get(0));
-    dominatingNodesRetainer.setDecPOMDP(decPOMDP);
+  void setBeliefPoints_ShouldThrowIfBeliefPointsAreEmpty() {
     assertThrows(IllegalArgumentException.class, () ->
-      dominatingNodesRetainer.setBeliefPoints(beliefPoints)
+      dominatingNodesRetainer.setBeliefPoints(Set.of())
     );
   }
+
 
   @Test
   void retainDominatingNodes_ShouldThrowIfDecPOMDPIsNotSet() {
@@ -96,17 +88,12 @@ class DominatingNodesRetainerTest {
 
   @Test
   void findDominatingNodes_ShouldGetNodeCombinationForEachBeliefPoint() {
-    var allBeliefPoints = decPOMDP.getAgents().stream()
-      .map(beliefPoints::get)
-      .flatMap(Collection::stream)
-      .toList();
-
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
       .findDominatingNodes();
 
-    for (var beliefPoint : allBeliefPoints) {
+    for (var beliefPoint : beliefPoints) {
       verify(decPOMDP).getBestNodeCombinationFor(beliefPoint);
     }
   }
@@ -129,16 +116,7 @@ class DominatingNodesRetainerTest {
     }
   }
 
-  private Map<AgentWithStateController, Set<Distribution<State>>> generateBeliefPoints(int count) {
-    return decPOMDP.getAgents().stream()
-      .map(a -> {
-        var beliefPoints = generateRandomBeliefPointsForAgent(count);
-        return Map.entry(a, beliefPoints);
-      })
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  private Set<Distribution<State>> generateRandomBeliefPointsForAgent(int count) {
+  private Set<Distribution<State>> generateRandomBeliefPoints(int count) {
     Set<Distribution<State>> beliefPoints = new HashSet<>();
     for (int i = 0; i < count; i++) {
       var randomBeliefPoint = Distribution.createRandomDistribution(decPOMDP.getStates());
