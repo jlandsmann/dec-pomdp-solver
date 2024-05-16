@@ -36,7 +36,7 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
   }
 
   private Optional<Map<String, Double>> transformResultIntoMap(Optimisation.Result result) {
-    if (!result.getState().isSuccess()) {
+    if (!result.getState().isOptimal()) {
       LOG.debug("Minimising linear program was not successful: {}", result.getState());
       return Optional.empty();
     }

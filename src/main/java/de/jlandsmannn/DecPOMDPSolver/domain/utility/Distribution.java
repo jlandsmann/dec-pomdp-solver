@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNo
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -21,35 +22,31 @@ public class Distribution<T> implements Iterable<T> {
    * @throws DistributionSumNotOneException is thrown if sum of values in distribution is not one
    */
   protected Distribution(Map<T, Double> distribution) {
-    distribution = new ConcurrentHashMap<>(distribution);
-    removeObsoleteKeys(distribution);
-    validateDistribution(distribution);
-    this.distribution = distribution;
+    this.distribution = new ConcurrentHashMap<>(distribution);
+    removeObsoleteKeys();
+    validateDistribution();
     this.currentMax = calculateMax();
   }
 
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries) {
     if (entries.size() == 1) {
       return Distribution.createSingleEntryDistribution(entries.stream().findFirst().get());
-    } else if (entries.size() == 0) {
+    } else if (entries.isEmpty()) {
       throw new IllegalArgumentException("Collection must not be empty");
     }
     try {
       var random = new Random();
-      AtomicReference<Double> probabilityLeft = new AtomicReference<>(1D);
-      var distribution = entries.stream()
-        .filter(e -> probabilityLeft.get() > 0D)
-        .map(e -> {
-          var probability = random.nextDouble(0D, probabilityLeft.get());
-          probabilityLeft.updateAndGet(v -> v - probability);
-          return Map.entry(e, probability);
-        })
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      if (probabilityLeft.get() > 0) {
-        var randomIndex = random.nextInt(entries.size() - 1);
-        var randomEntry = entries.stream().skip(randomIndex).findFirst().get();
-        var previousProbability = distribution.get(randomEntry);
-        distribution.put(randomEntry, previousProbability + probabilityLeft.get());
+      var distribution = new HashMap<T, Double>();
+      var total = 0.0;
+      for (T entry : entries) {
+        var probability = random.nextDouble(0D, 1D);
+        distribution.put(entry, probability);
+        total += probability;
+      }
+      for (T entry : entries) {
+        var probability = distribution.get(entry);
+        var newProbability = probability / total;
+        distribution.put(entry, newProbability);
       }
       return new Distribution<>(distribution);
     } catch (DistributionEmptyException | DistributionSumNotOneException e) {
@@ -142,6 +139,8 @@ public class Distribution<T> implements Iterable<T> {
       var probabilityOfReplacementEntry = entry.getValue();
       distribution.put(entry.getKey(), currentProbability + (probabilityOfItemToReplace * probabilityOfReplacementEntry));
     }
+    validateDistribution();
+    calculateMax();
   }
 
   public Map<T, Double> toMap() {
@@ -172,13 +171,13 @@ public class Distribution<T> implements Iterable<T> {
   }
 
 
-  private void removeObsoleteKeys(Map<T, Double> distribution) {
+  private void removeObsoleteKeys() {
     distribution.forEach((key, probability) -> {
       if (probability == 0D) distribution.remove(key);
     });
   }
 
-  private void validateDistribution(Map<T, Double> distribution) throws DistributionEmptyException, DistributionSumNotOneException {
+  private void validateDistribution() throws DistributionEmptyException, DistributionSumNotOneException {
     if (distribution.isEmpty()) {
       throw new DistributionEmptyException();
     }
@@ -192,5 +191,18 @@ public class Distribution<T> implements Iterable<T> {
     var entryStream = distribution.entrySet().stream();
     var maxEntry = entryStream.max(Comparator.comparingDouble(Map.Entry::getValue)).orElseThrow(IllegalStateException::new);
     return maxEntry.getKey();
+  }
+
+  public boolean closeTo(Distribution<T> other) {
+    var tolerance = 1e-06;
+    return closeTo(other, tolerance);
+  }
+
+  public boolean closeTo(Distribution<T> other, double tolerance) {
+    return distribution.keySet()
+      .stream()
+      .map(key -> other.getProbability(key) - getProbability(key))
+      .map(Math::abs)
+      .allMatch(diff -> diff <= tolerance);
   }
 }

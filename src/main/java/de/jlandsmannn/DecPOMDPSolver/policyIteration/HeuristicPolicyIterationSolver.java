@@ -70,13 +70,14 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     }
     currentIteration = 0;
     generateBeliefPoints();
+    evaluateValueFunction();
     do {
       LOG.info("Starting iteration #{}. Current value: {}", ++currentIteration, getValueOfDecPOMDP());
       saveControllerState();
-      evaluateValueFunction();
       performExhaustiveBackup();
       retainDominatingNodes();
       pruneCombinatorialDominatedNodes();
+      evaluateValueFunction();
     } while (hasControllerStateChanged() && !isIterationLimitReached());
     return getValueOfDecPOMDP();
   }
@@ -133,14 +134,14 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected boolean hasControllerStateChanged() {
     var valueChange = Math.abs(controllerState - getValueOfDecPOMDP());
     boolean controllerStateChanged = valueChange >= VALUE_CHANGE_THRESHOLD;
-    LOG.debug("Controller state changed: {}", controllerStateChanged);
+    LOG.info("Controller state changed: {}", controllerStateChanged);
     return controllerStateChanged;
   }
 
   protected boolean isIterationLimitReached() {
     boolean hasIterationLimit = maxIterations != 0;
     boolean isIterationLimitReached = maxIterations <= currentIteration;
-    LOG.debug("Iteration limit enabled: {} and reached: {}", hasIterationLimit, isIterationLimitReached);
+    LOG.info("Iteration limit enabled: {} and reached: {}", hasIterationLimit, isIterationLimitReached);
     return hasIterationLimit && isIterationLimitReached;
   }
 }

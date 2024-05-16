@@ -49,38 +49,38 @@ class BeliefPointGeneratorTest {
   }
 
   @Test
-  void getFollowUpBeliefPointsForAgent_ShouldThrowIfDecPOMDPNotSetForAgent() {
+  void generateBeliefPoints_ShouldThrowIfDecPOMDPNotSetForAgent() {
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
     assertThrows(IllegalStateException.class, () -> {
-      beliefPointGenerator.generateBeliefPointsForAgent(decPOMDP.getAgents().get(0));
+      beliefPointGenerator.generateBeliefPoints();
     });
   }
 
   @Test
-  void getFollowUpBeliefPointsForAgent_ShouldThrowIfDesiredNumberOfBeliefPointsNotSetForAgent() {
+  void generateBeliefPoints_ShouldThrowIfDesiredNumberOfBeliefPointsNotSetForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setPolicies();
     assertThrows(IllegalStateException.class, () -> {
-      beliefPointGenerator.generateBeliefPointsForAgent(decPOMDP.getAgents().get(0));
+      beliefPointGenerator.generateBeliefPoints();
     });
   }
 
   @Test
-  void getFollowUpBeliefPointsForAgent_ShouldThrowIfRandomPoliciesNotGeneratedForAgent() {
+  void generateBeliefPoints_ShouldThrowIfRandomPoliciesNotGeneratedForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
     assertThrows(IllegalStateException.class, () -> {
-      beliefPointGenerator.generateBeliefPointsForAgent(decPOMDP.getAgents().get(0));
+      beliefPointGenerator.generateBeliefPoints();
     });
   }
 
   @Test
-  void getFollowUpBeliefPointsForAgent_ShouldNotThrowIfAllDependenciesPresentForAgent() {
+  void generateBeliefPoints_ShouldNotThrowIfAllDependenciesPresentForAgent() {
     beliefPointGenerator.setDecPOMDP(decPOMDP);
     beliefPointGenerator.setDesiredNumberOfBeliefPoints(10);
     beliefPointGenerator.setPolicies(null);
     assertDoesNotThrow(() -> {
-      beliefPointGenerator.generateBeliefPointsForAgent(decPOMDP.getAgents().get(0));
+      beliefPointGenerator.generateBeliefPoints();
     });
   }
 }

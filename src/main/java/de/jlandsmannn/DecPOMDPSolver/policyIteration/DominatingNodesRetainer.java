@@ -36,7 +36,7 @@ public class DominatingNodesRetainer {
     else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to retain dominating nodes.");
 
     var nodesToRetain = findDominatingNodes();
-    pruneOtherNodes(nodesToRetain);
+    retainNodes(nodesToRetain);
     LOG.info("Successfully pruned non-dominating nodes");
   }
 
@@ -51,16 +51,14 @@ public class DominatingNodesRetainer {
     return nodesToRetain;
   }
 
-  protected void pruneOtherNodes(Set<Node> nodesToRetain) {
+  protected void retainNodes(Set<Node> nodesToRetain) {
     for (var agent : decPOMDP.getAgents()) {
       var agentNodesToPrune = new HashSet<>(agent.getControllerNodes());
       agentNodesToPrune.removeAll(nodesToRetain);
       LOG.info("Pruning {} nodes from {}", agentNodesToPrune.size(), agent);
-
       var agentNodesToRetain = new HashSet<>(agent.getControllerNodes());
       agentNodesToRetain.retainAll(nodesToRetain);
       LOG.info("Retaining {} nodes from {}", agentNodesToRetain.size(), agent);
-
       var distribution = Distribution.createUniformDistribution(agentNodesToRetain);
       agent.pruneNodes(agentNodesToPrune, distribution);
     }

@@ -52,14 +52,14 @@ public class BeliefPointGenerator {
   public Set<Distribution<State>> generateBeliefPoints() {
     assertAllDependenciesAreSet();
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
+    generatedBeliefPoints.add(currentBeliefState);
     var enoughBeliefPointsGenerated = false;
     for (int i = 0; i < MAX_GENERATION_RUNS && !enoughBeliefPointsGenerated; i++) {
-      if (i > 0) LOG.info("Generating further belief points to increase diversity.");
+      if (i > 0) randomizePoliciesAndBeliefState();
       var pointsNeeded = numberOfBeliefPoints - generatedBeliefPoints.size();
       var newBeliefPoints = doGenerateBeliefPoints(pointsNeeded);
-      generatedBeliefPoints.addAll(newBeliefPoints);
+      addOnlyDiversePoints(generatedBeliefPoints, newBeliefPoints);
       enoughBeliefPointsGenerated = generatedBeliefPoints.size() >= numberOfBeliefPoints;
-      randomizePoliciesAndBeliefStateToIncreaseDiversity();
     }
     LOG.info("Generated {} belief points.", generatedBeliefPoints.size());
     return generatedBeliefPoints;
@@ -67,7 +67,6 @@ public class BeliefPointGenerator {
 
   protected Set<Distribution<State>> doGenerateBeliefPoints(int numberOfBeliefPoints) {
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
-    generatedBeliefPoints.add(currentBeliefState);
     for (int i = 0; i < numberOfBeliefPoints; i++) {
       var agent = decPOMDP.getAgents().get(i % decPOMDP.getAgents().size());
       var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, currentBeliefState);
@@ -77,39 +76,11 @@ public class BeliefPointGenerator {
     return generatedBeliefPoints;
   }
 
-  public Set<Distribution<State>> generateBeliefPointsForAgent(AgentWithStateController agent) {
-    assertAllDependenciesAreSet();
-
-    var generatedBeliefPoints = new HashSet<Distribution<State>>();
-    var enoughBeliefPointsGenerated = false;
-
-    for (int i = 0; i < MAX_GENERATION_RUNS && !enoughBeliefPointsGenerated; i++) {
-      if (i > 0) LOG.info("Generating further belief points for {} to increase diversity.", agent);
-      var newBeliefPoints = doGenerateBeliefPointsForAgent(agent);
-      generatedBeliefPoints.addAll(newBeliefPoints);
-      enoughBeliefPointsGenerated = generatedBeliefPoints.size() >= numberOfBeliefPoints;
-      randomizePoliciesAndBeliefStateToIncreaseDiversity();
+  protected void addOnlyDiversePoints(Set<Distribution<State>> alreadyFound, Set<Distribution<State>> pointsToAdd) {
+    for (Distribution<State> pointToAdd : pointsToAdd) {
+      var closeBeliefStateExists = alreadyFound.stream().anyMatch(pointAdded -> pointAdded.closeTo(pointToAdd, 2e-2));
+      if (!closeBeliefStateExists) alreadyFound.add(pointToAdd);
     }
-
-    LOG.info("Generated {} belief points for {}.", generatedBeliefPoints.size(), agent);
-    return generatedBeliefPoints;
-  }
-
-  protected Set<Distribution<State>> doGenerateBeliefPointsForAgent(AgentWithStateController agent) {
-    LOG.debug("Generating {} belief points for {} starting from {}.", numberOfBeliefPoints, agent, currentBeliefState);
-
-    Set<Distribution<State>> generatedBeliefPoints = new HashSet<>();
-    generatedBeliefPoints.add(currentBeliefState);
-
-    var hasBeliefPointChanged = true;
-    for (int i = 1; i < numberOfBeliefPoints && hasBeliefPointChanged; i++) {
-      var generatedBeliefPoint = getFollowUpBeliefStateForAgent(agent, currentBeliefState);
-      generatedBeliefPoints.add(generatedBeliefPoint);
-      hasBeliefPointChanged = !generatedBeliefPoints.equals(currentBeliefState);
-      currentBeliefState = generatedBeliefPoint;
-    }
-    if (!hasBeliefPointChanged) LOG.debug("Stop generating because belief point did not change.");
-    return generatedBeliefPoints;
   }
 
   protected void assertAllDependenciesAreSet() {
@@ -118,7 +89,8 @@ public class BeliefPointGenerator {
     }
   }
 
-  protected void randomizePoliciesAndBeliefStateToIncreaseDiversity() {
+  protected void randomizePoliciesAndBeliefState() {
+    LOG.info("Generating further belief points to increase diversity.");
     policies = generateRandomPolicies();
     currentBeliefState = Distribution.createRandomDistribution(decPOMDP.getStates());
   }

@@ -68,7 +68,7 @@ public class FiniteStateController {
 
   public void pruneNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
     removeOutgoingConnections(nodesToPrune);
-    updateDistributionOfRemainingNodes(nodesToPrune, nodesToReplaceWith);
+    removeIncomingConnections(nodesToPrune, nodesToReplaceWith);
   }
 
   @Override
@@ -95,7 +95,7 @@ public class FiniteStateController {
     transitionFunction.remove(node);
   }
 
-  private void updateDistributionOfRemainingNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
+  private void removeIncomingConnections(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
     for (var node : transitionFunction.keySet()) {
       for (var action : transitionFunction.get(node).keySet()) {
         for (var observation : transitionFunction.get(node).get(action).keySet()) {

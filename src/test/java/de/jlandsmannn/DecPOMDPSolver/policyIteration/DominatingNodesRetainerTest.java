@@ -2,7 +2,6 @@ package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,13 +76,13 @@ class DominatingNodesRetainerTest {
   }
 
   @Test
-  void retainDominatingNodes_ShouldCallPruneOtherNodes() {
+  void retainDominatingNodes_ShouldCallRetainNodes() {
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
       .retainDominatingNodes();
 
-    verify(dominatingNodesRetainer).pruneOtherNodes(anySet());
+    verify(dominatingNodesRetainer).retainNodes(anySet());
   }
 
   @Test
@@ -99,7 +98,7 @@ class DominatingNodesRetainerTest {
   }
 
   @Test
-  void pruneOtherNodes_ShouldRemoveEveryNodeNotContainedInNodesToRetain() {
+  void retainNodes_ShouldRemoveEveryNodeNotContainedInNodesToRetain() {
     var nodesToRetain = decPOMDP.getAgents().stream()
       .map(a -> a.getControllerNodes().subList(0, 2))
       .flatMap(Collection::stream)
@@ -108,7 +107,7 @@ class DominatingNodesRetainerTest {
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
-      .pruneOtherNodes(nodesToRetain);
+      .retainNodes(nodesToRetain);
 
     for (var agent : decPOMDP.getAgents()) {
       var agentNodes = agent.getControllerNodes();
