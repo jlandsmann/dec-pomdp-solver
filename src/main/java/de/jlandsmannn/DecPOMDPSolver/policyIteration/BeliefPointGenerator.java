@@ -140,8 +140,6 @@ public class BeliefPointGenerator {
   }
 
   protected Double getProbabilityForAgentTransition(AgentWithStateController agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
-    LOG.debug("Get Probability For Agent Transition for Agent {} with Action {} and Observation {} starting from BeliefState {} targeting State {}", agent, action, observation, beliefState, followState);
-
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
     var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
 

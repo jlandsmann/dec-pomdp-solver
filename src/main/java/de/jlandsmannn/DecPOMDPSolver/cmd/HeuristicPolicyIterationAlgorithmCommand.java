@@ -2,6 +2,8 @@ package de.jlandsmannn.DecPOMDPSolver.cmd;
 
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
@@ -9,19 +11,21 @@ import org.springframework.stereotype.Component;
 
 @Command(command = "heuristic", group = "Heuristic Policy Iteration", alias = "h")
 @Component
-public class HeuristicPolicyIterationAlgorithm {
+public class HeuristicPolicyIterationAlgorithmCommand {
+  private static Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationAlgorithmCommand.class);
 
   private final HeuristicPolicyIterationSolver solver;
   private boolean initialized = false;
   private boolean loaded = false;
 
   @Autowired
-  public HeuristicPolicyIterationAlgorithm(HeuristicPolicyIterationSolver solver) {
+  public HeuristicPolicyIterationAlgorithmCommand(HeuristicPolicyIterationSolver solver) {
     this.solver = solver;
   }
 
   @Command(command = "", alias = {"h"}, description = "Prints information about this algorithm.")
   public String help() {
+    LOG.info("help command called.");
     return new StringBuilder()
       .append("This algorithm is based on the algorithm presented in")
       .append(System.lineSeparator())
@@ -41,6 +45,7 @@ public class HeuristicPolicyIterationAlgorithm {
     @Option(shortNames = 'k', defaultValue = "10") int numberOfBeliefPoints,
     @Option(shortNames = 'l', defaultValue = "20") int maxIterations
   ) {
+    LOG.info("Command 'init' was called with numberOfBeliefPoints={}, maxIterations={}.", numberOfBeliefPoints, maxIterations);
     solver
       .setNumberOfBeliefPoints(numberOfBeliefPoints)
       .setMaxIterations(maxIterations);
@@ -60,23 +65,41 @@ public class HeuristicPolicyIterationAlgorithm {
     @Option(shortNames = 'f', required = true) String filename,
     @Option(shortNames = 'd', defaultValue = "-1") double discountFactor
   ) {
-    var builder = DPOMDPFileParser.parseDecPOMDP(filename).orElseThrow();
-    if (discountFactor >= 0) builder.setDiscountFactor(discountFactor);
-    if (builder.getDiscountFactor() == 1) builder.setDiscountFactor(0.9);
+    LOG.info("Command 'load' was called with filename={}.", filename);
+    if (!initialized) return "Heuristic policy iteration is not initialized yet.";
+    var optionalBuilder = DPOMDPFileParser.parseDecPOMDP(filename);
+    if (optionalBuilder.isEmpty()) {
+      LOG.warn("Parsing failed for file {}", filename);
+      return "Could not parse " + filename + ". Make sure the file exists.";
+    }
+    var builder = optionalBuilder.get();
+    if (discountFactor >= 0) {
+      LOG.info("Custom discountFactor={} set, applying to DecPOMDP.", discountFactor);
+      builder.setDiscountFactor(discountFactor);
+    }
+    if (builder.getDiscountFactor() == 1) {
+      LOG.info("Overwriting discountFactor to 0.9 because 1 is not supported for infinite horizon planning.");
+      builder.setDiscountFactor(0.9);
+    }
     var decPOMDP = builder.createDecPOMDP();
     solver.setDecPOMDP(decPOMDP);
     loaded = true;
+    LOG.info("Successfully loaded DecPOMDP from file {}.", filename);
     return "Successfully loaded DecPOMDP";
   }
 
   @Command(command = "solve", alias = "s", description = "Solve the loaded problem instance.")
   public String solve() {
+    LOG.info("Command 'solve' was called.");
     if (!initialized) {
-      return "Heuristic Policy Iteration is not initialized yet.";
+      LOG.warn("Aborting solving because Heuristic policy iteration is not initialized yet.");
+      return "Heuristic policy iteration is not initialized yet.";
     } else if (!loaded) {
-      return "Heuristic Policy Iteration is not loaded yet.";
+      LOG.warn("Aborting solving because no DecPOMDP is loaded yet.");
+      return "Heuristic policy iteration is not loaded yet.";
     }
     var result = solver.solve();
-    return "Heuristic Policy Iteration finished. Result: " + result;
+    LOG.info("Successfully solved DecPOMDP with value of {}", result);
+    return "Heuristic policy iteration finished. Result: " + result;
   }
 }
