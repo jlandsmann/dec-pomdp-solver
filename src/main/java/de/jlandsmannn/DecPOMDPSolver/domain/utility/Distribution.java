@@ -193,11 +193,6 @@ public class Distribution<T> implements Iterable<T> {
     return maxEntry.getKey();
   }
 
-  public boolean closeTo(Distribution<T> other) {
-    var tolerance = 1e-06;
-    return closeTo(other, tolerance);
-  }
-
   public boolean closeTo(Distribution<T> other, double tolerance) {
     return distribution.keySet()
       .stream()

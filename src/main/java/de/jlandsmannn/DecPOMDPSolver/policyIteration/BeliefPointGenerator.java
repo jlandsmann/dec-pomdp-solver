@@ -21,6 +21,7 @@ public class BeliefPointGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(BeliefPointGenerator.class);
 
   private final int maxGenerationRuns;
+  private final double beliefPointDistanceThreshold;
   private DecPOMDPWithStateController decPOMDP;
   private Distribution<State> currentBeliefState;
   private Map<Agent, Map<State, Distribution<Action>>> policies;
@@ -29,6 +30,7 @@ public class BeliefPointGenerator {
   @Autowired
   BeliefPointGenerator(HeuristicPolicyIterationConfig config) {
     maxGenerationRuns = config.maxBeliefPointGenerationRuns();
+    beliefPointDistanceThreshold = config.beliefPointDistanceThreshold();
   }
 
   public BeliefPointGenerator setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
@@ -84,7 +86,7 @@ public class BeliefPointGenerator {
 
   protected void addOnlyDiversePoints(Set<Distribution<State>> alreadyFound, Set<Distribution<State>> pointsToAdd) {
     for (Distribution<State> pointToAdd : pointsToAdd) {
-      var closeBeliefStateExists = alreadyFound.stream().anyMatch(pointAdded -> pointAdded.closeTo(pointToAdd, 2e-2));
+      var closeBeliefStateExists = alreadyFound.stream().anyMatch(pointAdded -> pointAdded.closeTo(pointToAdd, beliefPointDistanceThreshold));
       if (!closeBeliefStateExists) alreadyFound.add(pointToAdd);
     }
   }

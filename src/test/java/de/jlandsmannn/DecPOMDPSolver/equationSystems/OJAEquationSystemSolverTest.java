@@ -9,9 +9,7 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.random.Uniform;
 
-import static de.jlandsmannn.DecPOMDPSolver.ApplicationAssertions.assertFuzzyEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class OJAEquationSystemSolverTest {
 
@@ -138,11 +136,11 @@ class OJAEquationSystemSolverTest {
 
     var resultVector = result.get();
     // a = 5, b = 8, c = 0.4, d = -0.2
-    // for some reason the result diverges at a factor of less than 10^-7
-    assertFuzzyEquals(resultVector.get(0,0), 5);
-    assertFuzzyEquals(resultVector.get(1,0), 8);
-    assertFuzzyEquals(resultVector.get(2,0), 0.4);
-    assertFuzzyEquals(resultVector.get(3,0), -0.2);
+    // for some reason, the result diverges at a factor of less than 10^-7
+    assertEquals(resultVector.get(0,0), 5, 1e-7);
+    assertEquals(resultVector.get(1,0), 8, 1e-7);
+    assertEquals(resultVector.get(2,0), 0.4, 1e-7);
+    assertEquals(resultVector.get(3,0), -0.2, 1e-7);
 
   }
 
