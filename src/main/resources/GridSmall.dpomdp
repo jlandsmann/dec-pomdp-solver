@@ -2740,7 +2740,7 @@ O: * : 12 : nnnynnnnn nnnnnynnn : 1.0
 O: * : 13 : nnnynnnnn nnnynnnnn : 1.0
 O: * : 14 : nnnynnnnn nnnnnynnn : 1.0
 O: * : 15 : nnnynnnnn nnnynnnnn : 1.0
-R: * : * : 0 : * : 1.0
-R: * : * : 5 : * : 1.0
-R: * : * : 10 : * : 1.0
-R: * : * : 15 : * : 1.0
+R: * : 0 : * : * : 1.0
+R: * : 5 : * : * : 1.0
+R: * : 10 : * : * : 1.0
+R: * : 15 : * : * : 1.0
