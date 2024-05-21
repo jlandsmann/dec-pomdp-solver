@@ -22,7 +22,7 @@ class ExhaustiveBackupPerformerTest {
 
   @BeforeEach
   void setUp() {
-    decPOMDP = DecPOMDPGenerator.getDecTigerPOMDP();
+    decPOMDP = DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC();
     exhaustiveBackupPerformer = spy(new ExhaustiveBackupPerformer());
   }
 

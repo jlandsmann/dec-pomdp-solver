@@ -72,9 +72,12 @@ public class ExhaustiveBackupPerformer {
             var value = calculateValue(state, nodeCombination);
             decPOMDP.setValue(state, nodeCombination, value);
             updatedCombinations.getAndIncrement();
+            if (updatedCombinations.get() % 5000 == 0) {
+              LOG.info("Calculated first {} missing values of value function", updatedCombinations.get());
+            }
           });
       });
-    LOG.info("Calculated {} missing values of value function", updatedCombinations);
+    LOG.info("Calculated all {} missing values of value function", updatedCombinations);
   }
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {
@@ -87,18 +90,21 @@ public class ExhaustiveBackupPerformer {
     var observationsCombinations = VectorStreamBuilder.forEachCombination(rawObservationsCombinations).toList();
 
     var value = 0D;
+    var discount = decPOMDP.getDiscountFactor();
     for (var actionVector : actionCombinations) {
       var actionVectorProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
+      if (actionVectorProbability == 0) continue;
       var reward = decPOMDP.getReward(state, actionVector);
       value += actionVectorProbability * reward;
 
       for (var observationVector : observationsCombinations) {
-        for (var newNodeVector : nodeCombinations) {
-          for (var newState : decPOMDP.getStates()) {
-            var discount = decPOMDP.getDiscountFactor();
-            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
-            var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
-            var followValue = decPOMDP.getValue(newState, newNodeVector);
+        for (var followNodeVector : nodeCombinations) {
+          var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, followNodeVector);
+          if (nodeTransitionProbability == 0) continue;
+          for (var followState : decPOMDP.getStates()) {
+            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, followState);
+            if (stateTransitionProbability == 0) continue;
+            var followValue = decPOMDP.getValue(followState, followNodeVector);
             value += discount * actionVectorProbability * stateTransitionProbability * nodeTransitionProbability * followValue;
           }
         }
