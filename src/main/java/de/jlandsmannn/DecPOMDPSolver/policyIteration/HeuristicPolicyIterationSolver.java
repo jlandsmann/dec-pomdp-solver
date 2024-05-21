@@ -18,11 +18,9 @@ import java.util.Set;
 @Service
 public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController, HeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);
-  private static final double VALUE_CHANGE_THRESHOLD = 1e-8;
 
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
-
   protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
   protected Set<Distribution<State>> beliefPoints = new HashSet<>();
   protected double controllerState = 0;
@@ -33,18 +31,21 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected final ExhaustiveBackupPerformer exhaustiveBackupPerformer;
   protected final DominatingNodesRetainer dominatingNodesRetainer;
   protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
+  protected final double valueChangeThreshold;
 
   @Autowired
   public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator,
                                         ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater,
                                         ExhaustiveBackupPerformer exhaustiveBackupPerformer,
                                         DominatingNodesRetainer dominatingNodesRetainer,
-                                        CombinatorialNodePruner<?, ?> combinatorialNodePruner) {
+                                        CombinatorialNodePruner<?, ?> combinatorialNodePruner,
+                                        HeuristicPolicyIterationConfig config) {
     this.beliefPointGenerator = beliefPointGenerator;
     this.valueFunctionEvaluater = valueFunctionEvaluater;
     this.exhaustiveBackupPerformer = exhaustiveBackupPerformer;
     this.dominatingNodesRetainer = dominatingNodesRetainer;
     this.combinatorialNodePruner = combinatorialNodePruner;
+    this.valueChangeThreshold = config.valueChangeThreshold();
   }
 
   public HeuristicPolicyIterationSolver setNumberOfBeliefPoints(int numberOfBeliefPoints) {
@@ -133,7 +134,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
 
   protected boolean hasControllerStateChanged() {
     var valueChange = Math.abs(controllerState - getValueOfDecPOMDP());
-    boolean controllerStateChanged = valueChange >= VALUE_CHANGE_THRESHOLD;
+    boolean controllerStateChanged = valueChange >= valueChangeThreshold;
     LOG.info("Controller state changed: {}", controllerStateChanged);
     return controllerStateChanged;
   }

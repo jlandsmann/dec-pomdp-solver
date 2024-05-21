@@ -4,18 +4,23 @@ import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BeliefPointGeneratorTest {
 
+  private HeuristicPolicyIterationConfig config;
   private BeliefPointGenerator beliefPointGenerator;
   private DecPOMDPWithStateController decPOMDP;
 
   @BeforeEach
   void setUp() {
-    beliefPointGenerator = new BeliefPointGenerator();
+    config = HeuristicPolicyIterationConfig.getDefault();
+    beliefPointGenerator = new BeliefPointGenerator(config);
     decPOMDP = DecPOMDPGenerator.getDecTigerPOMDP();
   }
 

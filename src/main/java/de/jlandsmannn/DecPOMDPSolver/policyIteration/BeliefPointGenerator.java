@@ -11,6 +11,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,12 +19,17 @@ import java.util.*;
 @Service
 public class BeliefPointGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(BeliefPointGenerator.class);
-  private static final int MAX_GENERATION_RUNS = 100;
 
+  private final int maxGenerationRuns;
   private DecPOMDPWithStateController decPOMDP;
   private Distribution<State> currentBeliefState;
   private Map<Agent, Map<State, Distribution<Action>>> policies;
   private int numberOfBeliefPoints;
+
+  @Autowired
+  BeliefPointGenerator(HeuristicPolicyIterationConfig config) {
+    maxGenerationRuns = config.maxBeliefPointGenerationRuns();
+  }
 
   public BeliefPointGenerator setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
@@ -54,7 +60,7 @@ public class BeliefPointGenerator {
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
     generatedBeliefPoints.add(currentBeliefState);
     var enoughBeliefPointsGenerated = false;
-    for (int i = 0; i < MAX_GENERATION_RUNS && !enoughBeliefPointsGenerated; i++) {
+    for (int i = 0; i < maxGenerationRuns && !enoughBeliefPointsGenerated; i++) {
       if (i > 0) randomizePoliciesAndBeliefState();
       var pointsNeeded = numberOfBeliefPoints - generatedBeliefPoints.size();
       var newBeliefPoints = doGenerateBeliefPoints(pointsNeeded);
