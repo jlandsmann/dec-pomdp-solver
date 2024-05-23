@@ -5,7 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +13,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StartParser {
-  private static final Logger LOG = LoggerFactory.getLogger(StartParser.class);
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.UNIFORM;
+
+public class StartSectionParser extends BaseSectionParser {
+  private static final Logger LOG = LoggerFactory.getLogger(StartSectionParser.class);
 
   protected List<State> states = new ArrayList<>();
   protected Distribution<State> initialBeliefState;
 
-  public StartParser setStates(List<State> states) {
+  public StartSectionParser() {
+    super(
+      DPOMDPSectionKeyword.START,
+      DPOMDPSectionKeyword.START +
+        OR(
+          "(?:: ?" + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")",
+          "(?:: ?" + "(?<startStateIndex>" + INDEX_PATTERN + ")" + ")",
+          "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM.getPattern() + ")" + ")",
+          "(?:: ?\n" + "(?<distribution>" + LIST_OF(PROBABILITY_PATTERN) + ")" + ")",
+          "(?: ?include: ?" + "(?<includeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")",
+          "(?: ?exclude: ?" + "(?<excludeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")"
+        )
+    );
+  }
+
+  public StartSectionParser setStates(List<State> states) {
     this.states = states;
     return this;
   }
@@ -28,36 +46,30 @@ public class StartParser {
     return initialBeliefState;
   }
 
-  public void parseStart(String section) {
+  public void parseSection(String section) {
     LOG.debug("Parsing 'start' section.");
-    if (states.isEmpty()) {
-      throw new ParsingFailedException("'start' section was parsed, before states have been initialized.");
-    }
-    var match = DPOMDPSectionPattern.START
-      .getMatch(section)
-      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'start' section, but found invalid format."));
-    if (match.group("startState") != null) {
-      var stateName = match.group("startState");
+    assertAllDependenciesSet();
+    var match = getMatchOrThrow(section);
+    if (match.hasGroup("startState")) {
+      var stateName = match.getGroupAsStringOrThrow("startState");
       var state = State.from(stateName);
       initialBeliefState = Distribution.createSingleEntryDistribution(state);
     }
-    else if (match.group("startStateIndex") != null) {
-      var rawStateIndex = match.group("startStateIndex");
-      var stateIndex = CommonParser.parseIntegerOrThrow(rawStateIndex);
+    else if (match.hasGroup("startStateIndex")) {
+      var stateIndex = match.getGroupAsIntOrThrow("startStateIndex");
       var state = states.get(stateIndex);
       initialBeliefState = Distribution.createSingleEntryDistribution(state);
     }
-    else if (match.group("uniformDistribution") != null) {
+    else if (match.hasGroup("uniformDistribution")) {
       initialBeliefState = Distribution.createUniformDistribution(states);
     }
-    else if (match.group("distribution") != null) {
-      var rawStateProbabilities = match.group("distribution");
+    else if (match.hasGroup("distribution")) {
+      var rawStateProbabilities = match.getGroupAsStringOrThrow("distribution");
       var rawDistribution = CommonParser.parseStatesAndTheirDistributions(states, rawStateProbabilities);
       initialBeliefState = Distribution.of(rawDistribution);
     }
-    else if (match.group("includeStates") != null) {
-      var rawStatesString = match.group("includeStates");
-      var rawStates = rawStatesString.split(" ");
+    else if (match.hasGroup("includeStates")) {
+      var rawStates = match.getGroupAsStringArrayOrThrow("includeStates", " ");
       var statesToInclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {
           var index = CommonParser.parseIntegerOrThrow(s);
@@ -68,9 +80,8 @@ public class StartParser {
       }).toList();
       initialBeliefState = Distribution.createUniformDistribution(statesToInclude);
     }
-    else if (match.group("excludeStates") != null) {
-      var rawStatesString = match.group("excludeStates");
-      var rawStates = rawStatesString.split(" ");
+    else if (match.hasGroup("excludeStates")) {
+      var rawStates = match.getGroupAsStringArrayOrThrow("excludeStates", " ");
       var statesToExclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {
           var index = CommonParser.parseIntegerOrThrow(s);
@@ -82,6 +93,12 @@ public class StartParser {
       var statesToInclude = new ArrayList<>(states);
       statesToInclude.removeAll(statesToExclude);
       initialBeliefState = Distribution.createUniformDistribution(statesToInclude);
+    }
+  }
+
+  private void assertAllDependenciesSet() {
+    if (states.isEmpty()) {
+      throw new ParsingFailedException("'start' section was parsed, before states have been initialized.");
     }
   }
 }

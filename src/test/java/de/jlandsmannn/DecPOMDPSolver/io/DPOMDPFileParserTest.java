@@ -17,14 +17,14 @@ import static org.mockito.Mockito.*;
 class DPOMDPFileParserTest {
 
   @Mock
-  private DecPOMDPBuilder builder;
+  private DPOMDPSectionParser sectionParser;
 
   @InjectMocks
   private DPOMDPFileParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = spy(new DPOMDPFileParser(builder));
+    parser = spy(new DPOMDPFileParser(sectionParser));
   }
 
   @Test
@@ -102,7 +102,7 @@ class DPOMDPFileParserTest {
     var expectedKeyword = parser.currentKeyword;
     var expectedSection = parser.currentSectionBuilder.toString();
     parser.parseCurrentSection();
-    verify(parser).parseSection(expectedKeyword, expectedSection);
+    verify(sectionParser).parseSection(expectedKeyword, expectedSection);
   }
 
   @Test

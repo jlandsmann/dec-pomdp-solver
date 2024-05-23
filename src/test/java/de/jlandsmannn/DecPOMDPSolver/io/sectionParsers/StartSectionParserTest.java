@@ -8,22 +8,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-class StartParserTest {
+class StartSectionParserTest {
 
-  private StartParser parser;
+  private StartSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new StartParser();
+    parser = new StartSectionParser();
   }
 
   @Test
-  void parseStart_ShouldThrowIfNoStatesHaveBeenInitialized() {
+  void parseSection_ShouldThrowIfNoStatesHaveBeenInitialized() {
     var section = "start:\n" + "uniform";
     assertThrows(ParsingFailedException.class, () ->
-      parser.parseStart(section)
+      parser.parseSection(section)
     );
   }
 
@@ -31,7 +30,7 @@ class StartParserTest {
   void parseStart_ShouldParseUniformDistribution() {
     var section = "start:\n" + "uniform";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
   }
 
@@ -39,15 +38,15 @@ class StartParserTest {
   void parseStart_ShouldParseProbabilisticDistribution() {
     var section = "start:\n" + "0.3 0.1 0.2 0.4";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
   }
 
   @Test
-  void parseStart_ShouldParseSingleNamedStartState() {
+  void parseStart_ShouldParseSingleNamedSectionState() {
     var section = "start: " + "A";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
     var expectedProbability = 1D;
     var actualProbability = parser.initialBeliefState.getProbability(State.from("A"));
@@ -55,10 +54,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseSingleIndexedStartState() {
+  void parseStart_ShouldParseSingleIndexedSectionState() {
     var section = "start: " + "1";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
     var expectedProbability = 1D;
     var actualProbability = parser.initialBeliefState.getProbability(State.from("B"));
@@ -66,10 +65,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseNamedIncludedStartStates() {
+  void parseStart_ShouldParseNamedIncludedSectionStates() {
     var section = "start include: " + "A B";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityA = 0.5D;
@@ -81,10 +80,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseIndexedIncludedStartStates() {
+  void parseStart_ShouldParseIndexedIncludedSectionStates() {
     var section = "start include: " + "0 1";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityA = 0.5D;
@@ -96,10 +95,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseMixedIncludedStartStates() {
+  void parseStart_ShouldParseMixedIncludedSectionStates() {
     var section = "start include: " + "A 1";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityA = 0.5D;
@@ -111,10 +110,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseNamedExcludedStartStates() {
+  void parseStart_ShouldParseNamedExcludedSectionStates() {
     var section = "start exclude: " + "A B";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityC = 0.5D;
@@ -126,10 +125,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseIndexedExcludedStartStates() {
+  void parseStart_ShouldParseIndexedExcludedSectionStates() {
     var section = "start exclude: " + "0 1";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityC = 0.5D;
@@ -141,10 +140,10 @@ class StartParserTest {
   }
 
   @Test
-  void parseStart_ShouldParseMixedExcludedStartStates() {
+  void parseStart_ShouldParseMixedExcludedSectionStates() {
     var section = "start exclude: " + "A 1";
     parser.setStates(State.listOf("A", "B", "C", "D"));
-    parser.parseStart(section);
+    parser.parseSection(section);
     assertNotNull(parser.initialBeliefState);
 
     var expectedProbabilityC = 0.5D;
@@ -163,11 +162,11 @@ class StartParserTest {
     "start exclude:\n0",
     "start include: 2 -2"
   })
-  void parseStart_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setStates(State.listOf("A", "B", "C", "D"));
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseStart(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 }

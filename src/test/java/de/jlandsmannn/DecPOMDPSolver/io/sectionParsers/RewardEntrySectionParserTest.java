@@ -12,36 +12,35 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-class RewardEntryParserTest {
-  private RewardEntryParser parser;
+class RewardEntrySectionParserTest {
+  private RewardEntrySectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new RewardEntryParser();
+    parser = new RewardEntrySectionParser();
   }
 
   @Test
-  void parseRewardEntry_ShouldThrowIfStatesNotInitialized() {
+  void parseSection_ShouldThrowIfStatesNotInitialized() {
     var section = "R: * : * : * : * : 0.1";
     assertThrows(ParsingFailedException.class, () -> {
-      parser.parseRewardEntry(section);
+      parser.parseSection(section);
     });
   }
 
   @Test
-  void parseRewardEntry_ShouldThrowIfAgentActionsNotInitialized() {
+  void parseSection_ShouldThrowIfAgentActionsNotInitialized() {
     var states = State.listOf("A", "B");
     parser.setStates(states);
     var section = "R: * : * : * : * : 0.1";
     assertThrows(ParsingFailedException.class, () -> {
-      parser.parseRewardEntry(section);
+      parser.parseSection(section);
     });
   }
 
   @Test
-  void parseRewardEntry_ShouldThrowIfAgentRewardsNotInitialized() {
+  void parseSection_ShouldThrowIfAgentRewardsNotInitialized() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     parser
@@ -49,12 +48,12 @@ class RewardEntryParserTest {
       .setAgentActions(List.of(actions, actions));
     var section = "R: * : * : * : * : 0.1";
     assertThrows(ParsingFailedException.class, () -> {
-      parser.parseRewardEntry(section);
+      parser.parseSection(section);
     });
   }
 
   @Test
-  void parseRewardEntry_ShouldReplaceEndStateWildcardWithAllStates() {
+  void parseSection_ShouldReplaceEndStateWildcardWithAllStates() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -65,7 +64,7 @@ class RewardEntryParserTest {
 
     var section = "R: A1 A2 : A : * : O1 O2 : 0.1";
     var actionVector = Vector.of(Action.listOf("A1", "A2"));
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
 
     var startState = State.from("A");
     for (var endState : states) {
@@ -76,7 +75,7 @@ class RewardEntryParserTest {
   }
 
   @Test
-  void parseRewardEntry_ShouldReplaceStartStateWildcardWithAllStates() {
+  void parseSection_ShouldReplaceStartStateWildcardWithAllStates() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -87,7 +86,7 @@ class RewardEntryParserTest {
 
     var section = "R: A1 A2 : * : A : O1 O2 : 0.1";
     var actionVector = Vector.of(Action.listOf("A1", "A2"));
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
 
     var endState = State.from("A");
     for (var startState : states) {
@@ -98,7 +97,7 @@ class RewardEntryParserTest {
   }
 
   @Test
-  void parseRewardEntry_ShouldReplaceSingleActionWildcardWithAllActionsOfAgent() {
+  void parseSection_ShouldReplaceSingleActionWildcardWithAllActionsOfAgent() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -108,7 +107,7 @@ class RewardEntryParserTest {
       .setAgentObservations(List.of(observations, observations));
 
     var section = "R: A1 * : A : A : O1 O2 : 0.1";
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
     var actionVectors = List.of(
       Vector.of(Action.listOf("A1", "A1")),
       Vector.of(Action.listOf("A1", "A2"))
@@ -124,7 +123,7 @@ class RewardEntryParserTest {
   }
 
   @Test
-  void parseRewardEntry_ShouldReplaceActionWildcardWithAllActionCombinations() {
+  void parseSection_ShouldReplaceActionWildcardWithAllActionCombinations() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -134,7 +133,7 @@ class RewardEntryParserTest {
       .setAgentObservations(List.of(observations, observations));
 
     var section = "R: * : A : A : O1 O2 : 0.1";
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
     var actionVectors = List.of(
       Vector.of(Action.listOf("A1", "A1")),
       Vector.of(Action.listOf("A1", "A2")),
@@ -152,7 +151,7 @@ class RewardEntryParserTest {
   }
 
   @Test
-  void parseRewardEntry_ShouldGenerateProbabilitiesFromProbabilityDistribution() {
+  void parseSection_ShouldGenerateProbabilitiesFromProbabilityDistribution() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -162,7 +161,7 @@ class RewardEntryParserTest {
       .setAgentObservations(List.of(observations, observations));
 
     var section = "R: A1 A1 : A : A :\n" + "10 20 30 40";
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var stateA = State.from("A");
     var expectedDistribution = Map.of(
@@ -177,7 +176,7 @@ class RewardEntryParserTest {
   }
 
   @Test
-  void parseRewardEntry_ShouldGenerateProbabilitiesFromMatrixSyntax() {
+  void parseSection_ShouldGenerateProbabilitiesFromMatrixSyntax() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
     var observations = Observation.listOf("O1", "O2");
@@ -187,7 +186,7 @@ class RewardEntryParserTest {
       .setAgentObservations(List.of(observations, observations));
 
     var section = "R: A1 A1 : A :\n" + "20 50 20 10\n" + "30 20 20 30";
-    parser.parseRewardEntry(section);
+    parser.parseSection(section);
 
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var stateA = State.from("A");

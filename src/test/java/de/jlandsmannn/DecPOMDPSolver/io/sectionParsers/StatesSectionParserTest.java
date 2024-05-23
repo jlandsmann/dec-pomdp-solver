@@ -8,22 +8,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 
-class StatesParserTest {
+class StatesSectionParserTest {
 
-  private StatesParser parser;
+  private StatesSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new StatesParser();
+    parser = new StatesSectionParser();
   }
 
   @Test
-  void parseStates_ShouldCreateStateNamesIfGivenNumerical() {
+  void parseSection_ShouldCreateStateNamesIfGivenNumerical() {
     var statesDefinedByNumber = "states: 5";
-    parser.parseStates(statesDefinedByNumber);
+    parser.parseSection(statesDefinedByNumber);
 
     var expectedStateCount = 5;
     var actualStates = parser.getStates();
@@ -31,9 +30,9 @@ class StatesParserTest {
   }
 
   @Test
-  void parseStates_ShouldCreateStateNamesIfGivenByName() {
+  void parseSection_ShouldCreateStateNamesIfGivenByName() {
     var statesDefinedByName = "states: A B C D";
-    parser.parseStates(statesDefinedByName);
+    parser.parseSection(statesDefinedByName);
 
     var expectedStates = State.listOf("A", "B", "C", "D");
     var actualStates = parser.getStates();
@@ -48,10 +47,10 @@ class StatesParserTest {
     "states: 0",
     "states: 2 2"
   })
-  void parseStates_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseStates(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 

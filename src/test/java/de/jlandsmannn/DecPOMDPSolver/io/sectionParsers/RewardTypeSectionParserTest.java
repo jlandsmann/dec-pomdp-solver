@@ -8,21 +8,21 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RewardTypeParserTest {
+class RewardTypeSectionParserTest {
 
-  private RewardTypeParser parser;
+  private RewardTypeSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new RewardTypeParser();
+    parser = new RewardTypeSectionParser();
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"cost", "reward"})
-  void parseRewardType_ShouldSetRewardType(String rewardType) {
+  void parseRewardType_ShouldSetSection(String rewardType) {
     var section = "values: " + rewardType;
     var expected = DPOMDPRewardType.parse(rewardType);
-    parser.parseRewardType(section);
+    parser.parseSection(section);
     var actual = parser.rewardType;
     assertEquals(expected, actual);
   }
@@ -35,10 +35,10 @@ class RewardTypeParserTest {
     "values: r",
     "values: 1"
   })
-  void parseRewardType_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseRewardType(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 

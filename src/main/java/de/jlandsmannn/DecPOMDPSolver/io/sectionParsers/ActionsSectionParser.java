@@ -4,7 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +12,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class ActionsParser {
-  private static final Logger LOG = LoggerFactory.getLogger(ActionsParser.class);
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
+
+public class ActionsSectionParser extends BaseSectionParser {
+  private static final Logger LOG = LoggerFactory.getLogger(ActionsSectionParser.class);
+
 
   protected List<String> agentNames = new ArrayList<>();
   protected List<List<Action>> agentActions = new ArrayList<>();
 
-  public ActionsParser setAgentNames(List<String> agentNames) {
+  public ActionsSectionParser() {
+    super(DPOMDPSectionKeyword.ACTIONS,
+      DPOMDPSectionKeyword.ACTIONS + ": ?\n" +
+      "(?<agentActions>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
+    );
+  }
+
+  public ActionsSectionParser setAgentNames(List<String> agentNames) {
     this.agentNames = agentNames;
     return this;
   }
@@ -27,27 +37,23 @@ public class ActionsParser {
     return agentActions;
   }
 
-  public void parseActions(String section) {
+  public void parseSection(String section) {
     LOG.debug("Parsing 'actions' section.");
-    if (agentNames.isEmpty()) {
-      throw new ParsingFailedException("'actions' section was parsed, before agents have been initialized.");
-    }
+    assertAllDependenciesSet();
 
-    var match = DPOMDPSectionPattern.ACTIONS
-      .getMatch(section)
-      .orElseThrow(() -> new ParsingFailedException("Trying to parse 'actions' section, but found invalid format."));
-    var rawActions = match.group("agentActions");
-    var rawActionsPerAgent = rawActions.split("\n");
+    var match = getMatchOrThrow(section);
+    var rawActionsPerAgent = match.getGroupAsStringArrayOrThrow("agentActions", "\n");
     if (rawActionsPerAgent.length != agentNames.size()) {
       throw new ParsingFailedException("'actions' does not have same number of agents as 'agents' section.");
     }
+
     for (int i = 0; i < rawActionsPerAgent.length; i++) {
       var rawActionsForAgent = rawActionsPerAgent[i];
       var agentName = agentNames.get(i);
       if (rawActionsForAgent.matches(CommonPattern.INDEX_PATTERN)) {
         var numberOfActions = CommonParser.parseIntegerOrThrow(rawActionsForAgent);
         if (numberOfActions == 0) throw new ParsingFailedException("Number of actions must be greater than 0.");
-        var actions = IntStream.range(0, numberOfActions).mapToObj(idx -> agentName + "-A" + idx).map(Action::from).toList();
+        var actions = generateActionsForAgent(agentName, numberOfActions);
         agentActions.add(i, actions);
       } else {
         var actionNames = rawActionsForAgent.split(" ");
@@ -55,5 +61,19 @@ public class ActionsParser {
         agentActions.add(i, actions);
       }
     }
+  }
+
+  private void assertAllDependenciesSet() {
+    if (agentNames.isEmpty()) {
+      throw new ParsingFailedException("'actions' section was parsed, before agents have been initialized.");
+    }
+  }
+
+  private List<Action> generateActionsForAgent(String agentName, int numberOfActions) {
+    return IntStream
+      .range(0, numberOfActions)
+      .mapToObj(idx -> agentName + "-A" + idx)
+      .map(Action::from)
+      .toList();
   }
 }

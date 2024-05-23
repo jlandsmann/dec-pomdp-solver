@@ -10,13 +10,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AgentParserTest {
+class AgentsSectionParserTest {
 
-  private AgentParser parser;
+  private AgentsSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new AgentParser();
+    parser = new AgentsSectionParser();
   }
 
 
@@ -24,7 +24,7 @@ class AgentParserTest {
   void parseAgents_ShouldCreateAgentNamesIfGivenNumerical() {
     var agentsDefinedByNumber = "agents: 5";
     var expectedAgentCount = 5;
-    parser.parseAgents(agentsDefinedByNumber);
+    parser.parseSection(agentsDefinedByNumber);
     var actualAgentCount = parser.agentNames.size();
     assertEquals(expectedAgentCount, actualAgentCount);
   }
@@ -33,7 +33,7 @@ class AgentParserTest {
   void parseAgents_ShouldCreateAgentNamesIfGivenByName() {
     var agentsDefinedByName = "agents: A B C D";
     var expectedAgentNames = List.of("A", "B", "C", "D");
-    parser.parseAgents(agentsDefinedByName);
+    parser.parseSection(agentsDefinedByName);
     var actualAgentNames = parser.agentNames;
     assertEquals(expectedAgentNames, actualAgentNames);
   }
@@ -49,7 +49,7 @@ class AgentParserTest {
   void parseAgents_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseAgents(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 

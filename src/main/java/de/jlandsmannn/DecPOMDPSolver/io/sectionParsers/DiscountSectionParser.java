@@ -1,28 +1,34 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DiscountParser {
-  private static final Logger LOG = LoggerFactory.getLogger(DiscountParser.class);
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.PROBABILITY_PATTERN;
+
+public class DiscountSectionParser extends BaseSectionParser {
+  private static final Logger LOG = LoggerFactory.getLogger(DiscountSectionParser.class);
 
   protected double discountFactor = 0D;
+
+  public DiscountSectionParser() {
+    super(
+      DPOMDPSectionKeyword.DISCOUNT,
+      DPOMDPSectionKeyword.DISCOUNT + ": ?" +
+        "(?<discount>" + PROBABILITY_PATTERN + ")"
+    );
+  }
 
   public double getDiscountFactor() {
     return discountFactor;
   }
 
-  public void parseDiscount(String section) {
+  public void parseSection(String section) {
     LOG.debug("Parsing 'discount' section.");
-    var match = DPOMDPSectionPattern.DISCOUNT
-      .getMatch(section)
-      .orElseThrow(() -> new ParsingFailedException("Trying to parse discount section, but found invalid format."));
-    if (match.group("discount") != null) {
-      var discountString = match.group("discount");
-      var discount = CommonParser.parseDoubleOrThrow(discountString);
+    var match = getMatchOrThrow(section);
+    if (match.hasGroup("discount")) {
+      var discount = match.getGroupAsDoubleOrThrow("discount");
       LOG.debug("Found discount factor: {}", discount);
       if (discount < 0) throw new ParsingFailedException("discount must be greater than or equal to zero.");
       else if (discount > 1) throw new ParsingFailedException("discount must be less than or equal to one.");

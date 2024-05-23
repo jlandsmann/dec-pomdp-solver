@@ -2,26 +2,31 @@ package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionPattern;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RewardTypeParser {
-  private static final Logger LOG = LoggerFactory.getLogger(RewardTypeParser.class);
+public class RewardTypeSectionParser extends BaseSectionParser {
+  private static final Logger LOG = LoggerFactory.getLogger(RewardTypeSectionParser.class);
 
   protected DPOMDPRewardType rewardType;
+
+  public RewardTypeSectionParser() {
+    super(
+      DPOMDPSectionKeyword.REWARD_TYPE,
+      DPOMDPSectionKeyword.REWARD_TYPE + ": ?" + "(?<rewardType>reward|cost)"
+    );
+  }
 
   public DPOMDPRewardType getRewardType() {
     return rewardType;
   }
 
-  public void parseRewardType(String section) {
+  public void parseSection(String section) {
     LOG.debug("Parsing 'value' section.");
-    var match = DPOMDPSectionPattern.REWARD_TYPE
-      .getMatch(section)
-      .orElseThrow(() -> new ParsingFailedException("Trying to parse value section, but found invalid format."));
-    if (match.group("rewardType") != null) {
-      var rewardTypeString = match.group("rewardType");
+    var match = getMatchOrThrow(section);
+    if (match.hasGroup("rewardType")) {
+      var rewardTypeString = match.getGroupAsStringOrThrow("rewardType");
       rewardType = rewardTypeString.equals("cost") ? DPOMDPRewardType.COST : DPOMDPRewardType.REWARD;
       LOG.debug("Found reward type: {}", rewardType);
     } else {

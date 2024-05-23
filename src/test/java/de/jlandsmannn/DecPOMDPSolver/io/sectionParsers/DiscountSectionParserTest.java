@@ -8,20 +8,20 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
-class DiscountParserTest {
+class DiscountSectionParserTest {
 
-  private DiscountParser parser;
+  private DiscountSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new DiscountParser();
+    parser = new DiscountSectionParser();
   }
 
   @ParameterizedTest
   @ValueSource(doubles = {0, 0.1, 0.25, 0.5, 0.9, 0.99, 1.0})
-  void parseDiscount_ShouldSetDiscountFactor(double discountFactor) {
+  void parseDiscount_ShouldSetSectionFactor(double discountFactor) {
     var section = "discount: " + discountFactor;
-    parser.parseDiscount(section);
+    parser.parseSection(section);
     var expectedDiscount = discountFactor;
     var actualDiscount = parser.getDiscountFactor();
     assertEquals(expectedDiscount, actualDiscount, 0.0);
@@ -35,10 +35,10 @@ class DiscountParserTest {
     "discount: -0.2",
     "discount: 1.1"
   })
-  void parseDiscount_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseDiscount(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 

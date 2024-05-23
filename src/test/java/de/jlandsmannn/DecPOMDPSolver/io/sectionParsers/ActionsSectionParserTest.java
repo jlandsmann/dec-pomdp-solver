@@ -10,59 +10,59 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ActionsParserTest {
+class ActionsSectionParserTest {
 
-  private ActionsParser parser;
+  private ActionsSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new ActionsParser();
+    parser = new ActionsSectionParser();
   }
 
   @Test
-  void parseActions_ShouldThrowIfAgentsNotInitialized() {
+  void parseSection_ShouldThrowIfAgentsNotInitialized() {
     var section = "actions:\n" + "5";
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseActions(section)
+      () -> parser.parseSection(section)
     );
   }
 
   @Test
-  void parseActions_ShouldThrowIfActionsNotGivenForEveryAgent() {
+  void parseActions_ShouldThrowIfSectionNotGivenForEveryAgent() {
     parser.setAgentNames(List.of("A1", "A2", "A3"));
     var section = "actions:\n" + "5\n" + "5";
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseActions(section)
+      () -> parser.parseSection(section)
     );
   }
 
   @Test
-  void parseActions_ShouldThrowIfMoreActionsGivenThanAgents() {
+  void parseActions_ShouldThrowIfMoreSectionGivenThanAgents() {
     parser.setAgentNames(List.of("A1"));
     var section = "actions:\n" + "5\n" + "5";
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseActions(section)
+      () -> parser.parseSection(section)
     );
   }
 
   @Test
-  void parseActions_ShouldGenerateActionNamesIfGivenNumerical() {
+  void parseSection_ShouldGenerateActionNamesIfGivenNumerical() {
     parser.setAgentNames(List.of("A1"));
     var section = "actions:\n" + "5";
-    parser.parseActions(section);
+    parser.parseSection(section);
     var expectedActionCount = 5;
     var actualActionCount = parser.agentActions.get(0).size();
     assertEquals(expectedActionCount, actualActionCount);
   }
 
   @Test
-  void parseActions_ShouldGenerateActionNamesIfGivenByNames() {
+  void parseSection_ShouldGenerateActionNamesIfGivenByNames() {
     parser.setAgentNames(List.of("A1"));
     var section = "actions:\n" + "A B C D";
-    parser.parseActions(section);
+    parser.parseSection(section);
     var expectedActionCount = 4;
     var actualActionCount = parser.agentActions.get(0).size();
     assertEquals(expectedActionCount, actualActionCount);
@@ -83,11 +83,11 @@ class ActionsParserTest {
     "actions:\n2 A",
     "actions:\nB 2",
   })
-  void parseActions_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setAgentNames(List.of("A1"));
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseActions(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 }

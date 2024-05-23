@@ -13,36 +13,35 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-class TransitionEntryParserTest {
+class TransitionEntrySectionParserTest {
 
-  private TransitionEntryParser parser;
+  private TransitionEntrySectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new TransitionEntryParser();
+    parser = new TransitionEntrySectionParser();
   }
 
   @Test
-  void parseTransitionEntry_ShouldThrowIfStatesNotInitialized() {
+  void parseSection_ShouldThrowIfStatesNotInitialized() {
     var section = "T: * : * : * : 0.1";
     assertThrows(ParsingFailedException.class, () -> {
-      parser.parseTransitionEntry(section);
+      parser.parseSection(section);
     });
   }
 
   @Test
-  void parseTransitionEntry_ShouldThrowIfAgentActionsNotInitialized() {
+  void parseSection_ShouldThrowIfAgentActionsNotInitialized() {
     parser.setStates(State.listOf("A", "B"));
     var section = "T: * : * : * : 0.1";
     assertThrows(ParsingFailedException.class, () -> {
-      parser.parseTransitionEntry(section);
+      parser.parseSection(section);
     });
   }
 
   @Test
-  void parseTransitionEntry_ShouldReplaceStartStateWildcardWithAllStates() {
+  void parseSection_ShouldReplaceStartStateWildcardWithAllStates() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -52,7 +51,7 @@ class TransitionEntryParserTest {
 
     var section = "T: A1 A2 : * : * : 0.1";
     var actionVector = Vector.of(Action.listOf("A1", "A2"));
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
 
     for (var state : states) {
       assertTrue(parser.transitions.containsKey(state));
@@ -61,7 +60,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldReplaceSingleActionWildcardWithAllActionsOfAgent() {
+  void parseSection_ShouldReplaceSingleActionWildcardWithAllActionsOfAgent() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -70,7 +69,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: A1 * : A : B : 0.1";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVectors = List.of(
       Vector.of(Action.listOf("A1", "A1")),
       Vector.of(Action.listOf("A1", "A2"))
@@ -83,7 +82,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldReplaceActionWildcardWithAllActionCombinations() {
+  void parseSection_ShouldReplaceActionWildcardWithAllActionCombinations() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -92,7 +91,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: * : A : B : 0.1";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVectors = List.of(
       Vector.of(Action.listOf("A1", "A1")),
       Vector.of(Action.listOf("A1", "A2")),
@@ -107,7 +106,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldGenerateProbabilitiesFromProbabilityDistribution() {
+  void parseSection_ShouldGenerateProbabilitiesFromProbabilityDistribution() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -116,7 +115,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: A1 A1 : A :\n" + "0.1 0.9";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var stateA = State.from("A");
     var stateB = State.from("B");
@@ -130,7 +129,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldCreateUniformDistributionWhenUniformKeywordUsed() {
+  void parseSection_ShouldCreateUniformDistributionWhenUniformKeywordUsed() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -139,7 +138,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: A1 A1 :\nuniform";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var startState = State.from("A");
     var expectedDistribution = Distribution.createUniformDistribution(states).toMap();
@@ -150,7 +149,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldCreateSelfLoopWhenIdentityKeywordUsed() {
+  void parseSection_ShouldCreateSelfLoopWhenIdentityKeywordUsed() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -159,7 +158,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: A1 A1 :\nidentity";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var startState = State.from("A");
     var distribution = parser.transitions.get(startState).get(actionVector);
@@ -169,7 +168,7 @@ class TransitionEntryParserTest {
   }
 
   @Test
-  void parseTransitionEntry_ShouldGenerateProbabilitiesFromMatrixSyntax() {
+  void parseSection_ShouldGenerateProbabilitiesFromMatrixSyntax() {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -178,7 +177,7 @@ class TransitionEntryParserTest {
       .setAgentActions(List.of(actions, actions));
 
     var section = "T: A1 A1 :\n" + "0.1 0.9\n" + "0.3 0.7";
-    parser.parseTransitionEntry(section);
+    parser.parseSection(section);
     var actionVector = Vector.of(Action.listOf("A1", "A1"));
     var stateA = State.from("A");
     var stateB = State.from("B");
@@ -204,7 +203,7 @@ class TransitionEntryParserTest {
     "T: * : uniform",
     "T: * : identity",
   })
-  void parseTransitionEntry_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     var states = State.listOf("A", "B");
     var actions = Action.listOf("A1", "A2");
 
@@ -214,7 +213,7 @@ class TransitionEntryParserTest {
 
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseTransitionEntry(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 }

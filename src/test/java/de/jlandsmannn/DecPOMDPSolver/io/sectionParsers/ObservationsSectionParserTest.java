@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,49 +10,49 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ObservationsParserTest {
+class ObservationsSectionParserTest {
 
-  private ObservationsParser parser;
+  private ObservationsSectionParser parser;
 
   @BeforeEach
   void setUp() {
-    parser = new ObservationsParser();
+    parser = new ObservationsSectionParser();
   }
 
   @Test
-  void parseObservations_ShouldThrowIfAgentsNotInitialized() {
+  void parseSection_ShouldThrowIfAgentsNotInitialized() {
     var section = "observations:\n" + "5";
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseObservations(section)
+      () -> parser.parseSection(section)
     );
   }
 
   @Test
-  void parseObservations_ShouldThrowIfObservationsNotGivenForEveryAgent() {
+  void parseObservations_ShouldThrowIfSectionNotGivenForEveryAgent() {
     parser.setAgentNames(List.of("A1", "A2", "A3"));
     var section = "observations:\n" + "5\n" + "5";
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseObservations(section)
+      () -> parser.parseSection(section)
     );
   }
 
   @Test
-  void parseObservations_ShouldGenerateObservationNamesIfGivenNumerical() {
+  void parseSection_ShouldGenerateObservationNamesIfGivenNumerical() {
     var section = "observations:\n" + "5";
     parser.setAgentNames(List.of("A1"));
-    parser.parseObservations(section);
+    parser.parseSection(section);
     var expectedObservationCount = 5;
     var actualObservationCount = parser.agentObservations.get(0).size();
     assertEquals(expectedObservationCount, actualObservationCount);
   }
 
   @Test
-  void parseObservations_ShouldGenerateObservationNamesIfGivenByNames() {
+  void parseSection_ShouldGenerateObservationNamesIfGivenByNames() {
     var section = "observations:\n" + "A B C D";
     parser.setAgentNames(List.of("A1"));
-    parser.parseObservations(section);
+    parser.parseSection(section);
     var expectedObservationCount = 4;
     var actualObservationCount = parser.agentObservations.get(0).size();
     assertEquals(expectedObservationCount, actualObservationCount);
@@ -74,11 +73,11 @@ class ObservationsParserTest {
     "observations:\n2 A",
     "observations:\nB 2",
   })
-  void parseObservations_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
+  void parseSection_ShouldThrowIfInvalidSectionGiven(String invalidSection) {
     parser.setAgentNames(List.of("A1"));
     assertThrows(
       ParsingFailedException.class,
-      () -> parser.parseObservations(invalidSection)
+      () -> parser.parseSection(invalidSection)
     );
   }
 
