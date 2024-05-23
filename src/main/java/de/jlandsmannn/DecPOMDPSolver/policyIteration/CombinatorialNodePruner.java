@@ -47,10 +47,14 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       LOG.info("No combinatorial pruning possible, since {} has only {} node(s).", agent, agent.getControllerNodes().size());
       return;
     }
-    LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", agent.getControllerNodes().size(), agent);
+    var originalNodeCount = agent.getControllerNodes().size();
+    LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", originalNodeCount, agent);
     for (var node : List.copyOf(agent.getControllerNodes())) {
       pruneNodeIfCombinatorialDominated(node);
     }
+    var newNodeCount = agent.getControllerNodes().size();
+    var nodesPruned = newNodeCount - originalNodeCount;
+    LOG.info("Pruned {} nodes of {}", nodesPruned, agent);
   }
 
   public void pruneNodeIfCombinatorialDominated(Node nodeToCheck) {
