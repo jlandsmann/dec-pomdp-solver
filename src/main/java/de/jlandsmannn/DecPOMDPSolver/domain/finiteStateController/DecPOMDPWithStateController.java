@@ -71,7 +71,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public void setValue(State state, Vector<Node> nodes, double value) {
-    preCalculatedValueFunction.putIfAbsent(state, new HashMap<>());
+    preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>());
     preCalculatedValueFunction.get(state).put(nodes, value);
   }
 
@@ -98,6 +98,15 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       probability *= transition == null ? 0 : transition.getProbability(newNode);
     }
     return probability;
+  }
+
+  public void retainNodesFromValueFunction(Set<Node> nodes) {
+    for (var state : states) {
+      var values = preCalculatedValueFunction.get(state);
+      for (var nodeVector : values.keySet()) {
+        if (!nodes.containsAll(nodeVector.toSet())) values.remove(nodeVector);
+      }
+    }
   }
 
   @Override

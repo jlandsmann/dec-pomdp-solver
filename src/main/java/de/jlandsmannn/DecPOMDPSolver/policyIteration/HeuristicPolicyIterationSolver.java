@@ -70,6 +70,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       throw new IllegalStateException("This algorithm does not support discount factor of 1.");
     }
     currentIteration = 0;
+    controllerState = 0;
     generateBeliefPoints();
     evaluateValueFunction();
     do {

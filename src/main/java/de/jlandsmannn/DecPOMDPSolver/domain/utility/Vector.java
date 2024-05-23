@@ -87,4 +87,12 @@ public class Vector<T> implements Iterable<T> {
   public int hashCode() {
     return Objects.hash("Vector", values);
   }
+
+  public Set<T> toSet() {
+    return Set.copyOf(values);
+  }
+
+  public List<T> toList() {
+    return List.copyOf(values);
+  }
 }
