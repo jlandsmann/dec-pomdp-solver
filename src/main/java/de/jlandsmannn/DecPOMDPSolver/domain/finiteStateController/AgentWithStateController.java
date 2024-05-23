@@ -6,6 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -48,5 +49,9 @@ public class AgentWithStateController extends Agent {
 
   public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
     controller.pruneNode(nodeToPrune, nodesToReplaceWith);
+  }
+
+  public void pruneNode(Node nodeToPrune) {
+    controller.pruneNode(nodeToPrune);
   }
 }

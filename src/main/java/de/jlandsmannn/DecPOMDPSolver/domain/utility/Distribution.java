@@ -128,6 +128,13 @@ public class Distribution<T> implements Iterable<T> {
     throw new IllegalStateException();
   }
 
+  public void removeEntry(T nodeToPrune) throws DistributionEmptyException {
+    if (!distribution.containsKey(nodeToPrune)) return;
+    distribution.remove(nodeToPrune);
+    validateDistribution();
+    calculateMax();
+  }
+
   public void replaceEntryWithDistribution(T item, Distribution<T> replacement) {
     var probabilityOfItemToReplace = getProbability(item);
     if (probabilityOfItemToReplace <= 0) return;

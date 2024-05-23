@@ -1,6 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -62,11 +64,16 @@ public class DominatingNodesRetainer {
       var distribution = Distribution.createUniformDistribution(agentNodesToRetain);
       agent.pruneNodes(agentNodesToPrune, distribution);
     }
+    decPOMDP.retainNodesFromValueFunction(nodesToRetain);
   }
 
   private void validateBeliefPoints(Set<Distribution<State>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     };
+  }
+
+  private void pruneNode(AgentWithStateController agent, Node node) {
+    agent.pruneNode(node);
   }
 }
