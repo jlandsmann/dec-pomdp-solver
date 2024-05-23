@@ -19,6 +19,8 @@ public class ExhaustiveBackupPerformer {
   private static final Logger LOG = LoggerFactory.getLogger(ExhaustiveBackupPerformer.class);
   private DecPOMDPWithStateController decPOMDP;
 
+  private List<Vector<Node>> originalNodeCombinations = List.of();
+
   public ExhaustiveBackupPerformer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
@@ -28,6 +30,8 @@ public class ExhaustiveBackupPerformer {
   public void performExhaustiveBackup() {
     LOG.info("Performing global exhaustive backup");
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
+    var originalNodes = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
+    originalNodeCombinations = VectorStreamBuilder.forEachCombination(originalNodes).toList();
     for (var agent : decPOMDP.getAgents()) {
       performExhaustiveBackupForAgent(agent);
     }
@@ -82,8 +86,6 @@ public class ExhaustiveBackupPerformer {
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {
     LOG.debug("Calculating missing value of value function for {} and {}", state, nodeVector);
-    var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
     var rawActionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
     var actionCombinations = VectorStreamBuilder.forEachCombination(rawActionCombinations).toList();
     var rawObservationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
@@ -98,7 +100,7 @@ public class ExhaustiveBackupPerformer {
       value += actionVectorProbability * reward;
 
       for (var observationVector : observationsCombinations) {
-        for (var followNodeVector : nodeCombinations) {
+        for (var followNodeVector : originalNodeCombinations) {
           var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, followNodeVector);
           if (nodeTransitionProbability == 0) continue;
           for (var followState : decPOMDP.getStates()) {
