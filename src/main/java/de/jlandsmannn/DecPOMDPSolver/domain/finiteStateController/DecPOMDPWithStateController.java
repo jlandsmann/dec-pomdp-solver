@@ -7,7 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,8 +28,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   public double getValue(Distribution<State> beliefState) {
     var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
-    Stream<Vector<Node>> stream = VectorStreamBuilder.forEachCombination(nodeCombinations);
-    return stream
+    return VectorCombinationBuilder.streamOf(nodeCombinations)
       .map(nodes -> getValue(beliefState, nodes))
       .reduce(Double::max)
       .orElse(0D);
@@ -37,8 +36,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
     var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
-    Stream<Vector<Node>> stream = VectorStreamBuilder.forEachCombination(nodeCombinations);
-    return stream
+    return VectorCombinationBuilder.streamOf(nodeCombinations)
       .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
       .max(Map.Entry.comparingByValue(Double::compareTo))
       .map(Map.Entry::getKey)

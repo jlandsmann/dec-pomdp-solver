@@ -8,22 +8,14 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toCollection;
 
-public class VectorStreamBuilder<T> {
+public abstract class CombinationBuilder<C, T> {
 
-  public static <T > Stream<Vector<T>> forEachCombination(List<? extends List<T>> possibleValues) {
-    var builder = new VectorStreamBuilder<T>();
-    return builder.getStreamForEachCombination(possibleValues);
+  protected List<C> getListForEachCombination(List<? extends List<T>> pPossibleValues) {
+    return getStreamForEachCombination(pPossibleValues).toList();
   }
 
-  private final List<Long> takeNthElement = new ArrayList<>();
-  private List<List<T>> possibleValues;
-
-  private VectorStreamBuilder() {
-
-  }
-
-  private Stream<Vector<T>> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
-    possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
+  protected Stream<C> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
+    List<List<T>> possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
     int size = possibleValues.size();
     if (size == 0) return Stream.empty();
     long numberOfCombinations = possibleValues.stream()
@@ -32,6 +24,7 @@ public class VectorStreamBuilder<T> {
       .reduce(Math::multiplyExact)
       .orElse(0);
     if (numberOfCombinations == 0) return Stream.empty();
+    List<Long> takeNthElement = new ArrayList<>();
 
     takeNthElement.add(1L);
     var scannedItems = 1L;
@@ -42,19 +35,21 @@ public class VectorStreamBuilder<T> {
     }
     AtomicLong idx = new AtomicLong();
     return Stream
-      .generate(() -> iterate(idx.getAndIncrement()))
+      .generate(() -> iterate(possibleValues, takeNthElement, idx.getAndIncrement()))
       .sequential()
       .limit(numberOfCombinations);
   }
 
-  private Vector<T> iterate(long idx) {
+  protected C iterate(List<List<T>> possibleValues, List<Long> takeNthElement, long idx) {
     var list = new ArrayList<T>();
     for (int i = 0; i < possibleValues.size(); i++) {
       var collection = possibleValues.get(i);
-      var takeNthElement = this.takeNthElement.get(i);
-      var idxToSelect = (int) Math.floorDiv(idx, takeNthElement) % collection.size();
+      var elementToTake = takeNthElement.get(i);
+      var idxToSelect = (int) Math.floorDiv(idx, elementToTake) % collection.size();
       list.add(collection.get(idxToSelect));
     }
-    return new Vector<>(list);
+    return transformListToCombination(list);
   }
+
+  protected abstract C transformListToCombination(List<T> combinationAsList);
 }

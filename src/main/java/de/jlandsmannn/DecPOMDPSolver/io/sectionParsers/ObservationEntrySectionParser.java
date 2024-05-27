@@ -5,7 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
@@ -103,7 +103,7 @@ public class ObservationEntrySectionParser extends BaseSectionParser {
       }
     } else if (match.hasGroup("probabilityUniformDistribution")) {
       var endStates = states;
-      var observationCombinations = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+      var observationCombinations = VectorCombinationBuilder.listOf(agentObservations);
       var distribution = Distribution.createUniformDistribution(observationCombinations);
       var probabilities = distribution.toMap();
       actionVectors.forEach(actionVector -> {

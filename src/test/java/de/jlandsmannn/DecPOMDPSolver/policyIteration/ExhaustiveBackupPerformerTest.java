@@ -2,7 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,7 +91,7 @@ class ExhaustiveBackupPerformerTest {
       if (a.equals(agent)) return addedNodes;
       else return a.getControllerNodes();
     }).toList();
-    var newNodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
+    var newNodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
 
     for (var state : decPOMDP.getStates()) {
       for (var nodeCombination : newNodeCombinations) {

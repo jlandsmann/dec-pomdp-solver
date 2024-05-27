@@ -4,7 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class CommonParser {
   }
 
   public static Map<Vector<Observation>, Double> parseObservationVectorsAndTheirDistributions(List<List<Observation>> agentObservations, String rawProbabilities) {
-    var observationCombinations = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+    var observationCombinations = VectorCombinationBuilder.listOf(agentObservations);
     var probabilities = rawProbabilities.split(" ");
     if (probabilities.length > observationCombinations.size()) {
       throw new ParsingFailedException("Distribution of observation vectors consists of more vectors than defined.");
@@ -48,7 +48,7 @@ public class CommonParser {
 
   public static List<Vector<Action>> parseActionVector(List<List<Action>> agentActions, String rawActionVector) {
     if (rawActionVector.equals("*")) {
-      return VectorStreamBuilder.forEachCombination(agentActions).toList();
+      return VectorCombinationBuilder.listOf(agentActions);
     }
     var rawActions = rawActionVector.split(" ");
     if (rawActions.length > agentActions.size()) {
@@ -63,12 +63,12 @@ public class CommonParser {
       var actions = parseActionOrWildcard(possibleActions, rawAction);
       listOfActions.add(i, actions);
     }
-    return VectorStreamBuilder.forEachCombination(listOfActions).toList();
+    return VectorCombinationBuilder.listOf(listOfActions);
   }
 
   public static List<Vector<Observation>> parseObservationVector(List<List<Observation>> agentObservations, String rawObservationVector) {
     if (rawObservationVector.equals("*")) {
-      return VectorStreamBuilder.forEachCombination(agentObservations).toList();
+      return VectorCombinationBuilder.listOf(agentObservations);
     }
     var rawObservations = rawObservationVector.split(" ");
     if (rawObservations.length > agentObservations.size()) {
@@ -83,7 +83,7 @@ public class CommonParser {
       var observations = parseObservationOrWildcard(possibleObservations, rawObservation);
       listOfObservations.add(i, observations);
     }
-    return VectorStreamBuilder.forEachCombination(listOfObservations).toList();
+    return VectorCombinationBuilder.listOf(listOfObservations);
   }
 
   public static List<State> parseStateOrWildcard(List<State> states, String rawStateString) {

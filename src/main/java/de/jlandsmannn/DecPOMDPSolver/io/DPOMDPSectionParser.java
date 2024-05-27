@@ -7,7 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.sectionParsers.*;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
@@ -192,7 +192,7 @@ public class DPOMDPSectionParser {
   }
 
   private void gatherTransitionsAndAddToBuilder() {
-    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
+    var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
     for (var state : builder.getStates()) {
       var actionMap = transitions.get(state);
       if (actionMap == null) throw new IllegalStateException("State " + state + " has no transitions.");
@@ -206,7 +206,7 @@ public class DPOMDPSectionParser {
   }
 
   private void gatherObservationsAndAddToBuilder() {
-    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
+    var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
 
     for (var actionVector : actionCombinations) {
       var stateMap = observations.get(actionVector);
@@ -221,8 +221,8 @@ public class DPOMDPSectionParser {
   }
 
   private void gatherRewardsAndAddToBuilder() {
-    var actionCombinations = VectorStreamBuilder.forEachCombination(agentActions).toList();
-    var observationCombination = VectorStreamBuilder.forEachCombination(agentObservations).toList();
+    var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
+    var observationCombination = VectorCombinationBuilder.listOf(agentObservations);
 
     for (var state : builder.getStates()) {
       var actionMap = rewards.getOrDefault(state, Map.of());

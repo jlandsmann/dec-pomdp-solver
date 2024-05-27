@@ -8,7 +8,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithState
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,7 +195,7 @@ public class BeliefPointGenerator {
       if (agent.equals(a)) return List.of(action);
       else return a.getActions();
     }).toList();
-    return VectorStreamBuilder.forEachCombination(rawCombinations).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
   private List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, Agent agent) {
@@ -203,6 +203,6 @@ public class BeliefPointGenerator {
       if (agent.equals(a)) return List.of(observation);
       else return a.getObservations();
     }).toList();
-    return VectorStreamBuilder.forEachCombination(rawCombinations).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
   }
 }

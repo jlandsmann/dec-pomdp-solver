@@ -8,7 +8,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithState
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.slf4j.Logger;
@@ -34,14 +34,14 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     LOG.info("Initialized with DecPOMDP");
     this.decPOMDP = decPOMDP;
     var nodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    this.nodeCombinations = VectorStreamBuilder.forEachCombination(nodeCombinations).toList();
+    this.nodeCombinations = VectorCombinationBuilder.listOf(nodeCombinations);
     var actionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
-    this.actionCombinations = VectorStreamBuilder.forEachCombination(actionCombinations).toList();
+    this.actionCombinations = VectorCombinationBuilder.listOf(actionCombinations);
     var observationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
-    this.observationsCombinations = VectorStreamBuilder.forEachCombination(observationsCombinations).toList();
+    this.observationsCombinations = VectorCombinationBuilder.listOf(observationsCombinations);
 
     this.stateCount = decPOMDP.getStates().size();
-    this.nodeCombinationCount = VectorStreamBuilder.forEachCombination(nodeCombinations).count();
+    this.nodeCombinationCount = this.nodeCombinations.size();
   }
 
   public long getNumberOfEquations() {

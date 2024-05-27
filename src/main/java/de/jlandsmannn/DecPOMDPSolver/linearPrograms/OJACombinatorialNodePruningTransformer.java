@@ -7,7 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     }
 
     var rawNodeCombinations = decPOMDP.getAgents().stream().filter(a -> !a.equals(agent)).map(a -> a.getControllerNodes()).toList();
-    var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
+    var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
 
 
     for (var beliefState : beliefPoints) {

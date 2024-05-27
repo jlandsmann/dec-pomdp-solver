@@ -6,7 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithSt
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorStreamBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class ExhaustiveBackupPerformer {
     LOG.info("Performing global exhaustive backup");
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
     var originalNodes = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    originalNodeCombinations = VectorStreamBuilder.forEachCombination(originalNodes).toList();
+    originalNodeCombinations = VectorCombinationBuilder.listOf(originalNodes);
     for (var agent : decPOMDP.getAgents()) {
       performExhaustiveBackupForAgent(agent);
     }
@@ -44,7 +44,7 @@ public class ExhaustiveBackupPerformer {
     long nodesAdded = 0;
     var originalNodes = List.copyOf(agent.getControllerNodes());
     var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
-    var observationNodeCombinations = VectorStreamBuilder.forEachCombination(rawObservationNodeCombinations).toList();
+    var observationNodeCombinations = VectorCombinationBuilder.listOf(rawObservationNodeCombinations);
     LOG.info("Starting with {} nodes for Agent {}", originalNodes.size(), agent);
     for (var action : agent.getActions()) {
       for (var observationNodeCombination : observationNodeCombinations) {
@@ -64,7 +64,7 @@ public class ExhaustiveBackupPerformer {
   protected void updateValueFunction() {
     LOG.info("Calculating missing values of value function");
     var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    var nodeCombinations = VectorStreamBuilder.forEachCombination(rawNodeCombinations).toList();
+    var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
     AtomicInteger updatedCombinations = new AtomicInteger();
     decPOMDP.getStates().stream()
       .parallel()
@@ -87,9 +87,9 @@ public class ExhaustiveBackupPerformer {
   protected double calculateValue(State state, Vector<Node> nodeVector) {
     LOG.debug("Calculating missing value of value function for {} and {}", state, nodeVector);
     var rawActionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
-    var actionCombinations = VectorStreamBuilder.forEachCombination(rawActionCombinations).toList();
+    var actionCombinations = VectorCombinationBuilder.listOf(rawActionCombinations);
     var rawObservationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
-    var observationsCombinations = VectorStreamBuilder.forEachCombination(rawObservationsCombinations).toList();
+    var observationsCombinations = VectorCombinationBuilder.listOf(rawObservationsCombinations);
 
     var value = 0D;
     var discount = decPOMDP.getDiscountFactor();
