@@ -12,7 +12,7 @@ class AgentTest {
 
   @BeforeEach
   void setUp() {
-    agent = new TestAgent("A1", Action.setOf("A1", "A2", "A3"), Observation.setOf("O1", "O2"));
+    agent = new TestAgent("A1", Action.listOf("A1", "A2", "A3"), Observation.listOf("O1", "O2"));
   }
 
   @Test
@@ -24,14 +24,14 @@ class AgentTest {
 
   @Test
   void getActions_ShouldReturnActionsPutIn() {
-    var expected = Action.setOf("A1", "A2", "A3");
+    var expected = Action.listOf("A1", "A2", "A3");
     var actual = agent.getActions();
     assertEquals(expected, actual);
   }
 
   @Test
   void getObservations_ShouldReturnObservationsPutIn() {
-    var expected = Observation.setOf("O1", "O2");
+    var expected = Observation.listOf("O1", "O2");
     var actual = agent.getObservations();
     assertEquals(expected, actual);
   }

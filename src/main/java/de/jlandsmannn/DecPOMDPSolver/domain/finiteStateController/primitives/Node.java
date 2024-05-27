@@ -1,7 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

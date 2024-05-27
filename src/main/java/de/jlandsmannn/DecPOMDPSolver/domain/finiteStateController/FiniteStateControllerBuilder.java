@@ -14,11 +14,11 @@ public class FiniteStateControllerBuilder {
   private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
   private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
 
-  public static FiniteStateController createArbitraryController(String name, Set<Action> actions, Set<Observation> observations) {
+  public static FiniteStateController createArbitraryController(String name, List<Action> actions, List<Observation> observations) {
     return createArbitraryController(name, 1, actions, observations);
   }
 
-  public static FiniteStateController createArbitraryController(String name, int nodeCount, Set<Action> actions, Set<Observation> observations) {
+  public static FiniteStateController createArbitraryController(String name, int nodeCount, List<Action> actions, List<Observation> observations) {
     var builder = new FiniteStateControllerBuilder();
     var actionDistribution = Distribution.createUniformDistribution(actions);
     for (int i = 0; i < nodeCount; i++) {

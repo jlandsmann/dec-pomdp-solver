@@ -59,15 +59,15 @@ public class DecPOMDPGenerator {
   }
 
   private static AgentWithStateController createAgent(String name) {
-    var actions = Action.setOf("listen", "open-left", "open-right");
-    var observations = Observation.setOf("hear-left", "hear-right");
+    var actions = Action.listOf("listen", "open-left", "open-right");
+    var observations = Observation.listOf("hear-left", "hear-right");
     var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 
   private static AgentWithStateController createLargeAgent(String name) {
-    var actions = Action.setOf("listen", "open-left", "open-right");
-    var observations = Observation.setOf("hear-left", "hear-right");
+    var actions = Action.listOf("listen", "open-left", "open-right");
+    var observations = Observation.listOf("hear-left", "hear-right");
     var controller = FiniteStateControllerBuilder.createArbitraryController(name, 4, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }

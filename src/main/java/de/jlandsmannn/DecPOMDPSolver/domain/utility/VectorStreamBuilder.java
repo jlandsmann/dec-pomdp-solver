@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.toCollection;
 
 public class VectorStreamBuilder<T> {
 
-  public static <T > Stream<Vector<T>> forEachCombination(Collection<? extends Collection<T>> possibleValues) {
+  public static <T > Stream<Vector<T>> forEachCombination(List<? extends List<T>> possibleValues) {
     var builder = new VectorStreamBuilder<T>();
     return builder.getStreamForEachCombination(possibleValues);
   }
@@ -22,7 +22,7 @@ public class VectorStreamBuilder<T> {
 
   }
 
-  private Stream<Vector<T>> getStreamForEachCombination(Collection<? extends Collection<T>> pPossibleValues) {
+  private Stream<Vector<T>> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
     possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
     int size = possibleValues.size();
     if (size == 0) return Stream.empty();

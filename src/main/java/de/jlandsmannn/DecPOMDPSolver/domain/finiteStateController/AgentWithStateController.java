@@ -6,7 +6,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +13,7 @@ public class AgentWithStateController extends Agent {
 
   protected final FiniteStateController controller;
 
-  public AgentWithStateController(String name, Set<Action> actions, Set<Observation> observations, FiniteStateController controller) {
+  public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);
     this.controller = controller;
   }

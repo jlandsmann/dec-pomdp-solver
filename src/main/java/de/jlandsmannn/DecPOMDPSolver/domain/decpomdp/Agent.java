@@ -3,15 +3,15 @@ package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public abstract class Agent {
   protected final String name;
-  protected final Set<Action> actions;
-  protected final Set<Observation> observations;
+  protected final List<Action> actions;
+  protected final List<Observation> observations;
 
-  protected Agent(String name, Set<Action> actions, Set<Observation> observations) {
+  protected Agent(String name, List<Action> actions, List<Observation> observations) {
     this.name = name;
     this.actions = actions;
     this.observations = observations;
@@ -21,11 +21,11 @@ public abstract class Agent {
     return name;
   }
 
-  public Set<Action> getActions() {
+  public List<Action> getActions() {
     return actions;
   }
 
-  public Set<Observation> getObservations() {
+  public List<Observation> getObservations() {
     return observations;
   }
 

@@ -3,11 +3,12 @@ package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 
+import java.util.List;
 import java.util.Set;
 
 public class TestAgent extends Agent {
 
-  protected TestAgent(String name, Set<Action> actions, Set<Observation> observations) {
+  protected TestAgent(String name, List<Action> actions, List<Observation> observations) {
     super(name, actions, observations);
   }
 }

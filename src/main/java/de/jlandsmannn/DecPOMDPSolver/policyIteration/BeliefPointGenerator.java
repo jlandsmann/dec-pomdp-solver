@@ -192,7 +192,7 @@ public class BeliefPointGenerator {
 
   private List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, Agent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
-      if (agent.equals(a)) return Set.of(action);
+      if (agent.equals(a)) return List.of(action);
       else return a.getActions();
     }).toList();
     return VectorStreamBuilder.forEachCombination(rawCombinations).toList();
@@ -200,7 +200,7 @@ public class BeliefPointGenerator {
 
   private List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, Agent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
-      if (agent.equals(a)) return Set.of(observation);
+      if (agent.equals(a)) return List.of(observation);
       else return a.getObservations();
     }).toList();
     return VectorStreamBuilder.forEachCombination(rawCombinations).toList();

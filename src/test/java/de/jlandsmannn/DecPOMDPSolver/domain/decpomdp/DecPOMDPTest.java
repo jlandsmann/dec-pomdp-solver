@@ -26,8 +26,8 @@ class DecPOMDPTest {
 
   @BeforeEach
   void setUp() {
-    var agent1 = new TestAgent("A1", Action.setOf("A1-A1", "A1-A2"), Observation.setOf("A1-O1", "A1-O2"));
-    var agent2 = new TestAgent("A2", Action.setOf("A2-A1", "A2-A2"), Observation.setOf("A2-O1", "A2-O2"));
+    var agent1 = new TestAgent("A1", Action.listOf("A1-A1", "A1-A2"), Observation.listOf("A1-O1", "A1-O2"));
+    var agent2 = new TestAgent("A2", Action.listOf("A2-A1", "A2-A2"), Observation.listOf("A2-O1", "A2-O2"));
     states = State.listOf("S1", "S2");
     agents = List.of(agent1, agent2);
     discountFactor = 0.5D;

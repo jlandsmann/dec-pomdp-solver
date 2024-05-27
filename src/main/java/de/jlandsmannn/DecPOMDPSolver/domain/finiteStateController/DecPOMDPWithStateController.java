@@ -102,7 +102,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   public void retainNodesFromValueFunction(Set<Node> nodes) {
     for (var state : states) {
-      var values = preCalculatedValueFunction.get(state);
+      var values = preCalculatedValueFunction.getOrDefault(state, Map.of());
       for (var nodeVector : values.keySet()) {
         if (!nodes.containsAll(nodeVector.toSet())) values.remove(nodeVector);
       }
