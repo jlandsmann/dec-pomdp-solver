@@ -98,6 +98,7 @@ public class ExhaustiveBackupPerformer {
       if (actionVectorProbability == 0) continue;
       var reward = decPOMDP.getReward(state, actionVector);
       value += actionVectorProbability * reward;
+      if (discount == 0) continue;
 
       for (var observationVector : observationsCombinations) {
         for (var followNodeVector : originalNodeCombinations) {
