@@ -11,7 +11,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
   private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new ConcurrentHashMap<>();
@@ -92,8 +91,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       var action = actions.get(i);
       var observation = observations.get(i);
       var newNode = newNodes.get(i);
-      var transition = agent.getNodeTransition(node, action, observation);
-      probability *= transition == null ? 0 : transition.getProbability(newNode);
+      probability *= agent.getNodeTransitionProbability(node, action, observation, newNode);
     }
     return probability;
   }

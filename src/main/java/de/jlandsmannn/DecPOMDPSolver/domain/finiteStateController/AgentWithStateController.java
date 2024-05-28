@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class AgentWithStateController extends Agent {
@@ -30,28 +31,24 @@ public class AgentWithStateController extends Agent {
     return controller.getActionSelection(node);
   }
 
-  public Distribution<Node> getNodeTransition(Node node, Action action, Observation observation) {
-    return controller.getTransition(node, action, observation);
+  public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
+    return getNodeTransition(node, action, observation).map(t -> t.getProbability(followNode)).orElse(0D);
   }
 
-  public void addNode(Node node, Distribution<Action> actionDistribution) {
-    controller.addNode(node, actionDistribution);
+  public Optional<Distribution<Node>> getNodeTransition(Node node, Action action, Observation observation) {
+    return Optional.ofNullable(controller.getTransition(node, action, observation));
   }
 
-  public void addTransition(Node node, Action action, Observation observation, Distribution<Node> newNode) {
+  public void addNode(Node node, Action action) {
+    controller.addNode(node, action);
+  }
+
+  public void addTransition(Node node, Action action, Observation observation, Node newNode) {
     controller.addTransition(node, action, observation, newNode);
-  }
-
-  public void pruneNodes(Set<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
-    controller.pruneNodes(nodesToPrune, nodesToReplaceWith);
   }
 
   public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
     controller.pruneNode(nodeToPrune, nodesToReplaceWith);
-  }
-
-  public void pruneNode(Node nodeToPrune) {
-    controller.pruneNode(nodeToPrune);
   }
 
   public void pruneNodes(Set<Node> nodesToPrune) {

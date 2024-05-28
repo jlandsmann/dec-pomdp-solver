@@ -49,12 +49,12 @@ public class ExhaustiveBackupPerformer {
     for (var action : agent.getActions()) {
       for (var observationNodeCombination : observationNodeCombinations) {
         var node = Node.from(agent.getName() + "-Q" + agent.getControllerNodeIndex());
-        agent.addNode(node, Distribution.createSingleEntryDistribution(action));
+        agent.addNode(node, action);
         nodesAdded++;
         var observationIndex = 0;
         for (var observation : agent.getObservations()) {
           var followNode = observationNodeCombination.get(observationIndex++);
-          agent.addTransition(node, action, observation, Distribution.createSingleEntryDistribution(followNode));
+          agent.addTransition(node, action, observation, followNode);
         }
       }
     }

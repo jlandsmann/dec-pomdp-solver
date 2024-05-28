@@ -20,12 +20,14 @@ public class FiniteStateControllerBuilder {
 
   public static FiniteStateController createArbitraryController(String name, int nodeCount, List<Action> actions, List<Observation> observations) {
     var builder = new FiniteStateControllerBuilder();
-    var actionDistribution = Distribution.createSingleEntryDistribution(actions.getFirst());
+    var actionDistribution = Distribution.createUniformDistribution(actions);
     for (int i = 0; i < nodeCount; i++) {
       Node node = Node.from(name + "-Q" + i);
       Node followNode = Node.from(name + "-Q" + ((i +1) % nodeCount));
-      builder.addNode(node).addActionSelection(node, actionDistribution);
-      for (var action : actions) {
+      builder
+        .addNode(node)
+        .addActionSelection(node, actionDistribution);
+      for (var action : actionDistribution.keySet()) {
         for (var observation : observations) {
           builder.addTransition(node, action, observation, Distribution.createSingleEntryDistribution(followNode));
         }

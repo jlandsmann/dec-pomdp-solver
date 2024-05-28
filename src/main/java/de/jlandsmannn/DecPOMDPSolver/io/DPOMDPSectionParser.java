@@ -186,7 +186,11 @@ public class DPOMDPSectionParser {
       var name = agentNames.get(i);
       var actions = agentActions.get(i);
       var observations = agentObservations.get(i);
-      var agent = new AgentBuilder().setName(name).setActions(actions).setObservations(observations).createAgent();
+      var agent = new AgentBuilder()
+        .setName(name)
+        .setActions(actions)
+        .setObservations(observations)
+        .createAgent();
       builder.addAgent(agent);
     }
   }
