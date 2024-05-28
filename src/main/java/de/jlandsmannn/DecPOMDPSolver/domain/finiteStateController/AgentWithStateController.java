@@ -53,4 +53,8 @@ public class AgentWithStateController extends Agent {
   public void pruneNode(Node nodeToPrune) {
     controller.pruneNode(nodeToPrune);
   }
+
+  public void pruneNodes(Set<Node> nodesToPrune) {
+    controller.pruneNodes(nodesToPrune);
+  }
 }

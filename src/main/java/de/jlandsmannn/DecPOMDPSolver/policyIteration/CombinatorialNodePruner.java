@@ -43,7 +43,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
   }
 
   public void pruneNodesIfCombinatorialDominated() {
-    if (agent.getControllerNodes().size() <= 1) {
+    if (agent.getControllerNodes().size() <= 2) {
       LOG.info("No combinatorial pruning possible, since {} has only {} node(s).", agent, agent.getControllerNodes().size());
       return;
     }

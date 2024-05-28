@@ -46,7 +46,7 @@ public class DominatingNodesRetainer {
     var nodesToRetain = new HashSet<Node>();
     for (var beliefState : beliefPoints) {
       var nodeCombination = decPOMDP.getBestNodeCombinationFor(beliefState);
-      nodesToRetain.addAll(nodeCombination.stream().toList());
+      nodesToRetain.addAll(nodeCombination.toList());
     }
     LOG.info("Found {} dominating nodes", nodesToRetain.size());
     return nodesToRetain;
@@ -57,11 +57,9 @@ public class DominatingNodesRetainer {
       var agentNodesToPrune = new HashSet<>(agent.getControllerNodes());
       agentNodesToPrune.removeAll(nodesToRetain);
       LOG.info("Pruning {} nodes from {}", agentNodesToPrune.size(), agent);
-      var agentNodesToRetain = new HashSet<>(agent.getControllerNodes());
-      agentNodesToRetain.retainAll(nodesToRetain);
-      LOG.info("Retaining {} nodes from {}", agentNodesToRetain.size(), agent);
-      var distribution = Distribution.createUniformDistribution(agentNodesToRetain);
-      agent.pruneNodes(agentNodesToPrune, distribution);
+      var agentNodesToRetainCount = agent.getControllerNodes().size() - agentNodesToPrune.size();
+      LOG.info("Retaining {} nodes from {}", agentNodesToRetainCount, agent);
+      agent.pruneNodes(agentNodesToPrune);
     }
     decPOMDP.retainNodesFromValueFunction(nodesToRetain);
   }
@@ -70,9 +68,5 @@ public class DominatingNodesRetainer {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     };
-  }
-
-  private void pruneNode(AgentWithStateController agent, Node node) {
-    agent.pruneNode(node);
   }
 }

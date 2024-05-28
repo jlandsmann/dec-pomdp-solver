@@ -55,7 +55,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     var linearProgram = new ExpressionsBasedModel();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
     var epsilon = linearProgram.newVariable("epsilon").lower(0);
-    var constant = linearProgram.newVariable("constant").level(1);
+    var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
 
     for (var node : agent.getControllerNodes()) {
@@ -64,7 +64,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
       nodeDistribution.add(nodeVariable, 1);
     }
 
-    var rawNodeCombinations = decPOMDP.getAgents().stream().filter(a -> !a.equals(agent)).map(a -> a.getControllerNodes()).toList();
+    var rawNodeCombinations = decPOMDP.getAgents().stream().filter(a -> !a.equals(agent)).map(AgentWithStateController::getControllerNodes).toList();
     var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
 
 
@@ -74,17 +74,17 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         expression.lower(epsilon);
 
-        for (var state : decPOMDP.getStates()) {
+        for (var state : beliefState.keySet()) {
           var stateProbability = beliefState.getProbability(state);
           var nodeToCheckValue = decPOMDP.getValue(state, nodeToCheckVector);
           expression.add(constant, stateProbability * -nodeToCheckValue);
 
           for (var node : agent.getControllerNodes()) {
             if (node.equals(nodeToCheck)) continue;
-            var nodeVariable = linearProgram.getVariables().stream().filter(v -> v.getName().equals(node.name())).findFirst();
+            var nodeVariable = linearProgram.getVariables().stream().filter(v -> v.getName().equals(node.name())).findFirst().orElseThrow();
             var vector = Vector.addEntry(nodeVector, agentIndex, node);
             var value = decPOMDP.getValue(state, vector);
-            expression.add(nodeVariable.get(), stateProbability * value);
+            expression.add(nodeVariable, stateProbability * value);
           }
         }
       }

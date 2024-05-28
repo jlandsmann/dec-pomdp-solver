@@ -56,6 +56,14 @@ public class Vector<T> implements Iterable<T> {
     return values.stream();
   }
 
+  public Set<T> toSet() {
+    return Set.copyOf(values);
+  }
+
+  public List<T> toList() {
+    return List.copyOf(values);
+  }
+
   public Object[] toArray() {
     return values.toArray();
   }
@@ -86,13 +94,5 @@ public class Vector<T> implements Iterable<T> {
   @Override
   public int hashCode() {
     return Objects.hash("Vector", values);
-  }
-
-  public Set<T> toSet() {
-    return Set.copyOf(values);
-  }
-
-  public List<T> toList() {
-    return List.copyOf(values);
   }
 }

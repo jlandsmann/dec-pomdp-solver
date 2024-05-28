@@ -24,14 +24,14 @@ public class ExhaustiveBackupPerformer {
   public ExhaustiveBackupPerformer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
+    var originalNodes = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
+    originalNodeCombinations = VectorCombinationBuilder.listOf(originalNodes);
     return this;
   }
 
   public void performExhaustiveBackup() {
     LOG.info("Performing global exhaustive backup");
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
-    var originalNodes = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    originalNodeCombinations = VectorCombinationBuilder.listOf(originalNodes);
     for (var agent : decPOMDP.getAgents()) {
       performExhaustiveBackupForAgent(agent);
     }
@@ -72,9 +72,9 @@ public class ExhaustiveBackupPerformer {
         nodeCombinations.stream()
           .parallel()
           .filter(nodeVector -> decPOMDP.getOptionalValue(state, nodeVector).isEmpty())
-          .forEach(nodeCombination -> {
-            var value = calculateValue(state, nodeCombination);
-            decPOMDP.setValue(state, nodeCombination, value);
+          .forEach(nodeVector -> {
+            var value = calculateValue(state, nodeVector);
+            decPOMDP.setValue(state, nodeVector, value);
             updatedCombinations.getAndIncrement();
             if (updatedCombinations.get() % 5000 == 0) {
               LOG.info("Calculated first {} missing values of value function", updatedCombinations.get());

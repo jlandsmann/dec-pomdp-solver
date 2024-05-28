@@ -16,24 +16,22 @@ public abstract class CombinationBuilder<C, T> {
 
   protected Stream<C> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
     List<List<T>> possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
-    int size = possibleValues.size();
-    if (size == 0) return Stream.empty();
+    if (possibleValues.isEmpty()) return Stream.empty();
     long numberOfCombinations = possibleValues.stream()
       .map(Collection::size)
       .mapToLong(Integer::longValue)
       .reduce(Math::multiplyExact)
       .orElse(0);
     if (numberOfCombinations == 0) return Stream.empty();
-    List<Long> takeNthElement = new ArrayList<>();
 
-    takeNthElement.add(1L);
+    List<Long> takeNthElement = new ArrayList<>(List.of(1L));
     var scannedItems = 1L;
-    for (int i = possibleValues.size() - 2; i >= 0; i--) {
-      var collectionSize = possibleValues.get(i + 1).size();
+    for (int i = possibleValues.size() - 1; 1 <= i; i--) {
+      var collectionSize = possibleValues.get(i).size();
       scannedItems *= collectionSize;
       takeNthElement.addFirst(scannedItems);
     }
-    AtomicLong idx = new AtomicLong();
+    AtomicLong idx = new AtomicLong(0);
     return Stream
       .generate(() -> iterate(possibleValues, takeNthElement, idx.getAndIncrement()))
       .sequential()
