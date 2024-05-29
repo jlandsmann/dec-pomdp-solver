@@ -13,6 +13,7 @@ import java.util.Set;
 public class AgentWithStateController extends Agent {
 
   protected final FiniteStateController controller;
+  protected Set<Node> initialNodes;
 
   public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);
@@ -51,7 +52,15 @@ public class AgentWithStateController extends Agent {
     controller.pruneNode(nodeToPrune, nodesToReplaceWith);
   }
 
-  public void pruneNodes(Set<Node> nodesToPrune) {
-    controller.pruneNodes(nodesToPrune);
+  public void pruneNode(Node nodeToPrune, Node nodeToReplaceWith) {
+    controller.pruneNode(nodeToPrune, nodeToReplaceWith);
+  }
+
+  public Set<Node> getInitialNodes() {
+    return initialNodes;
+  }
+
+  public void setInitialNodes(Set<Node> initialNodes) {
+    this.initialNodes = initialNodes;
   }
 }

@@ -58,7 +58,6 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   public double getValue(State state, Vector<Node> nodes) {
     return getOptionalValue(state, nodes).orElse(0D);
-
   }
 
   public Optional<Double> getOptionalValue(State state, Vector<Node> nodes) {
@@ -101,6 +100,15 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       var values = preCalculatedValueFunction.getOrDefault(state, Map.of());
       for (var nodeVector : values.keySet()) {
         if (!nodes.containsAll(nodeVector.toSet())) values.remove(nodeVector);
+      }
+    }
+  }
+
+  public void removeNodesFromValueFunction(Set<Node> nodes) {
+    for (var state : states) {
+      var values = preCalculatedValueFunction.getOrDefault(state, Map.of());
+      for (var nodeVector : values.keySet()) {
+        if (nodes.stream().anyMatch(nodeVector::contains)) values.remove(nodeVector);
       }
     }
   }

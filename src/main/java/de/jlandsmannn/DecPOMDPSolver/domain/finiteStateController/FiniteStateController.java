@@ -63,22 +63,17 @@ public class FiniteStateController {
     transitionFunction.get(node).get(a).put(o, transition);
   }
 
-  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
-    pruneNodes(Set.of(nodeToPrune), nodesToReplaceWith);
-  }
-
-  public void pruneNode(Node nodeToPrune) {
-    pruneNodes(Set.of(nodeToPrune));
-  }
-
   public void pruneNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
     removeOutgoingConnections(nodesToPrune);
     replaceIncomingConnections(nodesToPrune, nodesToReplaceWith);
   }
 
-  public void pruneNodes(Collection<Node> nodesToPrune) {
-    removeOutgoingConnections(nodesToPrune);
-    removeIncomingConnections(nodesToPrune);
+  public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
+    pruneNodes(Set.of(nodeToPrune), nodesToReplaceWith);
+  }
+
+  public void pruneNode(Node nodeToPrune, Node nodeToReplaceWith) {
+    pruneNode(nodeToPrune, Distribution.createSingleEntryDistribution(nodeToReplaceWith));
   }
 
   @Override
@@ -112,24 +107,6 @@ public class FiniteStateController {
           var distribution = transitionFunction.get(node).get(action).get(observation);
           for (var nodeToPrune : nodesToPrune) {
             distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
-          }
-        }
-      }
-    }
-  }
-
-  private void removeIncomingConnections(Collection<Node> nodesToPrune) {
-    for (var node : transitionFunction.keySet()) {
-      for (var action : transitionFunction.get(node).keySet()) {
-        for (var observation : transitionFunction.get(node).get(action).keySet()) {
-          var distribution = transitionFunction.get(node).get(action).get(observation);
-          for (var nodeToPrune : nodesToPrune) {
-            try {
-              distribution.removeEntry(nodeToPrune);
-            } catch (DistributionEmptyException e) {
-              var newDistribution = Distribution.createSingleEntryDistribution(node);
-              transitionFunction.get(node).get(action).put(observation, newDistribution);
-            }
           }
         }
       }
