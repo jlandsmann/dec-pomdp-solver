@@ -10,6 +10,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,8 +49,10 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       return;
     }
     var originalNodeCount = agent.getControllerNodes().size();
-    LOG.info("Iterating over all {} nodes of {} for combinatorial pruning", originalNodeCount, agent);
-    for (var node : List.copyOf(agent.getControllerNodes())) {
+    var nodesToPrune = new ArrayList<>(agent.getControllerNodes());
+    nodesToPrune.removeAll(agent.getInitialControllerNodes());
+    LOG.info("Iterating over all {} non-initial nodes of {} for combinatorial pruning", nodesToPrune.size(), agent);
+    for (var node : nodesToPrune) {
       pruneNodeIfCombinatorialDominated(node);
     }
     var newNodeCount = agent.getControllerNodes().size();

@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,11 +40,10 @@ public class DominatingNodesRetainer {
 
     var nodeVectorsToRetain = findDominatingNodeVectors();
     retainNodeVectors(nodeVectorsToRetain);
-    LOG.info("Successfully pruned non-dominating nodes");
   }
 
   protected Set<Vector<Node>> findDominatingNodeVectors() {
-    LOG.info("Calculating dominating nodes");
+    LOG.info("Calculating dominating node vectors");
     var nodeVectorsToRetain = new HashSet<Vector<Node>>();
     for (var beliefState : beliefPoints) {
       var nodeCombination = decPOMDP.getBestNodeCombinationFor(beliefState);
@@ -64,64 +61,15 @@ public class DominatingNodesRetainer {
 
   protected void retainNodeVectorsForAgent(Set<Vector<Node>> globalNodeVectorsToRetain, AgentWithStateController agent) {
     var globalNodesToRetain = globalNodeVectorsToRetain.stream().flatMap(Vector::stream).collect(Collectors.toSet());
-    var agentNodesToPrune = new HashSet<>(agent.getControllerNodes());
-    agentNodesToPrune.removeAll(globalNodesToRetain);
     var agentNodesToRetain = new HashSet<>(agent.getControllerNodes());
     agentNodesToRetain.retainAll(globalNodesToRetain);
-
-    var nonPrunableNodes = new HashSet<Node>();
-    for (var nodeToPrune : agentNodesToPrune) {
-      var dominatingNode = findDominatingNode(globalNodeVectorsToRetain, agentNodesToRetain, nodeToPrune);
-      if (dominatingNode.isEmpty()) {
-        LOG.debug("No dominating node found for {}", nodeToPrune);
-        nonPrunableNodes.add(nodeToPrune);
-        continue;
-      }
-      LOG.debug("Found dominating node {} for {}", dominatingNode.get(), nodeToPrune);
-      agent.pruneNode(nodeToPrune, dominatingNode.get());
-    }
-    LOG.info("Cannot prune {} nodes because no dominating node exists", nonPrunableNodes.size());
-    agentNodesToPrune.removeAll(nonPrunableNodes);
-    LOG.info("Pruned {} nodes from {} with remaining {} nodes", agentNodesToPrune.size(), agent, agent.getControllerNodes().size());
-    decPOMDP.removeNodesFromValueFunction(agentNodesToPrune);
+    agent.setInitialControllerNodes(agentNodesToRetain);
+    LOG.info("Marked {} nodes as initial nodes for {}", agentNodesToRetain.size(), agent);
   }
 
   private void validateBeliefPoints(Set<Distribution<State>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     };
-  }
-
-  private Optional<Node> findDominatingNode(Set<Vector<Node>> globalNodeVectorsToRetain, Set<Node> agentNodesToRetain, Node nodeToPrune) {
-    LOG.debug("Finding dominating node for {}", nodeToPrune);
-    if (agentNodesToRetain.size() == 1) {
-      LOG.debug("Agent retains only a single node, that has to be the dominating node for {}", nodeToPrune);
-      return agentNodesToRetain.stream().findFirst();
-    }
-    return agentNodesToRetain.stream()
-      .filter(nodeToRetainA -> getMaxValueDifference(globalNodeVectorsToRetain, nodeToRetainA, nodeToPrune) > 0)
-      .findAny();
-  }
-
-  private double getMaxValueDifference(Set<Vector<Node>> globalNodeVectorsToRetain, Node nodeToRetain, Node nodeToPrune) {
-    return globalNodeVectorsToRetain.stream()
-      .filter(v -> v.contains(nodeToRetain))
-      .mapToDouble(vectorToRetain -> {
-        var dominatedVector = vectorToRetain.replace(nodeToRetain, nodeToPrune);
-        return calculateMinValueDifference(vectorToRetain, dominatedVector);
-      })
-      .max()
-      .orElseThrow(() -> new IllegalStateException("No global node vectors to remain given, cannot calculate the max value difference."));
-  }
-
-  private double calculateMinValueDifference(Vector<Node> vectorA, Vector<Node> vectorB) {
-    return beliefPoints.stream()
-      .mapToDouble(beliefPoint ->
-        decPOMDP.getValue(beliefPoint, vectorA) -
-          decPOMDP.getValue(beliefPoint, vectorB)
-      )
-      .min()
-      .orElseThrow(() -> new IllegalStateException("No belief points given, cannot calculate min value difference of two vectors."))
-    ;
   }
 }
