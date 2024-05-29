@@ -183,7 +183,7 @@ class OJACombinatorialNodePrunerTest {
       .setBeliefPoints(beliefPoints)
       .pruneNodeIfCombinatorialDominated(node);
 
-    verify(agent).pruneNode(any(), any());
+    verify(agent).pruneNode(any(), any(Distribution.class));
   }
 
   @Test
@@ -197,6 +197,6 @@ class OJACombinatorialNodePrunerTest {
       .setBeliefPoints(beliefPoints)
       .pruneNodeIfCombinatorialDominated(node);
 
-    verify(agent, never()).pruneNode(any(), any());
+    verify(agent, never()).pruneNode(any(), any(Distribution.class));
   }
 }

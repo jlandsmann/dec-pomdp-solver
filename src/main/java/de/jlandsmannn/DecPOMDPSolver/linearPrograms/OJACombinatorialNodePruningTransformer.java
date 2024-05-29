@@ -9,14 +9,15 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
+import org.ojalgo.optimisation.GenericSolver;
+import org.ojalgo.optimisation.Optimisation;
+import org.ojalgo.optimisation.Variable;
+import org.ojalgo.optimisation.linear.LinearSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OJACombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<ExpressionsBasedModel, Map<String, Double>> {
@@ -54,44 +55,47 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     validateDependencies(nodeToCheck);
     var linearProgram = new ExpressionsBasedModel();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
-    var epsilon = linearProgram.newVariable("epsilon").lower(0);
+    var epsilon = linearProgram.newVariable("epsilon").lower(0).weight(1);
     var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
 
-    for (var node : agent.getControllerNodes()) {
-      if (node.equals(nodeToCheck)) continue;
+    var nodeVariables = new HashMap<Node, Variable>();
+    for (var node : agent.getInitialControllerNodes()) {
       var nodeVariable = linearProgram.newVariable(node.name()).lower(0).upper(1);
       nodeDistribution.add(nodeVariable, 1);
+      nodeVariables.put(node, nodeVariable);
     }
 
-    var rawNodeCombinations = decPOMDP.getAgents().stream().filter(a -> !a.equals(agent)).map(AgentWithStateController::getControllerNodes).toList();
+    var rawNodeCombinations = decPOMDP.getAgents().stream()
+      .filter(a -> !a.equals(agent))
+      .map(AgentWithStateController::getInitialControllerNodes)
+      .map(List::copyOf)
+      .toList();
     var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
 
 
+    var beliefStateIndex = 0;
     for (var beliefState : beliefPoints) {
+      var nodeVectorIndex = 0;
       for (var nodeVector : nodeCombinations) {
-        var expression = linearProgram.newExpression("b: " + beliefState.hashCode() + ", q-i: " + nodeVector.hashCode());
+        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).lower(0);
+        expression.add(epsilon, -1);
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
-        expression.lower(epsilon);
+        var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
+        expression.add(constant, -nodeToCheckValue);
 
-        for (var state : beliefState.keySet()) {
-          var stateProbability = beliefState.getProbability(state);
-          var nodeToCheckValue = decPOMDP.getValue(state, nodeToCheckVector);
-          expression.add(constant, stateProbability * -nodeToCheckValue);
-
-          for (var node : agent.getControllerNodes()) {
-            if (node.equals(nodeToCheck)) continue;
-            var nodeVariable = linearProgram.getVariables().stream().filter(v -> v.getName().equals(node.name())).findFirst().orElseThrow();
-            var vector = Vector.addEntry(nodeVector, agentIndex, node);
-            var value = decPOMDP.getValue(state, vector);
-            expression.add(nodeVariable, stateProbability * value);
-          }
+        for (var node : agent.getInitialControllerNodes()) {
+          var nodeVariable = nodeVariables.get(node);
+          var vector = Vector.addEntry(nodeVector, agentIndex, node);
+          var value = decPOMDP.getValue(beliefState, vector);
+          expression.add(nodeVariable, value);
         }
+        nodeVectorIndex++;
       }
+      beliefStateIndex++;
     }
-
-    LOG.debug("Created linear program.");
-    return linearProgram;
+    LOG.debug("Created linear program with {} variables and {} expressions.", linearProgram.countVariables(), linearProgram.countExpressions());
+    return linearProgram.simplify();
   }
 
   @Override

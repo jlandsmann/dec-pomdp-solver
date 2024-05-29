@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Distribution<T> implements Iterable<T> {
-  private static final double ROUNDING_ERROR_THRESHOLD = 1e-14;
+  private static final double ROUNDING_ERROR_THRESHOLD = 1e-6;
   private final Map<T, Double> distribution;
   private final T currentMax;
 

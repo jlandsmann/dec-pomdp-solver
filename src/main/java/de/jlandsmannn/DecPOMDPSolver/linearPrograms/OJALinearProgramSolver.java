@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OJALinearProgramSolver implements LinearOptimizationSolver<ExpressionsBasedModel, Map<String, Double>> {
@@ -41,17 +41,15 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
       return Optional.empty();
     }
     LOG.debug("Minimising linear program has feasible solution: {}", result);
-    var mappedResults = getMapFromResults(result);
+    var mappedResults = createMapOfVariables();
     return Optional.of(mappedResults);
   }
 
-  private Map<String, Double> getMapFromResults(Optimisation.Result result) {
-    var map = new HashMap<String, Double>();
-    linearProgram.getVariables()
+  private Map<String, Double> createMapOfVariables() {
+    return linearProgram.getVariables()
       .stream()
       .map(v -> Map.entry(v.getName(), v.getValue().doubleValue()))
-      .forEach(e -> map.put(e.getKey(), e.getValue()))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
     ;
-    return map;
   }
 }

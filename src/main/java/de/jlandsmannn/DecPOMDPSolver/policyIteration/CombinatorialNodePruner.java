@@ -56,7 +56,7 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
       pruneNodeIfCombinatorialDominated(node);
     }
     var newNodeCount = agent.getControllerNodes().size();
-    var nodesPruned = newNodeCount - originalNodeCount;
+    var nodesPruned = originalNodeCount - newNodeCount;
     LOG.info("Pruned {} nodes of {}", nodesPruned, agent);
   }
 
