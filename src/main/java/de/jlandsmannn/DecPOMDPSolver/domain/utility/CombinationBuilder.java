@@ -3,7 +3,9 @@ package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toCollection;
@@ -12,6 +14,10 @@ public abstract class CombinationBuilder<C, T> {
 
   protected List<C> getListForEachCombination(List<? extends List<T>> pPossibleValues) {
     return getStreamForEachCombination(pPossibleValues).toList();
+  }
+
+  protected Set<C> getSetForEachCombination(List<? extends List<T>> pPossibleValues) {
+    return getStreamForEachCombination(pPossibleValues).collect(Collectors.toSet());
   }
 
   protected Stream<C> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
