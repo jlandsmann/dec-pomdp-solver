@@ -4,10 +4,13 @@ import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,30 +70,30 @@ class DominatingNodesRetainerTest {
   }
 
   @Test
-  void retainDominatingNodes_ShouldCallFindDominatingNodes() {
+  void retainDominatingNodes_ShouldCallFindDominatingNodeVectors() {
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints);
     dominatingNodesRetainer.retainDominatingNodes();
-    verify(dominatingNodesRetainer).findDominatingNodes();
+    verify(dominatingNodesRetainer).findDominatingNodeVectors();
   }
 
   @Test
-  void retainDominatingNodes_ShouldCallRetainNodes() {
+  void retainDominatingNodes_ShouldCallRetainNodeVectors() {
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
       .retainDominatingNodes();
 
-    verify(dominatingNodesRetainer).retainNodes(anySet());
+    verify(dominatingNodesRetainer).retainNodeVectors(anySet());
   }
 
   @Test
-  void findDominatingNodes_ShouldGetNodeCombinationForEachBeliefPoint() {
+  void findDominatingNodeVectors_ShouldGetNodeCombinationForEachBeliefPoint() {
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
-      .findDominatingNodes();
+      .findDominatingNodeVectors();
 
     for (var beliefPoint : beliefPoints) {
       verify(decPOMDP).getBestNodeCombinationFor(beliefPoint);
@@ -98,20 +101,20 @@ class DominatingNodesRetainerTest {
   }
 
   @Test
-  void retainNodes_ShouldRemoveEveryNodeNotContainedInNodesToRetain() {
-    var nodesToRetain = decPOMDP.getAgents().stream()
-      .map(a -> a.getControllerNodes().subList(0, 2))
-      .flatMap(Collection::stream)
-      .collect(Collectors.toSet());
+  void retainNodes_ShouldNotRemoveNodesContainedInNodesToRetain() {
+    var rawNodeVectors = decPOMDP.getAgents().stream().map(a -> a.getControllerNodes().subList(0, 2)).toList();
+    var nodeVectorsToRetain = VectorCombinationBuilder.setOf(rawNodeVectors);
 
     dominatingNodesRetainer
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
-      .retainNodes(nodesToRetain);
+      .retainNodeVectors(nodeVectorsToRetain);
 
     for (var agent : decPOMDP.getAgents()) {
+      var agentIndex = decPOMDP.getAgents().indexOf(agent);
       var agentNodes = agent.getControllerNodes();
-      assertTrue(nodesToRetain.containsAll(agentNodes));
+      var agentNodesToRetain = rawNodeVectors.get(agentIndex);
+      assertTrue(agentNodes.containsAll(agentNodesToRetain));
     }
   }
 
