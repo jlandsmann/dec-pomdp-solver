@@ -58,6 +58,7 @@ public class BeliefPointGenerator {
   }
 
   public Set<Distribution<State>> generateBeliefPoints() {
+    // TODO: add seed for better comparison
     assertAllDependenciesAreSet();
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
     generatedBeliefPoints.add(currentBeliefState);

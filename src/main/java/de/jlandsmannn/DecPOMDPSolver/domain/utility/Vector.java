@@ -3,10 +3,10 @@ package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class Vector<T> implements Iterable<T> {
+public class Vector<T> {
   private final List<T> values;
 
-  public static <U> Vector<U> of(U ...items) {
+  public static <U> Vector<U> of(U... items) {
     return of(List.of(items));
   }
 
@@ -35,6 +35,18 @@ public class Vector<T> implements Iterable<T> {
     return values.get(index);
   }
 
+  public Vector<T> replace(T originalValue, T value) {
+    var index = values.indexOf(originalValue);
+    return replace(index, value);
+  }
+
+  public Vector<T> replace(int index, T value) {
+    var newValues = new ArrayList<>(values);
+    newValues.remove(index);
+    newValues.add(index, value);
+    return Vector.of(newValues);
+  }
+
   public int size() {
     return values.size();
   }
@@ -45,11 +57,6 @@ public class Vector<T> implements Iterable<T> {
 
   public boolean contains(T o) {
     return values.contains(o);
-  }
-
-  @Override
-  public Iterator<T> iterator() {
-    return values.iterator();
   }
 
   public Stream<T> stream() {
