@@ -54,6 +54,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+    if (agentActions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     Map<Distribution<State>, Double> map = currentBeliefState.entrySet().stream()
       .map(entry -> {
         var state = entry.getKey();
@@ -70,6 +73,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+    if (agentActions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     return currentBeliefState.entrySet().stream()
       .map(entry -> {
         var state = entry.getKey();
@@ -82,10 +88,16 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getReward(State currentState, Vector<Action> agentActions) {
+    if (agentActions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     return rewardFunction.get(currentState).get(agentActions);
   }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
+    if (agentActions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
       .map(entry -> {
         var state = entry.getKey();
@@ -98,6 +110,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
+    if (agentActions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     return observationFunction.get(agentActions).get(nextState);
   }
 
@@ -112,6 +127,11 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
+    if (actions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    } else if (observations.size() != agentCount) {
+      throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
+    }
     var stateProbability = getTransition(state, actions).getProbability(newState);
     var observationProbability = getObservations(actions, newState).getProbability(observations);
     return stateProbability * observationProbability;

@@ -61,17 +61,28 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public Optional<Double> getOptionalValue(State state, Vector<Node> nodes) {
+    if (nodes.size() != agentCount) {
+      throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
+    }
     var preCalculatedValuesForState = preCalculatedValueFunction.getOrDefault(state, Map.of());
     var value = preCalculatedValuesForState.get(nodes);
     return Optional.ofNullable(value);
   }
 
   public void setValue(State state, Vector<Node> nodes, double value) {
+    if (nodes.size() != agentCount) {
+      throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
+    }
     preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>());
     preCalculatedValueFunction.get(state).put(nodes, value);
   }
 
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
+    if (nodes.size() != agentCount) {
+      throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
+    } else if (actions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
     var probability = 1D;
     for (int i = 0; i < actions.size(); i++) {
       var agent = agents.get(i);
@@ -83,6 +94,15 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
+    if (nodes.size() != agentCount) {
+      throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
+    } else if (actions.size() != agentCount) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    } else if (observations.size() != agentCount) {
+      throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
+    } else if (newNodes.size() != agentCount) {
+      throw new IllegalArgumentException("Length of newNodes vector doesn't match agent count.");
+    }
     var probability = 1D;
     for (int i = 0; i < nodes.size() && probability != 0; i++) {
       var agent = agents.get(i);
