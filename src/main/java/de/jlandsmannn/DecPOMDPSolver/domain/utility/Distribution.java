@@ -27,13 +27,16 @@ public class Distribution<T> implements Iterable<T> {
   }
 
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries) {
+    return createRandomDistribution(entries, new Random());
+  }
+
+  public static <T> Distribution<T> createRandomDistribution(Collection<T> entries, Random random) {
     if (entries.size() == 1) {
       return Distribution.createSingleEntryDistribution(entries.stream().findFirst().get());
     } else if (entries.isEmpty()) {
       throw new IllegalArgumentException("Collection must not be empty");
     }
     try {
-      var random = new Random();
       var distribution = new HashMap<T, Double>();
       var total = 0.0;
       for (T entry : entries) {

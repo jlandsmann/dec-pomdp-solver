@@ -20,6 +20,7 @@ import java.util.*;
 public class BeliefPointGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(BeliefPointGenerator.class);
 
+  private final Random random;
   private final int maxGenerationRuns;
   private final double beliefPointDistanceThreshold;
   private DecPOMDPWithStateController decPOMDP;
@@ -29,8 +30,12 @@ public class BeliefPointGenerator {
 
   @Autowired
   BeliefPointGenerator(HeuristicPolicyIterationConfig config) {
-    maxGenerationRuns = config.maxBeliefPointGenerationRuns();
+    random = new Random();
+    maxGenerationRuns = config.beliefPointGenerationMaxRuns();
     beliefPointDistanceThreshold = config.beliefPointDistanceThreshold();
+    if (config.beliefPointGenerationSeed() != 0) {
+      random.setSeed(config.beliefPointGenerationSeed());
+    }
   }
 
   public BeliefPointGenerator setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
@@ -58,7 +63,6 @@ public class BeliefPointGenerator {
   }
 
   public Set<Distribution<State>> generateBeliefPoints() {
-    // TODO: add seed for better comparison
     assertAllDependenciesAreSet();
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
     generatedBeliefPoints.add(currentBeliefState);
@@ -101,7 +105,7 @@ public class BeliefPointGenerator {
   protected void randomizePoliciesAndBeliefState() {
     LOG.info("Generating further belief points to increase diversity.");
     policies = generateRandomPolicies();
-    currentBeliefState = Distribution.createRandomDistribution(decPOMDP.getStates());
+    currentBeliefState = Distribution.createRandomDistribution(decPOMDP.getStates(), random);
   }
 
   protected Map<Agent, Map<State, Distribution<Action>>> generateRandomPolicies() {
@@ -119,7 +123,7 @@ public class BeliefPointGenerator {
     LOG.info("Generating random policies for {}", agent);
     Map<State, Distribution<Action>> policy = new HashMap<>();
     for (var state : decPOMDP.getStates()) {
-      var distribution = Distribution.createRandomDistribution(agent.getActions());
+      var distribution = Distribution.createRandomDistribution(agent.getActions(), random);
       policy.put(state, distribution);
     }
     return policy;
