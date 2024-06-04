@@ -133,9 +133,9 @@ class OJACombinatorialNodePruningTransformerTest {
     @Test
     void getLinearProgramForNode_ShouldCreateVariablesForEpsilonAndOtherNodes() {
       var lp = transformer.getLinearProgramForNode(node);
-      var expected = 1 + (agent.getControllerNodes().size() - 1);
+      var expected = 2 + agent.getInitialControllerNodes().size();
       var actual = lp.countVariables();
-      assertTrue(expected <= actual);
+      assertEquals(expected, actual);
     }
 
     @Test
@@ -145,11 +145,11 @@ class OJACombinatorialNodePruningTransformerTest {
     }
 
     @Test
-    void getLinearProgramForNode_ShouldCreateExpressionsForBeliefPOintsAndNodeCombinations() {
+    void getLinearProgramForNode_ShouldCreateExpressionsForBeliefPointsAndNodeCombinations() {
       var lp = transformer.getLinearProgramForNode(node);
       var otherAgentsNodeCombinationCount = decPOMDP.getAgents().stream()
         .filter(a -> !a.equals(agent))
-        .map(AgentWithStateController::getControllerNodes)
+        .map(AgentWithStateController::getInitialControllerNodes)
         .map(Collection::size)
         .reduce(Integer::sum)
         .orElse(0);

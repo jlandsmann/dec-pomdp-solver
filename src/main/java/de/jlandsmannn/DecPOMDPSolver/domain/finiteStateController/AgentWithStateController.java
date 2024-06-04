@@ -13,7 +13,7 @@ import java.util.Set;
 public class AgentWithStateController extends Agent {
 
   protected final FiniteStateController controller;
-  protected Set<Node> initialControllerNodes;
+  protected Set<Node> initialControllerNodes = Set.of();
 
   public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);

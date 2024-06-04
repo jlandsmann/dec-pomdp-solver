@@ -18,6 +18,7 @@ public class DecPomdpSolverApplication {
     LOG.info("STARTING THE APPLICATION");
     var application = new SpringApplication(DecPomdpSolverApplication.class);
     application.setBannerMode(Banner.Mode.OFF);
+    application.setLazyInitialization(true);
     application.run(args);
     LOG.info("STOPPING THE APPLICATION");
   }
