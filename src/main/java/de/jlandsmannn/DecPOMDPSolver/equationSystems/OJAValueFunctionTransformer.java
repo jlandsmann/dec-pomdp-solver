@@ -11,6 +11,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.structure.Structure2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -63,21 +64,15 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
       stateCount * nodeCombinationCount
     );
 
-    AtomicLong row = new AtomicLong(0);
-    AtomicLong col = new AtomicLong(0);
-    for (var state : decPOMDP.getStates()) {
-      for (var nodeVector : nodeCombinations) {
-        col.set(0);
-        for (var newState : decPOMDP.getStates()) {
-          for (var newNodeVector : nodeCombinations) {
-            var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
-            matrixBuilder.set(row.get(), col.get(), coefficient);
-            col.getAndAdd(1);
-          }
+    AtomicLong row = new AtomicLong(0L);
+    decPOMDP.getStates().stream().parallel().forEach(state -> {
+      nodeCombinations.stream().parallel().forEach(nodeVector -> {
+        calculateMatrixRow(matrixBuilder, state, nodeVector, row.getAndIncrement());
+        if (row.get() % 100 == 0) {
+          LOG.info("Calculated {} / {} rows for transition matrix", row.get(), getNumberOfEquations());
         }
-        row.getAndAdd(1);
-      }
-    }
+      });
+    });
     return matrixBuilder.get();
   }
 
@@ -104,9 +99,20 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     AtomicLong index = new AtomicLong();
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : nodeCombinations) {
-        var value = values.get(index.getAndAdd(1), 0);
+        var value = values.get(index.getAndIncrement(), 0);
         LOG.debug("Value for state {} and node vector {} is {}", state, nodeVector, value);
         decPOMDP.setValue(state, nodeVector, value);
+      }
+    }
+  }
+
+  private void calculateMatrixRow(Primitive64Store matrixBuilder, State state, Vector<Node> nodeVector, long row) {
+    AtomicLong col = new AtomicLong(0);
+    for (var newState : decPOMDP.getStates()) {
+      for (var newNodeVector : nodeCombinations) {
+        var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
+        matrixBuilder.set(row, col.get(), coefficient);
+        col.getAndIncrement();
       }
     }
   }
