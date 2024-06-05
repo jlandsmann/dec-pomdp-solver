@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BeliefPointGenerator {
@@ -58,7 +59,7 @@ public class BeliefPointGenerator {
   }
 
   public BeliefPointGenerator setPolicies() {
-    policies = generateRandomPolicies();
+    policies = generateUniformPolicies();
     return this;
   }
 
@@ -111,22 +112,49 @@ public class BeliefPointGenerator {
   protected Map<Agent, Map<State, Distribution<Action>>> generateRandomPolicies() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate random policies.");
     LOG.info("Generating random policies for {} agents", decPOMDP.getAgents().size());
-    Map<Agent, Map<State, Distribution<Action>>> randomPolicies = new HashMap<>();
-    for (var agent : decPOMDP.getAgents()) {
-      var policy = generateRandomPolicy(agent);
-      randomPolicies.put(agent, policy);
-    }
-    return randomPolicies;
+
+    return decPOMDP.getAgents()
+      .stream()
+      .map(agent -> {
+        var policy = generateRandomPolicy(agent);
+        return Map.entry(agent, policy);
+      })
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private Map<State, Distribution<Action>> generateRandomPolicy(AgentWithStateController agent) {
     LOG.info("Generating random policies for {}", agent);
-    Map<State, Distribution<Action>> policy = new HashMap<>();
-    for (var state : decPOMDP.getStates()) {
-      var distribution = Distribution.createRandomDistribution(agent.getActions(), random);
-      policy.put(state, distribution);
-    }
-    return policy;
+    return decPOMDP.getStates()
+      .stream()
+      .map(state -> {
+        var distribution = Distribution.createRandomDistribution(agent.getActions(), random);
+        return Map.entry(state, distribution);
+      })
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  protected Map<Agent, Map<State, Distribution<Action>>> generateUniformPolicies() {
+    if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate uniform policies.");
+    LOG.info("Generating uniform policies for {} agents", decPOMDP.getAgents().size());
+
+    return decPOMDP.getAgents()
+      .stream()
+      .map(agent -> {
+        var policy = generateUniformPolicy(agent);
+        return Map.entry(agent, policy);
+      })
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  private Map<State, Distribution<Action>> generateUniformPolicy(AgentWithStateController agent) {
+    LOG.info("Generating uniform policies for {}", agent);
+    return decPOMDP.getStates()
+      .stream()
+      .map(state -> {
+        var distribution = Distribution.createUniformDistribution(agent.getActions());
+        return Map.entry(state, distribution);
+      })
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   protected Distribution<State> getFollowUpBeliefStateForAgent(AgentWithStateController agent, Distribution<State> beliefState) {
@@ -166,7 +194,7 @@ public class BeliefPointGenerator {
 
         for (var observationVector : observationCombinations) {
           var observationVectorProbability = getObservationProbability(actionVector, followState, observationVector);
-          probability += stateProbability * actionVectorProbability *  transitionProbability * observationVectorProbability;
+          probability += stateProbability * actionVectorProbability * transitionProbability * observationVectorProbability;
         }
       }
     }
