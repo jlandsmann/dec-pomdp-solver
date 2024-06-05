@@ -3,7 +3,6 @@ package de.jlandsmannn.DecPOMDPSolver.cmd;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
@@ -12,17 +11,15 @@ import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSol
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.shell.command.CommandRegistration.*;
+import static org.springframework.shell.command.CommandRegistration.OptionArity;
 
 @Command(command = "heuristic", group = "Heuristic Policy Iteration", alias = "h")
 @Component
