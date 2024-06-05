@@ -12,7 +12,7 @@ import java.util.*;
 public class CommonParser {
 
   public static Map<State, Double> parseStatesAndTheirDistributions(List<State> states, String rawStateProbabilities) {
-    var stateProbabilities = rawStateProbabilities.split(" ");
+    var stateProbabilities = rawStateProbabilities.trim().split(" ");
     if (stateProbabilities.length > states.size()) {
       throw new ParsingFailedException("Distribution of states consists of more states than defined.");
     } else if (stateProbabilities.length < states.size()) {
@@ -28,9 +28,26 @@ public class CommonParser {
     return rawDistribution;
   }
 
+  public static Map<Action, Double> parseActionsAndTheirDistributions(List<Action> actions, String rawActionProbabilities) {
+    var actionProbabilities = rawActionProbabilities.trim().split("[,|; ]");
+    if (actionProbabilities.length > actions.size()) {
+      throw new ParsingFailedException("Distribution of actions consists of more actions than defined.");
+    } else if (actionProbabilities.length < actions.size()) {
+      throw new ParsingFailedException("Distribution of actions consists of less actions than defined.");
+    }
+    var rawDistribution = new HashMap<Action, Double>();
+    for (int i = 0; i < actionProbabilities.length; i++) {
+      var action = actions.get(i);
+      var probability = parseDoubleOrThrow(actionProbabilities[i]);
+      if (probability < 0) throw new ParsingFailedException("Probability at index " + i + " is negative.");
+      rawDistribution.put(action, probability);
+    }
+    return rawDistribution;
+  }
+
   public static Map<Vector<Observation>, Double> parseObservationVectorsAndTheirDistributions(List<List<Observation>> agentObservations, String rawProbabilities) {
     var observationCombinations = VectorCombinationBuilder.listOf(agentObservations);
-    var probabilities = rawProbabilities.split(" ");
+    var probabilities = rawProbabilities.trim().split(" ");
     if (probabilities.length > observationCombinations.size()) {
       throw new ParsingFailedException("Distribution of observation vectors consists of more vectors than defined.");
     } else if (probabilities.length < observationCombinations.size()) {
@@ -50,7 +67,7 @@ public class CommonParser {
     if (rawActionVector.equals("*")) {
       return VectorCombinationBuilder.listOf(agentActions);
     }
-    var rawActions = rawActionVector.split(" ");
+    var rawActions = rawActionVector.trim().split(" ");
     if (rawActions.length > agentActions.size()) {
       throw new ParsingFailedException("Action vector consists of more actions than agents defined.");
     } else if (rawActions.length < agentActions.size()) {
@@ -70,7 +87,7 @@ public class CommonParser {
     if (rawObservationVector.equals("*")) {
       return VectorCombinationBuilder.listOf(agentObservations);
     }
-    var rawObservations = rawObservationVector.split(" ");
+    var rawObservations = rawObservationVector.trim().split(" ");
     if (rawObservations.length > agentObservations.size()) {
       throw new ParsingFailedException("Observation vector consists of more observations than agents defined.");
     } else if (rawObservations.length < agentObservations.size()) {

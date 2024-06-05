@@ -1,13 +1,28 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.shell.command.CommandRegistration.*;
 
 @Command(command = "heuristic", group = "Heuristic Policy Iteration", alias = "h")
 @Component
@@ -15,6 +30,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
   private static Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationAlgorithmCommand.class);
 
   private final HeuristicPolicyIterationSolver solver;
+  private DecPOMDPWithStateController decPOMDP;
   private boolean initialized = false;
   private boolean loaded = false;
 
@@ -81,11 +97,37 @@ public class HeuristicPolicyIterationAlgorithmCommand {
       LOG.info("Overwriting discountFactor to 0.9 because 1 is not supported for infinite horizon planning.");
       builder.setDiscountFactor(0.9);
     }
-    var decPOMDP = builder.createDecPOMDP();
+    decPOMDP = builder.createDecPOMDP();
     solver.setDecPOMDP(decPOMDP);
     loaded = true;
     LOG.info("Successfully loaded DecPOMDP from file {}.", filename);
     return "Successfully loaded DecPOMDP";
+  }
+
+  @Command(command = "initialPolicy", alias = "p", description = "Set initial policies for belief point generation.")
+  public String setInitialPolicies(
+    @Option(shortNames = 'a', required = true, arity = OptionArity.ONE_OR_MORE) String actionDistributions
+  ) {
+    LOG.info("Command 'initialPolicy' was called with actionDistributions={}.", actionDistributions);
+    var actionDistributionsPerAgent = actionDistributions.trim().split(",");
+
+    if (actionDistributionsPerAgent.length != decPOMDP.getAgents().size()) {
+      throw new IllegalArgumentException("Number of given initial policies does not match the number of agents.");
+    }
+
+    Map<Agent, Map<State, Distribution<Action>>> initialPolicies = new HashMap<>();
+    for (int i = 0; i < decPOMDP.getAgents().size(); i++) {
+      var agent = decPOMDP.getAgents().get(i);
+      var rawActionDistribution = CommonParser.parseActionsAndTheirDistributions(agent.getActions(), actionDistributionsPerAgent[i]);
+      var actionDistribution = Distribution.of(rawActionDistribution);
+      var stateActionDistributions = decPOMDP.getStates()
+        .stream()
+        .map(state -> Map.entry(state, actionDistribution))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      initialPolicies.put(agent, stateActionDistributions);
+    }
+    solver.setInitialPolicies(initialPolicies);
+    return "Successfully set initial policies";
   }
 
   @Command(command = "solve", alias = "s", description = "Solve the loaded problem instance.")
