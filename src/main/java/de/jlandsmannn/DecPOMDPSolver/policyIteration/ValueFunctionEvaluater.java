@@ -3,7 +3,6 @@ package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
-import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.exceptions.SolvingFailedException;
 
 public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRIX> {
 
@@ -37,7 +36,7 @@ public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRI
       .setMatrix(matrix)
       .setVector(vector)
       .solve()
-      .orElseThrow(SolvingFailedException::new)
+      .orElseThrow(() -> new IllegalStateException("Could not solve equation system to evaluate value function"))
     ;
     transformer.applyValuesToDecPOMDP(result);
   }

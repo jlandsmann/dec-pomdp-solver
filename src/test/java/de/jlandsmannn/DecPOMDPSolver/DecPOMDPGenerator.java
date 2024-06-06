@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class DecPOMDPGenerator {
+
+  private static final State tigerLeft = State.from("tiger-left");
+  private static final State tigerRight = State.from("tiger-right");
+
   public static DecPOMDPWithStateController getDecTigerPOMDP() {
     var builder = new DecPOMDPBuilder();
     initializeStates(builder);
@@ -80,47 +84,47 @@ public class DecPOMDPGenerator {
   private static void initializeTransitions(DecPOMDPBuilder builder) {
     var uniformStateDistribution = Distribution.createUniformDistribution(State.setOf("tiger-left", "tiger-right"));
     builder
-      .addTransition("tiger-left", createActionVector("listen", "listen"), "tiger-left")
-      .addTransition("tiger-left", createActionVector("listen", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("listen", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-left", "listen"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-left", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-left", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-right", "listen"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-right", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-left", createActionVector("open-right", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("listen", "listen"), "tiger-right")
-      .addTransition("tiger-right", createActionVector("listen", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("listen", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-left", "listen"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-left", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-left", "open-right"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-right", "listen"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-right", "open-left"), uniformStateDistribution)
-      .addTransition("tiger-right", createActionVector("open-right", "open-right"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("listen", "listen"), tigerLeft)
+      .addTransition(tigerLeft, createActionVector("listen", "open-left"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("listen", "open-right"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-left", "listen"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-left", "open-left"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-left", "open-right"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-right", "listen"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-right", "open-left"), uniformStateDistribution)
+      .addTransition(tigerLeft, createActionVector("open-right", "open-right"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("listen", "listen"), tigerRight)
+      .addTransition(tigerRight, createActionVector("listen", "open-left"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("listen", "open-right"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-left", "listen"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-left", "open-left"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-left", "open-right"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-right", "listen"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-right", "open-left"), uniformStateDistribution)
+      .addTransition(tigerRight, createActionVector("open-right", "open-right"), uniformStateDistribution)
     ;
   }
 
   private static void initializeRewards(DecPOMDPBuilder builder) {
     builder
-      .addReward("tiger-left", createActionVector("listen", "listen"), -2D)
-      .addReward("tiger-left", createActionVector("listen", "open-left"), -101D)
-      .addReward("tiger-left", createActionVector( "listen", "open-right"), 9D)
-      .addReward("tiger-left", createActionVector("open-left", "listen"), -101D)
-      .addReward("tiger-left", createActionVector("open-left", "open-left"), -50D)
-      .addReward("tiger-left", createActionVector("open-left", "open-right"), -100D)
-      .addReward("tiger-left", createActionVector("open-right", "listen"), 9D)
-      .addReward("tiger-left", createActionVector("open-right", "open-left"), -100D)
-      .addReward("tiger-left", createActionVector("open-right", "open-right"), 20D)
-      .addReward("tiger-right", createActionVector("listen", "listen"), -2D)
-      .addReward("tiger-right", createActionVector("listen", "open-left"), 9D)
-      .addReward("tiger-right", createActionVector( "listen", "open-right"), -101D)
-      .addReward("tiger-right", createActionVector("open-left", "listen"), 9D)
-      .addReward("tiger-right", createActionVector("open-left", "open-left"), 20D)
-      .addReward("tiger-right", createActionVector("open-left", "open-right"), -100D)
-      .addReward("tiger-right", createActionVector("open-right", "listen"), -101D)
-      .addReward("tiger-right", createActionVector("open-right", "open-left"), -100D)
-      .addReward("tiger-right", createActionVector("open-right", "open-right"), -50D)
+      .addReward(tigerLeft, createActionVector("listen", "listen"), -2D)
+      .addReward(tigerLeft, createActionVector("listen", "open-left"), -101D)
+      .addReward(tigerLeft, createActionVector( "listen", "open-right"), 9D)
+      .addReward(tigerLeft, createActionVector("open-left", "listen"), -101D)
+      .addReward(tigerLeft, createActionVector("open-left", "open-left"), -50D)
+      .addReward(tigerLeft, createActionVector("open-left", "open-right"), -100D)
+      .addReward(tigerLeft, createActionVector("open-right", "listen"), 9D)
+      .addReward(tigerLeft, createActionVector("open-right", "open-left"), -100D)
+      .addReward(tigerLeft, createActionVector("open-right", "open-right"), 20D)
+      .addReward(tigerRight, createActionVector("listen", "listen"), -2D)
+      .addReward(tigerRight, createActionVector("listen", "open-left"), 9D)
+      .addReward(tigerRight, createActionVector( "listen", "open-right"), -101D)
+      .addReward(tigerRight, createActionVector("open-left", "listen"), 9D)
+      .addReward(tigerRight, createActionVector("open-left", "open-left"), 20D)
+      .addReward(tigerRight, createActionVector("open-left", "open-right"), -100D)
+      .addReward(tigerRight, createActionVector("open-right", "listen"), -101D)
+      .addReward(tigerRight, createActionVector("open-right", "open-left"), -100D)
+      .addReward(tigerRight, createActionVector("open-right", "open-right"), -50D)
     ;
 
   }
@@ -133,35 +137,35 @@ public class DecPOMDPGenerator {
       Vector.of(Observation.listOf("hear-right", "hear-right"))
     ));
     builder
-      .addObservation(createActionVector("listen", "listen"), "tiger-left", Distribution.of(Map.of(
+      .addObservation(createActionVector("listen", "listen"), tigerLeft, Distribution.of(Map.of(
         Vector.of(Observation.listOf("hear-left", "hear-left")), 0.7225,
         Vector.of(Observation.listOf("hear-right", "hear-left")), 0.1275,
         Vector.of(Observation.listOf("hear-left", "hear-right")), 0.1275,
         Vector.of(Observation.listOf("hear-right", "hear-right")), 0.0225
       )))
-      .addObservation(createActionVector("listen", "open-left"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("listen", "open-right"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "listen"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "open-left"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "open-right"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "listen"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "open-left"), "tiger-left", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "open-right"), "tiger-left", uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-left"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-right"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "listen"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-left"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-right"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "listen"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-left"), tigerLeft, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-right"), tigerLeft, uniformObservationDistribution)
 
-      .addObservation(createActionVector("listen", "listen"), "tiger-right", Distribution.of(Map.of(
+      .addObservation(createActionVector("listen", "listen"), tigerRight, Distribution.of(Map.of(
         Vector.of(Observation.listOf("hear-right", "hear-right")), 0.7225,
         Vector.of(Observation.listOf("hear-right", "hear-left")), 0.1275,
         Vector.of(Observation.listOf("hear-left", "hear-right")), 0.1275,
         Vector.of(Observation.listOf("hear-left", "hear-left")), 0.0225
       )))
-      .addObservation(createActionVector("listen", "open-left"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("listen", "open-right"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "listen"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "open-left"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-left", "open-right"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "listen"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "open-left"), "tiger-right", uniformObservationDistribution)
-      .addObservation(createActionVector("open-right", "open-right"), "tiger-right", uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-left"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("listen", "open-right"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "listen"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-left"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-left", "open-right"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "listen"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-left"), tigerRight, uniformObservationDistribution)
+      .addObservation(createActionVector("open-right", "open-right"), tigerRight, uniformObservationDistribution)
     ;
   }
 

@@ -51,17 +51,4 @@ public class AgentWithStateController extends Agent {
   public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
     controller.pruneNode(nodeToPrune, nodesToReplaceWith);
   }
-
-  public void pruneNode(Node nodeToPrune, Node nodeToReplaceWith) {
-    controller.pruneNode(nodeToPrune, nodeToReplaceWith);
-  }
-
-  public Set<Node> getInitialControllerNodes() {
-    return initialControllerNodes;
-  }
-
-  public void setInitialControllerNodes(Set<Node> initialNodes) {
-    initialNodes.retainAll(getControllerNodes());
-    this.initialControllerNodes = initialNodes;
-  }
 }

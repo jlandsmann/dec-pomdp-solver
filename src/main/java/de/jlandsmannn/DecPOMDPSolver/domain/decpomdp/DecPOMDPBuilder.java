@@ -50,13 +50,8 @@ public class DecPOMDPBuilder {
     return this;
   }
 
-  public DecPOMDPBuilder addTransition(String stateString, Vector<Action> actions, String targetState) {
-    var beliefState = Distribution.createSingleEntryDistribution(new State(targetState));
-    return addTransition(stateString, actions, beliefState);
-  }
-
-  public DecPOMDPBuilder addTransition(String stateString, Vector<Action> actions, Distribution<State> beliefState) {
-    var state = new State(stateString);
+  public DecPOMDPBuilder addTransition(State state, Vector<Action> actions, State targetState) {
+    var beliefState = Distribution.createSingleEntryDistribution(targetState);
     return addTransition(state, actions, beliefState);
   }
 
@@ -66,20 +61,10 @@ public class DecPOMDPBuilder {
     return this;
   }
 
-  public DecPOMDPBuilder addReward(String stateString, Vector<Action> actions, Double reward) {
-    var state = new State(stateString);
-    return addReward(state, actions, reward);
-  }
-
   public DecPOMDPBuilder addReward(State state, Vector<Action> actions, Double reward) {
     this.rewardFunction.putIfAbsent(state, new HashMap<>());
     this.rewardFunction.get(state).put(actions, reward);
     return this;
-  }
-
-  public DecPOMDPBuilder addObservation(Vector<Action> actions, String targetStateString, Distribution<Vector<Observation>> observations) {
-    State targetState = new State(targetStateString);
-    return addObservation(actions, targetState, observations);
   }
 
   public DecPOMDPBuilder addObservation(Vector<Action> actions, State targetState, Distribution<Vector<Observation>> observations) {

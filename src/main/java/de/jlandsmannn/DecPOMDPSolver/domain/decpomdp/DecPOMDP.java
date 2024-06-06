@@ -12,8 +12,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class DecPOMDP<AGENT extends Agent> {
-  protected final int agentCount;
-  protected final int stateCount;
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;
@@ -26,9 +24,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
                   Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                   Map<State, Map<Vector<Action>, Double>> rewardFunction,
                   Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
-    this.agentCount = agents.size();
     this.agents = agents;
-    this.stateCount = states.size();
     this.states = states;
     this.discountFactor = discountFactor;
     this.initialBeliefState = initialBeliefState;
@@ -54,7 +50,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
-    if (agentActions.size() != agentCount) {
+    if (agentActions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     Map<Distribution<State>, Double> map = currentBeliefState.entrySet().stream()
@@ -73,7 +69,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
-    if (agentActions.size() != agentCount) {
+    if (agentActions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return currentBeliefState.entrySet().stream()
@@ -88,14 +84,14 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getReward(State currentState, Vector<Action> agentActions) {
-    if (agentActions.size() != agentCount) {
+    if (agentActions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return rewardFunction.get(currentState).get(agentActions);
   }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
-    if (agentActions.size() != agentCount) {
+    if (agentActions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
@@ -110,7 +106,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
-    if (agentActions.size() != agentCount) {
+    if (agentActions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return observationFunction.get(agentActions).get(nextState);
@@ -127,9 +123,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public double getTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
-    if (actions.size() != agentCount) {
+    if (actions.size() != agents.size()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    } else if (observations.size() != agentCount) {
+    } else if (observations.size() != agents.size()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
     }
     var stateProbability = getTransition(state, actions).getProbability(newState);
@@ -167,13 +163,13 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   protected void validateTransitionFunction() {
-    if (transitionFunction.size() != stateCount) {
+    if (transitionFunction.size() != states.size()) {
       throw new IllegalArgumentException("Transition function does not match state count");
     }
     for (var state : transitionFunction.keySet()) {
       var innerMap = transitionFunction.get(state);
       for (var actionVector : innerMap.keySet()) {
-        if (actionVector.size() != agentCount) {
+        if (actionVector.size() != agents.size()) {
           throw new IllegalArgumentException("Some action vector of transition function does not match agent count.");
         }
       }
@@ -184,7 +180,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     for (var state : rewardFunction.keySet()) {
       var innerMap = rewardFunction.get(state);
       for (var actionVector : innerMap.keySet()) {
-        if (actionVector.size() != agentCount) {
+        if (actionVector.size() != agents.size()) {
           throw new IllegalArgumentException("Some action vector of reward function does not match agent count.");
         }
       }
@@ -193,15 +189,15 @@ public abstract class DecPOMDP<AGENT extends Agent> {
 
   protected void validateObservationFunction() {
     for (var actionVector : observationFunction.keySet()) {
-      if (actionVector.size() != agentCount) {
+      if (actionVector.size() != agents.size()) {
         throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
-      } else if (observationFunction.get(actionVector).size() != stateCount) {
+      } else if (observationFunction.get(actionVector).size() != states.size()) {
         throw new IllegalArgumentException("For some action vector of observation function not every state is matched." + "Action vector: " + actionVector);
       }
       var innerMap = observationFunction.get(actionVector);
       for (var state : innerMap.keySet()) {
         for (var vector : innerMap.get(state)) {
-          if (vector.size() != agentCount) {
+          if (vector.size() != agents.size()) {
             throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
           }
         }

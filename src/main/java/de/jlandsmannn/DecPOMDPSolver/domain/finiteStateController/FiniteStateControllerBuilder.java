@@ -36,10 +36,6 @@ public class FiniteStateControllerBuilder {
     return builder.createFiniteStateController();
   }
 
-  public FiniteStateControllerBuilder addNode(String nodeString) {
-    return addNode(new Node(nodeString));
-  }
-
   public FiniteStateControllerBuilder addNode(Node node) {
     this.nodes.remove(node);
     this.nodes.add(node);
@@ -51,44 +47,9 @@ public class FiniteStateControllerBuilder {
     this.nodes.addAll(nodes);
     return this;
   }
-
-  public FiniteStateControllerBuilder addActionSelection(String nodeString, Distribution<String> actionStringDistribution) {
-    var node = new Node(nodeString);
-    var distributionMap = new HashMap<Action, Double>();
-    for (var actionString : actionStringDistribution.keySet()) {
-      var action = new Action(actionString);
-      distributionMap.putIfAbsent(action, actionStringDistribution.getProbability(actionString));
-    }
-    try {
-      Distribution<Action> actions = Distribution.of(distributionMap);
-      return addActionSelection(node, actions);
-    } catch (DistributionEmptyException | DistributionSumNotOneException e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
   public FiniteStateControllerBuilder addActionSelection(Node node, Distribution<Action> actions) {
     this.actionFunction.put(node, actions);
     return this;
-  }
-
-  public FiniteStateControllerBuilder addTransition(String nodeString, String actionString, String observationString, Distribution<String> nextNodeStringDistribution) {
-    var node = new Node(nodeString);
-    var action = new Action(actionString);
-    var observation = new Observation(observationString);
-    var distributionMap = new HashMap<Node, Double>();
-    for (var nextNodeString : nextNodeStringDistribution.keySet()) {
-      var nextNode = new Node(nextNodeString);
-      var probability = nextNodeStringDistribution.getProbability(nextNodeString);
-      distributionMap.putIfAbsent(nextNode, probability);
-    }
-    Distribution<Node> nextNodeDistribution;
-    try {
-      nextNodeDistribution = Distribution.of(distributionMap);
-    } catch (DistributionEmptyException | DistributionSumNotOneException e) {
-      throw new IllegalStateException(e);
-    }
-    return addTransition(node, action, observation, nextNodeDistribution);
   }
 
   public FiniteStateControllerBuilder addTransition(Node node, Action action, Observation observation, Distribution<Node> nextNodeDistribution) {

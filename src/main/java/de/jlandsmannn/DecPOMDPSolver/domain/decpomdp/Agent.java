@@ -6,7 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class Agent {
+public class Agent {
   protected final String name;
   protected final List<Action> actions;
   protected final List<Observation> observations;

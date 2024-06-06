@@ -4,7 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.slf4j.Logger;
@@ -71,7 +70,7 @@ public class ExhaustiveBackupPerformer {
       .forEach(state -> {
         nodeCombinations.stream()
           .parallel()
-          .filter(nodeVector -> decPOMDP.getOptionalValue(state, nodeVector).isEmpty())
+          .filter(nodeVector -> !decPOMDP.hasValue(state, nodeVector))
           .forEach(nodeVector -> {
             var value = calculateValue(state, nodeVector);
             decPOMDP.setValue(state, nodeVector, value);
