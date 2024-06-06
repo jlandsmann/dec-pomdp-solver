@@ -9,6 +9,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This class is used to build an agent.
+ * It ensures an agent has unique actions and observations
+ * and creates needed objects, like an arbitrary finite state controller.
+ */
 public class AgentBuilder {
   private String name;
   private List<Action> actions;

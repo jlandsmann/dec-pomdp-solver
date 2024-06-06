@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This is a simple string-wrapping class
+ * to represent a state of a {@link de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP}
+ */
 public record State(String name) {
 
   public static State from(String name) {

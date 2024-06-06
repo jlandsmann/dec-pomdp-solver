@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This is a simple string-wrapping class
+ * to represent an observation of an {@link de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent}
+ */
 public record Observation(String name) {
 
   public static Observation from(String name) {

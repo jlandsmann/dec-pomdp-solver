@@ -6,6 +6,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A correlation device is used to shrink the size of agent's controllers,
+ * by exploiting the effects of correlation.
+ * It is a special kind of finite state controller
+ * but has neither an action selection nor observation function.
+ */
 public class CorrelationDevice {
   protected final Set<Node> nodes;
   protected final Map<Node, Distribution<Node>> transitionFunction;

@@ -11,6 +11,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * This is the abstract base class representing a DecPOMDP.
+ * It needs to be abstract because the determination of the value,
+ * given a specific belief state, depends on the policy of the agent.
+ * Similar to the base agent class, this class defines all common properties of a DecPOMDP,
+ * like the transition, reward and observation function, as well as the
+ * states, agents, discountFactor and the initial belief state.
+ * On creation, it validates all parameters on their consistency.
+ */
 public abstract class DecPOMDP<AGENT extends Agent> {
   protected final List<AGENT> agents;
   protected final List<State> states;

@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This is a simple string-wrapping class
+ * to represent an action of an {@link de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent}
+ */
 public record Action(String name) {
 
   public static Action from(String name) {

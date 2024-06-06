@@ -9,15 +9,41 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNo
 
 import java.util.*;
 
+/**
+ * This class can be used to build a {@link FiniteStateController} step by step.
+ * It does not business logic validation.
+ */
 public class FiniteStateControllerBuilder {
   private final List<Node> nodes = new ArrayList<>();
   private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
   private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
 
+  /**
+   * This function creates an arbitrary controller with a single node,
+   * with a uniform action distribution, where each observation
+   * leads back to the original node.
+   * It is a special case of {@link FiniteStateControllerBuilder#createArbitraryController(String, int, List, List)} with nodeCount = 1.
+   *
+   * @param name the name of the controller can be used to differentiate nodes of two controllers
+   * @param actions the actions to consider
+   * @param observations the observations to consider
+   * @return the created controller
+   */
   public static FiniteStateController createArbitraryController(String name, List<Action> actions, List<Observation> observations) {
     return createArbitraryController(name, 1, actions, observations);
   }
 
+  /**
+   * This function creates an arbitrary controller with a nodeCounts node,
+   * with a uniform action distribution, where each observation leads to the next node.
+   * Observations taken, after taking action in the last node, lead back to the first node.
+   *
+   * @param name the name of the controller can be used to differentiate nodes of two controllers
+   * @param nodeCount the number of nodes to create
+   * @param actions the actions to consider
+   * @param observations the observations to consider
+   * @return the created controller
+   */
   public static FiniteStateController createArbitraryController(String name, int nodeCount, List<Action> actions, List<Observation> observations) {
     var builder = new FiniteStateControllerBuilder();
     var actionDistribution = Distribution.createUniformDistribution(actions);

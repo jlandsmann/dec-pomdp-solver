@@ -6,6 +6,11 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * This class represents the agent of a markov decision process and its more general cases.
+ * This base version just handles the abilities of an agent,
+ * but has apart from that no further business logic.
+ */
 public class Agent {
   protected final String name;
   protected final List<Action> actions;

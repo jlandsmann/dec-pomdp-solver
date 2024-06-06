@@ -12,6 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * This class helps to create a DecPOMDP step by step.
+ * It does no business logic validation.
+ * This is done by the DecPOMDP itself on creation.
+ */
 public class DecPOMDPBuilder {
   private final Logger logger = LoggerFactory.getLogger(DecPOMDPBuilder.class);
   private final List<AgentWithStateController> agents = new ArrayList<>();

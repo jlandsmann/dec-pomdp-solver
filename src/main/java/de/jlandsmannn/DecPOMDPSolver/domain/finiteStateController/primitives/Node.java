@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This is a simple string-wrapping class
+ * to represent a node of a {@link de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateController}
+ */
 public record Node(String name) {
   public static Node from(String name) {
     return new Node(name);
