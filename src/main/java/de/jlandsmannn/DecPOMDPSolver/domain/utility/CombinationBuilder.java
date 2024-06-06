@@ -10,18 +10,41 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toCollection;
 
+/**
+ * This is class can be used to create a list or a stream
+ * of all possible combinations based on a list of list.
+ * "All possible combinations" means here that each element of each list
+ * will be combined with each other element of the other lists once.
+ *
+ * @param <C> the data type of the combination
+ * @param <T> the data type of the items within the combinations
+ */
 public abstract class CombinationBuilder<C, T> {
 
-  protected List<C> getListForEachCombination(List<? extends List<T>> pPossibleValues) {
-    return getStreamForEachCombination(pPossibleValues).toList();
+  /**
+   * This method creates a list of all combinations from the given list of lists.
+   * @param possibleValues a list of lists of items
+   * @return a list with all combinations
+   */
+  protected List<C> getListForEachCombination(List<? extends List<T>> possibleValues) {
+    return getStreamForEachCombination(possibleValues).toList();
   }
 
-  protected Set<C> getSetForEachCombination(List<? extends List<T>> pPossibleValues) {
-    return getStreamForEachCombination(pPossibleValues).collect(Collectors.toSet());
+  /**
+   * This method creates a set of all combinations from the given list of lists.
+   * @param possibleValues a list of lists of items
+   * @return a set with all combinations
+   */
+  protected Set<C> getSetForEachCombination(List<? extends List<T>> possibleValues) {
+    return getStreamForEachCombination(possibleValues).collect(Collectors.toSet());
   }
 
-  protected Stream<C> getStreamForEachCombination(List<? extends List<T>> pPossibleValues) {
-    List<List<T>> possibleValues = pPossibleValues.stream().map(ArrayList::new).collect(toCollection(ArrayList::new));
+  /**
+   * This method creates a stream of all combinations from the given list of lists.
+   * @param possibleValues a list of lists of items
+   * @return a stream with all combinations
+   */
+  protected Stream<C> getStreamForEachCombination(List<? extends List<T>> possibleValues) {
     if (possibleValues.isEmpty()) return Stream.empty();
     long numberOfCombinations = possibleValues.stream()
       .map(Collection::size)
@@ -44,7 +67,15 @@ public abstract class CombinationBuilder<C, T> {
       .limit(numberOfCombinations);
   }
 
-  protected C iterate(List<List<T>> possibleValues, List<Long> takeNthElement, long idx) {
+  /**
+   * This method creates a specific combination based on the given index.
+   *
+   * @param possibleValues a list of lists of items
+   * @param takeNthElement a list of combinations to skip before heading to the next element of the regarding list
+   * @param idx the idx identifying which combination should be calculated
+   * @return the combination for the given index
+   */
+  protected C iterate(List<? extends List<T>> possibleValues, List<Long> takeNthElement, long idx) {
     var list = new ArrayList<T>();
     for (int i = 0; i < possibleValues.size(); i++) {
       var collection = possibleValues.get(i);
@@ -55,5 +86,11 @@ public abstract class CombinationBuilder<C, T> {
     return transformListToCombination(list);
   }
 
+  /**
+   * This abstract method transforms a list of elements to the intended combination data type.
+   *
+   * @param combinationAsList the combination as a list
+   * @return the combination as the specified data type
+   */
   protected abstract C transformListToCombination(List<T> combinationAsList);
 }

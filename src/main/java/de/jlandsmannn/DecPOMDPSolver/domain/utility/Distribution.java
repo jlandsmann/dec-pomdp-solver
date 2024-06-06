@@ -7,13 +7,21 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * A (probability) distribution is a rich-feature map,
+ * where each element has a probability given.
+ * The sum of probabilities in this distribution has to be equals 1.
+ *
+ * @param <T> the data type of the elements
+ */
 public class Distribution<T> implements Iterable<T> {
   private static final double ROUNDING_ERROR_THRESHOLD = 1e-6;
   private final Map<T, Double> distribution;
   private final T currentMax;
 
   /**
-   * This constructor can be used to create a distribution with probabilities based on distribution
+   * This constructor can be used to create a distribution with probabilities based on
+   * a map where the keys are the element and the values are their probabilities.
    *
    * @param distribution A non-empty map of distributions, where the values must sum up to 1
    * @throws DistributionEmptyException     is thrown if distribution is empty
@@ -21,15 +29,31 @@ public class Distribution<T> implements Iterable<T> {
    */
   protected Distribution(Map<T, Double> distribution) {
     this.distribution = new ConcurrentHashMap<>(distribution);
-    removeObsoleteKeys();
+    removeObsoleteElements();
     validateDistribution();
     this.currentMax = calculateMax();
   }
 
+  /**
+   * This method creates a random distribution with all elements from the given collection.
+   *
+   * @param entries the elements to include in the distribution
+   * @return a distribution with (pseudo) random probabilities
+   * @param <T> the data type of the elements
+   */
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries) {
     return createRandomDistribution(entries, new Random());
   }
 
+  /**
+   * This method creates a random distribution with all elements from the given collection.
+   * The required generation of random numbers is done by the given random object.
+   *
+   * @param entries the elements to include in the distribution
+   * @param random the random object used to generate probabilities
+   * @return a distribution with (pseudo) random probabilities
+   * @param <T> the data type of the elements
+   */
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries, Random random) {
     if (entries.size() == 1) {
       return Distribution.createSingleEntryDistribution(entries.stream().findFirst().get());
@@ -55,6 +79,13 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
+  /**
+   * This method creates a uniform distribution with all elements from the given collection.
+   *
+   * @param entries the elements to include in the distribution
+   * @return a distribution with equal probabilities
+   * @param <T> the data type of the elements
+   */
   public static <T> Distribution<T> createUniformDistribution(Collection<T> entries) {
     var entriesAsSet = Set.copyOf(entries);
     try {
@@ -67,6 +98,13 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
+  /**
+   * This method creates a distribution with a single entry, which has a probability of 1.
+   *
+   * @param entry the element to include in the distribution
+   * @return a distribution with a single entry
+   * @param <T> the data type of the element
+   */
   public static <T> Distribution<T> createSingleEntryDistribution(T entry) {
     try {
       return new Distribution<>(Map.of(entry, 1D));
@@ -75,6 +113,14 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
+  /**
+   * This method creates a distribution which combines multiple distributions,
+   * weighted by the given probability inside the map.
+   *
+   * @param distributionOfDistributions the distributions and their weights
+   * @return a distribution with all entries of all distributions
+   * @param <T> the data type of the elements
+   */
   public static <T> Distribution<T> createWeightedDistribution(Map<Distribution<T>, Double> distributionOfDistributions) {
     Map<T, Double> probabilities = new HashMap<>();
     for (var distribution : distributionOfDistributions.keySet()) {
@@ -96,30 +142,72 @@ public class Distribution<T> implements Iterable<T> {
     }
   }
 
+  /**
+   * This method creates a distribution with probabilities based on
+   * a map where the keys are the element and the values are their probabilities.
+   *
+   * @param distribution A non-empty map of distributions, where the values must sum up to 1
+   * @throws DistributionEmptyException     is thrown if distribution is empty
+   * @throws DistributionSumNotOneException is thrown if the sum of values in distribution is not one
+   */
   public static <T> Distribution<T> of(Map<T, Double> distribution) {
     return new Distribution<>(distribution);
   }
 
+  /**
+   * This method returns the number of elements
+   * that have probability which is larger than 0.
+   *
+   * @return the number of elements with non-zero probability
+   */
   public int size() {
     return distribution.size();
   }
 
+  /**
+   * This method returns one of the elements
+   * with the highest probability.
+   *
+   * @return the element with the highest probability
+   */
   public T getMax() {
     return currentMax;
   }
 
+  /**
+   * This method returns a set containing all elements
+   * that have probability which is larger than 0.
+   * @return all elements with non-zero probability
+   */
   public Set<T> keySet() {
     return distribution.keySet();
   }
 
+  /**
+   * This method returns a set containing all entries
+   * where the key is the element, and the value is the probability
+   * that have probability which is larger than 0.
+   * @return all entries with non-zero probability
+   */
   public Set<Map.Entry<T, Double>> entrySet() {
     return distribution.entrySet();
   }
 
+  /**
+   * Returns the probability of the given item.
+   * If the item is not part of the distribution, 0 is returned.
+   * @param item the item to check for
+   * @return the probability of the item
+   */
   public Double getProbability(T item) {
     return distribution.getOrDefault(item, 0D);
   }
 
+  /**
+   * Selects an element (pseudo) randomly
+   * weighted by their probabilities.
+   * @return a random element from the distribution
+   */
   public T getRandom() {
     var rand = Math.random();
     for (var entry : this.distribution.entrySet()) {
@@ -129,19 +217,17 @@ public class Distribution<T> implements Iterable<T> {
     throw new IllegalStateException();
   }
 
-  public void removeEntry(T nodeToPrune) throws DistributionEmptyException {
-    if (!distribution.containsKey(nodeToPrune)) return;
-    distribution.remove(nodeToPrune);
-    validateDistribution();
-    calculateMax();
-  }
-
-  public void replaceEntryWithDistribution(T item, Distribution<T> replacement) {
-    var probabilityOfItemToReplace = getProbability(item);
+  /**
+   * Removes an element from the distribution and replaces its probability with given distribution.
+   * @param element the element to replace
+   * @param replacement the distribution to weight the elements to replace the element with
+   */
+  public void replaceEntryWithDistribution(T element, Distribution<T> replacement) {
+    var probabilityOfItemToReplace = getProbability(element);
     if (probabilityOfItemToReplace <= 0) return;
-    if (replacement.getProbability(item) > 0)
-      throw new IllegalStateException("Replacement distribution cant contain item to replace.");
-    distribution.remove(item);
+    if (replacement.getProbability(element) > 0)
+      throw new IllegalStateException("Replacement distribution cant contain element to replace.");
+    distribution.remove(element);
     for (var entry : replacement.entrySet()) {
       var currentProbability = getProbability(entry.getKey());
       var probabilityOfReplacementEntry = entry.getValue();
@@ -151,6 +237,11 @@ public class Distribution<T> implements Iterable<T> {
     calculateMax();
   }
 
+  /**
+   * Returns a readonly map where the keys are the elements
+   * and the values are their probabilities.
+   * @return readonly map of the distribution's elements
+   */
   public Map<T, Double> toMap() {
     return Map.copyOf(distribution);
   }
@@ -178,10 +269,13 @@ public class Distribution<T> implements Iterable<T> {
     return Objects.hash("Distribution", distribution);
   }
 
-
-  private void removeObsoleteKeys() {
+  /**
+   * Removes elements from this distribution
+   * with a probability that is not positive.
+   */
+  private void removeObsoleteElements() {
     distribution.forEach((key, probability) -> {
-      if (probability == 0D) distribution.remove(key);
+      if (probability <= 0D) distribution.remove(key);
     });
   }
 
