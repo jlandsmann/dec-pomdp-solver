@@ -3,6 +3,7 @@ package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
@@ -19,6 +20,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * This class implements the {@link ValueFunctionTransformer}
+ * and transforms a {@link DecPOMDPWithStateController}
+ * into a matrix and vector, that work with the OjAlgo library.
+ */
 @Service
 public class OJAValueFunctionTransformer implements ValueFunctionTransformer<DecPOMDPWithStateController, MatrixStore<Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJAValueFunctionTransformer.class);

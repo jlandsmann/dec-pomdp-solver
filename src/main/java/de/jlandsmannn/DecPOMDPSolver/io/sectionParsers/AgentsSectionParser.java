@@ -10,6 +10,12 @@ import java.util.stream.IntStream;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 
+/**
+ * This parser covers the "agents" section of the .dpomdp file format.
+ * It is used to get the agent's names of a DecPOMDP.
+ * In case only the number of agents is defined,
+ * it creates generic agent names.
+ */
 public class AgentsSectionParser extends BaseSectionParser {
   private final static Logger LOG = LoggerFactory.getLogger(AgentsSectionParser.class);
   protected List<String> agentNames;

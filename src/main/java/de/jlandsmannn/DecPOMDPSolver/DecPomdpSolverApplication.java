@@ -8,6 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.shell.command.annotation.CommandScan;
 
+/**
+ * This class bootstraps the Spring Boot application,
+ * and therefore only creates the application object
+ * and runs it.
+ */
 @CommandScan
 @ConfigurationPropertiesScan
 @SpringBootApplication

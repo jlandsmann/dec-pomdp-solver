@@ -16,6 +16,15 @@ import java.util.List;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.UNIFORM;
 
+/**
+ * This parser covers the "start" section of the .dpomdp file format.
+ * That section describes the initial belief state of the DecPOMDP.
+ * It can be given by the name or index of a single state,
+ * by the keyword uniform, or
+ * by a distribution of states, based on their indices, or
+ * by a list of states (referred by name or index),
+ * included or excluded in the initial belief state.
+ */
 public class StartSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(StartSectionParser.class);
 

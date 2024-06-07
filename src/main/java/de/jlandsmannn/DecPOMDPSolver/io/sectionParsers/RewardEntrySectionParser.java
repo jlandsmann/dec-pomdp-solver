@@ -18,6 +18,17 @@ import java.util.Map;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.ANY;
 
+/**
+ * This parser covers the "R" section of the .dpomdp file format.
+ * The entirety of those sections describes the reward function.
+ * A single entry describes the gained reward,
+ * with respect to the former state, the selected actions,
+ * the current state and the sensed observations.
+ * To validate such an entry, it needs to know the states,
+ * as well as the agent's actions and observations.
+ * Since later entries can overwrite earlier ones,
+ * it also needs the previously collected reward entries.
+ */
 public class RewardEntrySectionParser extends BaseSectionParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(RewardEntrySectionParser.class);

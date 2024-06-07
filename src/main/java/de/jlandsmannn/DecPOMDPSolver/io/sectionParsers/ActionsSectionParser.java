@@ -14,9 +14,15 @@ import java.util.stream.IntStream;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 
+/**
+ * This parser covers the "actions" section of the .dpomdp file format.
+ * It is used to get the names of the actions with respect to their agent.
+ * In case only a number of actions are defined,
+ * it uses the names of the agents to create generic agent-specific action names.
+ * Therefore, it needs to know the agent's names.
+ */
 public class ActionsSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(ActionsSectionParser.class);
-
 
   protected List<String> agentNames = new ArrayList<>();
   protected List<List<Action>> agentActions = new ArrayList<>();

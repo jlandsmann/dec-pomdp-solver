@@ -11,6 +11,11 @@ import java.util.stream.IntStream;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 
+/**
+ * This parser covers the "states" section of the .dpomdp file format.
+ * That section describes which states exist in the DecPOMDP.
+ * Either the number of states or a list of state names is defined.
+ */
 public class StatesSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(RewardTypeSectionParser.class);
 

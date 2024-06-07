@@ -18,6 +18,19 @@ import java.util.Map;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.*;
 
+/**
+ * This parser covers the "T" section of the .dpomdp file format.
+ * That section describes the transition function's probabilities
+ * with respect to the selected action vector and the current state
+ * as well as the following state.
+ * The distribution of the following states can be defined,
+ * either by uniform or identity distribution,
+ * or by a start and follow state matrix probability.
+ * To validate the given transition function,
+ * it needs the states as well as the agent's actions.
+ * Since later entries can overwrite earlier ones,
+ * it also needs the previously collected transition entries.
+ */
 public class TransitionEntrySectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(TransitionEntrySectionParser.class);
 

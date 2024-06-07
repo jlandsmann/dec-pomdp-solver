@@ -6,6 +6,12 @@ import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This parser covers the "values" section of the .dpomdp file format.
+ * That section declares whether the given rewards should be interpreted
+ * as desirable rewards or as costs to be avoided.
+ * These cases are defined by the {@link DPOMDPRewardType}.
+ */
 public class RewardTypeSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(RewardTypeSectionParser.class);
 

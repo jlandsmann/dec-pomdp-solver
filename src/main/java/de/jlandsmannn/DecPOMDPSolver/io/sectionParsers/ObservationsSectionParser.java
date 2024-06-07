@@ -14,6 +14,13 @@ import java.util.stream.IntStream;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 
+/**
+ * This parser covers the "observations" section of the .dpomdp file format.
+ * It is used to get the names of the observations with respect to their agent.
+ * In case only a number of observations are defined,
+ * it uses the names of the agents to create generic agent-specific observation names.
+ * Therefore, it needs to know the agent's names.
+ */
 public class ObservationsSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(ObservationsSectionParser.class);
 

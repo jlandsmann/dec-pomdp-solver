@@ -21,6 +21,15 @@ import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.ANY;
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPCommonKeyword.UNIFORM;
 
+/**
+ * This parser covers the "O" section of the .dpomdp file format.
+ * That section describes the observation's probabilities
+ * with respect to the selected action vector and the current state.
+ * To validate the given observation function,
+ * it needs the states as well as the agent's actions and observations.
+ * Since later entries can overwrite earlier ones,
+ * it also needs the previously collected observation entries.
+ */
 public class ObservationEntrySectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(ObservationEntrySectionParser.class);
 

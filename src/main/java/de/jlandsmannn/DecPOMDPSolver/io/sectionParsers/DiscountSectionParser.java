@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.PROBABILITY_PATTERN;
 
+/**
+ * This parser covers the "discount" section of the .dpomdp file format.
+ * It extracts and validates the discount factor of the DecPOMDP.
+ */
 public class DiscountSectionParser extends BaseSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(DiscountSectionParser.class);
 
