@@ -52,10 +52,10 @@ public class RewardEntrySectionParser extends BaseSectionParser {
             OR(
               NAMED_GROUP("observationVector", LIST_OF(OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern()))) +
                 " ?: ?" + NAMED_GROUP("reward", NUMBER_PATTERN),
-              "\n" + NAMED_GROUP("rewardDistribution", LIST_OF(NUMBER_PATTERN))
+              "\\R" + NAMED_GROUP("rewardDistribution", LIST_OF(NUMBER_PATTERN))
             ),
           // matrix defined for given action vector
-          "\n" + NAMED_GROUP("rewardMatrix", ROWS_OF(LIST_OF(NUMBER_PATTERN)))
+          "\\R" + NAMED_GROUP("rewardMatrix", ROWS_OF(LIST_OF(NUMBER_PATTERN)))
         )
     );
   }
@@ -117,7 +117,7 @@ public class RewardEntrySectionParser extends BaseSectionParser {
         });
       }
     } else if (match.hasGroup("rewardMatrix")) {
-      var rawRewardDistributionRows = match.getGroupAsStringArrayOrThrow("rewardMatrix", "\n");
+      var rawRewardDistributionRows = match.getGroupAsStringArrayOrThrow("rewardMatrix", "\\R");
 
       for (int i = 0; i < rawRewardDistributionRows.length; i++) {
         var endState = states.get(i);

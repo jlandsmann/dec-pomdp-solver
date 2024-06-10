@@ -38,8 +38,8 @@ public class StartSectionParser extends BaseSectionParser {
         OR(
           "(?:: ?" + "(?<startState>" + IDENTIFIER_PATTERN + ")" + ")",
           "(?:: ?" + "(?<startStateIndex>" + INDEX_PATTERN + ")" + ")",
-          "(?:: ?\n" + "(?<uniformDistribution>" + UNIFORM.getPattern() + ")" + ")",
-          "(?:: ?\n" + "(?<distribution>" + LIST_OF(PROBABILITY_PATTERN) + ")" + ")",
+          "(?:: ?\\R" + "(?<uniformDistribution>" + UNIFORM.getPattern() + ")" + ")",
+          "(?:: ?\\R" + "(?<distribution>" + LIST_OF(PROBABILITY_PATTERN) + ")" + ")",
           "(?: ?include: ?" + "(?<includeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")",
           "(?: ?exclude: ?" + "(?<excludeStates>" + LIST_OF(OR(INDEX_PATTERN, IDENTIFIER_PATTERN)) + ")" + ")"
         )

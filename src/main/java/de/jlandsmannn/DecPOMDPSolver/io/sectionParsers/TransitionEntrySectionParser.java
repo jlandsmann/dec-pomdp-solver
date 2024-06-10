@@ -53,14 +53,14 @@ public class TransitionEntrySectionParser extends BaseSectionParser {
               NAMED_GROUP("endState", OR(IDENTIFIER_PATTERN, INDEX_PATTERN, ANY.getPattern())) +
                 " ?: ?" + NAMED_GROUP("probability", PROBABILITY_PATTERN),
               // probability distribution given explicitly
-              "\n" + NAMED_GROUP("probabilityDistribution", LIST_OF(PROBABILITY_PATTERN))
+              "\\R" + NAMED_GROUP("probabilityDistribution", LIST_OF(PROBABILITY_PATTERN))
             ),
           // uniform probability distribution
-          "\n" + NAMED_GROUP("probabilityUniformDistribution", UNIFORM.getPattern()),
+          "\\R" + NAMED_GROUP("probabilityUniformDistribution", UNIFORM.getPattern()),
           // end state = start state‚
-          "\n" + NAMED_GROUP("probabilityIdentityDistribution", IDENTITY.getPattern()),
+          "\\R" + NAMED_GROUP("probabilityIdentityDistribution", IDENTITY.getPattern()),
           // matrix defined for given action vector
-          "\n" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(PROBABILITY_PATTERN)))
+          "\\R" + NAMED_GROUP("probabilityMatrix", ROWS_OF(LIST_OF(PROBABILITY_PATTERN)))
         )
     );
   }
@@ -127,7 +127,7 @@ public class TransitionEntrySectionParser extends BaseSectionParser {
         });
       });
     } else if (match.hasGroup("probabilityMatrix")) {
-      var rawProbabilityDistributionRows = match.getGroupAsStringArrayOrThrow("probabilityMatrix", "\n");
+      var rawProbabilityDistributionRows = match.getGroupAsStringArrayOrThrow("probabilityMatrix", "\\R");
 
       for (int i = 0; i < rawProbabilityDistributionRows.length; i++) {
         var startState = states.get(i);

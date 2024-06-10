@@ -30,7 +30,7 @@ public class ObservationsSectionParser extends BaseSectionParser {
   public ObservationsSectionParser() {
     super(
       DPOMDPSectionKeyword.OBSERVATIONS,
-      DPOMDPSectionKeyword.OBSERVATIONS + ": ?\n" +
+      DPOMDPSectionKeyword.OBSERVATIONS + ": ?\\R" +
         "(?<agentObservations>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
     );
   }
@@ -48,7 +48,7 @@ public class ObservationsSectionParser extends BaseSectionParser {
     LOG.debug("Parsing 'observations' section.");
     assertAllDependenciesSet();
     var match = getMatchOrThrow(section);
-    var rawObservationsPerAgent = match.getGroupAsStringArrayOrThrow("agentObservations", "\n");
+    var rawObservationsPerAgent = match.getGroupAsStringArrayOrThrow("agentObservations", "\\R");
     if (rawObservationsPerAgent.length != agentNames.size()) {
       throw new ParsingFailedException("'observations' does not have same number of agents as 'agents' section.");
     }

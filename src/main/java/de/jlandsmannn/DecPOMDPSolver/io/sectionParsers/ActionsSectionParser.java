@@ -29,7 +29,7 @@ public class ActionsSectionParser extends BaseSectionParser {
 
   public ActionsSectionParser() {
     super(DPOMDPSectionKeyword.ACTIONS,
-      DPOMDPSectionKeyword.ACTIONS + ": ?\n" +
+      DPOMDPSectionKeyword.ACTIONS + ": ?\\R" +
       "(?<agentActions>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
     );
   }
@@ -48,7 +48,7 @@ public class ActionsSectionParser extends BaseSectionParser {
     assertAllDependenciesSet();
 
     var match = getMatchOrThrow(section);
-    var rawActionsPerAgent = match.getGroupAsStringArrayOrThrow("agentActions", "\n");
+    var rawActionsPerAgent = match.getGroupAsStringArrayOrThrow("agentActions", "\\R");
     if (rawActionsPerAgent.length != agentNames.size()) {
       throw new ParsingFailedException("'actions' does not have same number of agents as 'agents' section.");
     }
