@@ -20,7 +20,7 @@ public final class CommonPattern {
   }
 
   public static String ROWS_OF(String pattern) {
-    return LIST_OF(pattern, "\n");
+    return LIST_OF(pattern, "\\R");
   }
 
   public static String LIST_OF(String pattern) {
