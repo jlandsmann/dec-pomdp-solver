@@ -15,6 +15,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class implements the heuristic policy iteration algorithm.
+ * It starts with a {@link DecPOMDPWithStateController} with (usually) arbitrary controllers.
+ * Since it is a heuristic algorithm, the results are not determined,
+ * and depend on the initialization and on the belief point generation.
+ */
 @Service
 public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController, HeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);

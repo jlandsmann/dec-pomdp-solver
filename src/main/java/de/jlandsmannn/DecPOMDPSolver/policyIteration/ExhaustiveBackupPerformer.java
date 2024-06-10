@@ -13,6 +13,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This class performs exhaustive backups on an agent's state controller.
+ * An exhaustive backup is useful for exploration of the policy space.
+ * It adds all possible one-step policies for each already existing node
+ * and calculates the values of those newly created nodes.
+ */
 @Service
 public class ExhaustiveBackupPerformer {
   private static final Logger LOG = LoggerFactory.getLogger(ExhaustiveBackupPerformer.class);

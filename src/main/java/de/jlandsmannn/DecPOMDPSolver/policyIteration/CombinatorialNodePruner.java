@@ -12,8 +12,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
+/**
+ * This abstract class describes an interface for pruning nodes
+ * and replacing them with a dominating combination of initial nodes.
+ * This means that it finds a convex combination of nodes from the same agent.
+ * SO that combination has for all possible combinations of the other agent's nodes,
+ * and for all belief points a value at least as high as the given node.
+ * This class is independent of the concrete implementation or data types.
+ *
+ * @param <LP> the data type of the linear program
+ * @param <RESULT> the data type of the linear program's result
+ */
 public abstract class CombinatorialNodePruner<LP, RESULT> {
   private static final Logger LOG = LoggerFactory.getLogger(CombinatorialNodePruner.class);
 

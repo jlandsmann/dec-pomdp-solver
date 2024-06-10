@@ -4,6 +4,14 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
 
+/**
+ * This abstract class describes an interface for evaluating the value function of a DecPOMDP.
+ * It creates an equation system by using a {@link ValueFunctionTransformer}
+ * and solves it with a suitable {@link EquationSystemSolver}.
+ *
+ * @param <DECPOMDP> the data type of the DecPOMDP
+ * @param <MATRIX> the data type of the matrices and vectors
+ */
 public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRIX> {
 
   private final ValueFunctionTransformer<DECPOMDP, MATRIX> transformer;

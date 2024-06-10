@@ -3,8 +3,14 @@ package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.util.Optional;
-
+/**
+ * This class configures some meta-properties of the {@link HeuristicPolicyIterationSolver}.
+ *
+ * @param beliefPointGenerationSeed the seed for random number generation
+ * @param beliefPointGenerationMaxRuns the maximum numbers of repeating belief point generations, if diversity isn't high enough
+ * @param beliefPointDistanceThreshold the distance between two belief points to accept them as different belief points
+ * @param valueChangeThreshold the threshold for the DecPOMDPs value to estimate when the algorithm stagnates
+ */
 @ConfigurationProperties("app.heuristic-policy-iteration")
 public record HeuristicPolicyIterationConfig(
   long beliefPointGenerationSeed,

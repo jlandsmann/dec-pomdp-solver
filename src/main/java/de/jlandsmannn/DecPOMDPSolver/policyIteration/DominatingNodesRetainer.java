@@ -14,6 +14,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This class finds the vectors of dominating nodes for all belief points,
+ * and marks those nodes as initial nodes of the agent's state controllers.
+ */
 @Service
 public class DominatingNodesRetainer {
   private static final Logger LOG = LoggerFactory.getLogger(DominatingNodesRetainer.class);
