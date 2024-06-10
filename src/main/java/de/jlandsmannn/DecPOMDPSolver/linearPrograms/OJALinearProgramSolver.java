@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * This class implements the {@link LinearOptimizationSolver}
+ * by using the OJAlgo library's optimization package.
+ */
 @Service
 public class OJALinearProgramSolver implements LinearOptimizationSolver<ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJALinearProgramSolver.class);

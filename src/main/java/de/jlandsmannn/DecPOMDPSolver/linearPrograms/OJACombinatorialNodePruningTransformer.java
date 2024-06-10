@@ -19,6 +19,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * This is an implementation of the {@link CombinatorialNodePruningTransformer}
+ * and creates a linear program for an agent's node of a {@link DecPOMDPWithStateController}
+ * to find a dominating combination of nodes.
+ * In addition to that, it creates such a combination of nodes
+ * as a {@link Distribution} from the results of the linear program.
+ */
 @Service
 public class OJACombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJACombinatorialNodePruningTransformer.class);

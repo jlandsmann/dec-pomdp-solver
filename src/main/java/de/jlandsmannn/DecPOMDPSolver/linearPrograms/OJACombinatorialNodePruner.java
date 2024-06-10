@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+/**
+ * This is just a proxy for the {@link CombinatorialNodePruner}
+ * to provide a concretely typed instance to the DI.
+ * It connects {@link OJACombinatorialNodePruningTransformer} and {@link OJALinearProgramSolver}.
+ */
 @Service
 public class OJACombinatorialNodePruner extends CombinatorialNodePruner<ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJACombinatorialNodePruner.class);

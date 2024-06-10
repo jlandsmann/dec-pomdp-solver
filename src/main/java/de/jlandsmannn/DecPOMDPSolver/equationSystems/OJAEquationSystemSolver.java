@@ -12,7 +12,7 @@ import java.util.Optional;
 
 /**
  * This class implements the {@link EquationSystemSolver}
- * by using the OjAlgo library and it's LU decomposition.
+ * by using the OjAlgo library, and it's LU decomposition.
  */
 @Service
 public class OJAEquationSystemSolver implements EquationSystemSolver<MatrixStore<Double>> {
