@@ -90,9 +90,11 @@ public class HeuristicPolicyIterationAlgorithmCommand {
   /**
    * The load command needs to be executed, after the algorithm was initialized.
    * The load command accepts a path to a file, as well as a (custom) discountFactor.
-   * The file will be loaded and parsed. It will be expected to follow the DPOMDP file format,
+   * The file will be loaded and parsed.
+   * It will be expected to follow the DPOMDP file format,
    * which is described in the MADP Toolbox.
-   * The file must be located inside the resources folder of this application.
+   * The file must be located either inside the resources folder of this application,
+   * or the file path must be given relative to the execution directory.
    * If the file does not exist or is not a valid DPOMDP file, the parsing will be aborted.
    * The (custom) discount factor can be used to override the discount factor defined in the loaded file.
    */

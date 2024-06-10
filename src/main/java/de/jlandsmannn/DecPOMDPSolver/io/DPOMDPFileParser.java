@@ -5,8 +5,10 @@ import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +21,8 @@ import java.util.Optional;
  * When this happens, the former section is parsed by the {@link DPOMDPSectionParser}.
  * At the end of the file, the current section is also parsed,
  * as it can be seen as complete.
+ * The given filename can be a path either inside the resources directory
+ * or relative to the directory, where the program is executed.
  */
 public class DPOMDPFileParser {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
@@ -58,11 +62,32 @@ public class DPOMDPFileParser {
   }
 
   protected BufferedReader readFile(String fileName) throws IOException {
-    var classLoader = getClass().getClassLoader();
-    var url = classLoader.getResource(fileName);
-    if (url == null) throw new FileNotFoundException(fileName);
-    var path = Path.of(url.getPath());
-    return Files.newBufferedReader(path);
+    return readResourceFile(fileName)
+      .or(() -> readNormalFile(fileName))
+      .orElseThrow(() -> new FileNotFoundException(fileName));
+  }
+
+  private Optional<BufferedReader> readResourceFile(String fileName) {
+    try {
+      var classLoader = getClass().getClassLoader();
+      var url = Optional.ofNullable(classLoader.getResource(fileName))
+        .orElseThrow(() -> new FileNotFoundException(fileName));
+      var path = Path.of(url.getPath());
+      var bufferedReader = Files.newBufferedReader(path);
+      return Optional.of(bufferedReader);
+    } catch (IOException e) {
+      return Optional.empty();
+    }
+  }
+
+  private Optional<BufferedReader> readNormalFile(String fileName) {
+    try {
+      var fileReader = new FileReader(fileName);
+      var bufferedReader = new BufferedReader(fileReader);
+      return Optional.of(bufferedReader);
+    } catch (IOException e) {
+      return Optional.empty();
+    }
   }
 
   protected void parseLine(String currentLine) {
