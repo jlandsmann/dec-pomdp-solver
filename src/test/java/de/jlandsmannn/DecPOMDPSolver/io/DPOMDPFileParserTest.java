@@ -90,7 +90,7 @@ class DPOMDPFileParserTest {
     String previousSection = parser.currentSectionBuilder.toString();
     String currentLine = "uniform";
     parser.parseLine(currentLine);
-    String expectedSection = previousSection + "\nuniform";
+    String expectedSection = previousSection + System.lineSeparator() + "uniform";
     String actualSection = parser.currentSectionBuilder.toString();
     assertEquals(expectedSection, actualSection);
   }
