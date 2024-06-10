@@ -54,6 +54,14 @@ If you want to execute those manually, you can run
 mvn test
 ```
 
+## Production build
+To build for production, [GraalVM](https://www.graalvm.org/) is used by Spring.
+Therefore, you need to install GraalVM for JDK 22 and 
+set the `JAVA_HOME` environment variable to a GraalVM JDK installation.
+With that done, you can run `./mvnw native:compile -Pnative` or on windows `mvnw.cmd native:compile -Pnative`.
+This creates a binary under `target` directory.
+Since GraalVM is an ahead-of-time compiler, it does not copy any resources.
+
 ## Problem instance
 Currently, we have three different problem instances in our repository
 that can be solved by our heuristic policy iteration implementation.
