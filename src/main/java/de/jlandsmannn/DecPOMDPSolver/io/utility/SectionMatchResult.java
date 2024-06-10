@@ -5,6 +5,11 @@ import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import java.util.Optional;
 import java.util.regex.MatchResult;
 
+/**
+ * This class wraps the {@link MatchResult} class from java,
+ * to provide a more convenient interface for getting and extracting groups,
+ * as various data types.
+ */
 public class SectionMatchResult {
 
   private final MatchResult result;
@@ -47,13 +52,13 @@ public class SectionMatchResult {
 
   public double getGroupAsDoubleOrThrow(String name) {
     return getGroupAsDouble(name).orElseThrow(() ->
-      new ParsingFailedException("Tried to parse '" + name + "' group, but it does not exist.")
+      new ParsingFailedException("Tried to parse '" + name + "' group, but it does not exist or is not a valid number.")
     );
   }
 
   public int getGroupAsIntOrThrow(String name) {
     return getGroupAsInt(name).orElseThrow(() ->
-      new ParsingFailedException("Tried to parse '" + name + "' group, but it does not exist.")
+      new ParsingFailedException("Tried to parse '" + name + "' group, but it does not exist or is not a valid number.")
     );
   }
 }

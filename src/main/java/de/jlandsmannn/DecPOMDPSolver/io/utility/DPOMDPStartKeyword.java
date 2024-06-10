@@ -1,12 +1,16 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
-public enum DPOMDPStateKeyword {
+/**
+ * This enum contains the constant values of the keywords from
+ * the "start" section of the .dpomdp file format.
+ */
+public enum DPOMDPStartKeyword {
   INCLUDE("include"),
   EXCLUDE("exclude");
 
   private final String keyword;
 
-  DPOMDPStateKeyword(String keyword) {
+  DPOMDPStartKeyword(String keyword) {
     this.keyword = keyword;
   }
 

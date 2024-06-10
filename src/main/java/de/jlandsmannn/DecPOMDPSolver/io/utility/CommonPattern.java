@@ -2,6 +2,11 @@ package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
 import java.util.Arrays;
 
+/**
+ * This static class provides some common patterns
+ * and functions to build more complex patterns,
+ * while maintaining a good readability.
+ */
 public final class CommonPattern {
   public static final String INDEX_PATTERN = "[0-9]+";
   public static final String COUNT_PATTERN = "[1-9][0-9]*";

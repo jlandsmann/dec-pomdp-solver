@@ -1,5 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
+/**
+ * This enum contains common keywords
+ * from the .dpomdp file format
+ * as well as their constant values and their regular expressions.
+ */
 public enum DPOMDPCommonKeyword {
   IDENTITY("identity"),
   UNIFORM("uniform"),

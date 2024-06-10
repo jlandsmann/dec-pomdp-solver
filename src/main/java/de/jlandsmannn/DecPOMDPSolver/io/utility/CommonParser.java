@@ -9,6 +9,13 @@ import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 
 import java.util.*;
 
+/**
+ * This parser provides some common needed parsing tasks.
+ * Such a task is e.g., parsing a list of probabilities
+ * representing a state oor action distribution.
+ * This parser also provides convenient interfaces for parsing
+ * numbers and handling wildcards (from the .dpomdp file format)
+ */
 public class CommonParser {
 
   public static Map<State, Double> parseStatesAndTheirDistributions(List<State> states, String rawStateProbabilities) {

@@ -1,5 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
+/**
+ * This enum contains the constant values of the keywords
+ * from the "value" section of the .dpomdp file format
+ * and their regular expressions.
+ */
 public enum DPOMDPRewardType {
   REWARD("reward"),
   COST("cost");

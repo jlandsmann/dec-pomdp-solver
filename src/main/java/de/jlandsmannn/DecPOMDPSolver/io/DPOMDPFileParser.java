@@ -12,6 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * This class handles the parsing of a .dpomdp file,
+ * by reading the file line by line and stacking those lines
+ * until a new section is found, so the former one is complete.
+ * When this happens, the former section is parsed by the {@link DPOMDPSectionParser}.
+ * At the end of the file, the current section is also parsed,
+ * as it can be seen as complete.
+ */
 public class DPOMDPFileParser {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 

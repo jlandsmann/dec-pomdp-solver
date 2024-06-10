@@ -19,6 +19,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class serves as a delegator for the various section parsers in
+ * {@link de.jlandsmannn.DecPOMDPSolver.io.sectionParsers}.
+ * It checks for the keyword of the section to parse
+ * and chooses based on that keyword the parser to parse the section.
+ * Additionally, this class provides those parsers with their needed prerequisites,
+ * and handles the returned results, gathers them, and puts them into a DecPOMDP builder.
+ * When all mandatory sections were parsed, and
+ * sufficient information about the DecPOMDP was given, it can be built.
+ */
 public class DPOMDPSectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 

@@ -2,7 +2,11 @@ package de.jlandsmannn.DecPOMDPSolver.io.utility;
 
 import java.util.Set;
 
-
+/**
+ * This enum contains all the constant values of the section's keywords
+ * from the .dpomdp file format and
+ * provides some utility to check for those.
+ */
 public enum DPOMDPSectionKeyword {
   COMMENT("#"),
   AGENTS("agents"),
