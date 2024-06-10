@@ -11,8 +11,9 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.structure.Structure2D;
+import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
   public MatrixStore<Double> getMatrixFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get matrix");
     LOG.info("Retrieving transition matrix from DecPOMDP");
-    var matrixBuilder = Primitive64Store.FACTORY.make(
+    var matrixBuilder = SparseStore.R032.make(
       stateCount * nodeCombinationCount,
       stateCount * nodeCombinationCount
     );
@@ -79,14 +80,14 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         }
       });
     });
-    return matrixBuilder.get();
+    return matrixBuilder;
   }
 
   @Override
   public MatrixStore<Double> getVectorFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get vector");
     LOG.info("Retrieving reward vector from DecPOMDP");
-    var matrixBuilder = Primitive64Store.FACTORY.make(stateCount * nodeCombinationCount,1);
+    var matrixBuilder = SparseStore.R032.make(stateCount * nodeCombinationCount,1);
     AtomicLong index = new AtomicLong();
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : nodeCombinations) {
@@ -94,7 +95,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         matrixBuilder.set(index.getAndAdd(1), 0, -reward);
       }
     }
-    return matrixBuilder.get();
+    return matrixBuilder;
   }
 
   @Override
@@ -112,7 +113,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     }
   }
 
-  private void calculateMatrixRow(Primitive64Store matrixBuilder, State state, Vector<Node> nodeVector, long row) {
+  private void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long row) {
     AtomicLong col = new AtomicLong(0);
     for (var newState : decPOMDP.getStates()) {
       for (var newNodeVector : nodeCombinations) {
