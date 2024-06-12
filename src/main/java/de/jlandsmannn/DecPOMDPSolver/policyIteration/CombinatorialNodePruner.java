@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * This abstract class describes an interface for pruning nodes
@@ -72,20 +73,23 @@ public abstract class CombinatorialNodePruner<LP, RESULT> {
 
   public void pruneNodeIfCombinatorialDominated(Node nodeToCheck) {
     LOG.debug("Checking {} of {} for pruning", nodeToCheck, agent);
-    var lp = transformer.getLinearProgramForNode(nodeToCheck);
-    solver.setLinearProgram(lp);
-    var results = solver.maximise();
-    if (results.isEmpty()) {
-      LOG.debug("Linear program has no results, no pruning required.");
-      return;
-    }
-    LOG.debug("Retrieving pruning nodes distribution for {}", nodeToCheck);
-    var dominatingNodes = transformer.getDominatingNodeDistributionFromResult(results.get());
+    applyLinearProgram(nodeToCheck);
+    var dominatingNodes = getDominatingNodeDistribution(nodeToCheck);
     if (dominatingNodes.isEmpty()) {
       LOG.debug("No combination of dominating nodes exist, can't prune {} of {}", nodeToCheck, agent);
       return;
     }
     LOG.debug("Replacing {} with {}", nodeToCheck, dominatingNodes.get());
     agent.pruneNode(nodeToCheck, dominatingNodes.get());
+  }
+
+  private void applyLinearProgram(Node nodeToCheck) {
+    var lp = transformer.getLinearProgramForNode(nodeToCheck);
+    solver.setLinearProgram(lp);
+  }
+
+  private Optional<Distribution<Node>> getDominatingNodeDistribution(Node nodeToCheck) {
+    return solver.maximise()
+      .flatMap(result -> transformer.getDominatingNodeDistributionFromResult(result));
   }
 }

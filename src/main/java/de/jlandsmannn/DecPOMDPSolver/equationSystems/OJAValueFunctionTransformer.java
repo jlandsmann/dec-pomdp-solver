@@ -123,17 +123,16 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
 
   private double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var coefficient = 0D;
+    var discountFactor = decPOMDP.getDiscountFactor();
 
     for (var actionVector : actionCombinations) {
       for (var observationVector : observationsCombinations) {
-        var action = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-        var stateTransition = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
-        var nodeTransition = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
-        coefficient += action * stateTransition * nodeTransition;
+        var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
+        var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
+        var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
+        coefficient += discountFactor * actionProbability * stateTransitionProbability * nodeTransitionProbability;
       }
     }
-
-    coefficient *= decPOMDP.getDiscountFactor();
 
     if (state.equals(newState) && nodeVector.equals(newNodeVector)) {
       coefficient -= 1D;
