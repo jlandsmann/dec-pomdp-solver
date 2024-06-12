@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * It inherits from {@link DecPOMDP}.
  */
 public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
-  private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new ConcurrentHashMap<>();
+  private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
+  private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
+  private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new ConcurrentHashMap<>(getStates().size() + 2, 1F);
 
   public DecPOMDPWithStateController(List<AgentWithStateController> agents,
                                      List<State> states,
@@ -132,7 +134,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
     if (nodes.size() != agents.size()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
-    preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>());
+    preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>(INITIAL_VALUE_FUNCTION_SIZE_PER_STATE, VALUE_FUNCTION_LOAD_FACTOR));
     preCalculatedValueFunction.get(state).put(nodes, value);
   }
 

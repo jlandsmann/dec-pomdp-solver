@@ -199,7 +199,7 @@ public class Distribution<T> implements Iterable<T> {
    * @param item the item to check for
    * @return the probability of the item
    */
-  public Double getProbability(T item) {
+  public double getProbability(T item) {
     return distribution.getOrDefault(item, 0D);
   }
 
@@ -253,10 +253,11 @@ public class Distribution<T> implements Iterable<T> {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof Distribution<?>) {
-      return distribution.equals(((Distribution<?>) obj).distribution);
-    }
-    return super.equals(obj);
+    if (this == obj)
+      return true;
+    if (obj == null || getClass() != obj.getClass())
+      return false;
+    return distribution.equals(((Distribution<?>) obj).distribution);
   }
 
   @Override

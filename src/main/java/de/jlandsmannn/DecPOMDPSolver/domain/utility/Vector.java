@@ -135,10 +135,11 @@ public class Vector<T> {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof Vector<?>) {
-      return values.equals(((Vector<?>) obj).values);
-    }
-    return super.equals(obj);
+    if (this == obj)
+      return true;
+    if (obj == null || getClass() != obj.getClass())
+      return false;
+    return values.equals(((Vector<?>) obj).values);
   }
 
   @Override
