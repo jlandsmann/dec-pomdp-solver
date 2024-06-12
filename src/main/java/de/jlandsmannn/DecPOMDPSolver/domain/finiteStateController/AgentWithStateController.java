@@ -79,7 +79,9 @@ public class AgentWithStateController extends Agent {
    * @return the probability of the described transition
    */
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
-    return getNodeTransition(node, action, observation).map(t -> t.getProbability(followNode)).orElse(0D);
+    return getNodeTransition(node, action, observation)
+      .map(transition -> transition.getProbability(followNode))
+      .orElse(0D);
   }
 
   /**

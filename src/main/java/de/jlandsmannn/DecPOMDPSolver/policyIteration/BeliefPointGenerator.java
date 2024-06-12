@@ -188,7 +188,7 @@ public class BeliefPointGenerator {
     return Distribution.of(beliefStateMap);
   }
 
-  private Double getProbabilityForAgentTransition(Agent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
+  private double getProbabilityForAgentTransition(Agent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
     var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
 

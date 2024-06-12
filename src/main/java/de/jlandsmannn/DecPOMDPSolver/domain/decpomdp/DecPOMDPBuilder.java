@@ -66,7 +66,7 @@ public class DecPOMDPBuilder {
     return this;
   }
 
-  public DecPOMDPBuilder addReward(State state, Vector<Action> actions, Double reward) {
+  public DecPOMDPBuilder addReward(State state, Vector<Action> actions, double reward) {
     this.rewardFunction.putIfAbsent(state, new HashMap<>());
     this.rewardFunction.get(state).put(actions, reward);
     return this;
