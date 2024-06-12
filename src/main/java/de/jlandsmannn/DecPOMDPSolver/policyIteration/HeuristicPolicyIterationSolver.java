@@ -117,6 +117,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
     LOG.info("Performing exhaustive backup.");
     exhaustiveBackupPerformer
       .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
       .performExhaustiveBackup();
   }
 

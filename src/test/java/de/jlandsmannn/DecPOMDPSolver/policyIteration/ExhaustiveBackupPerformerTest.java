@@ -1,7 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -19,11 +24,26 @@ class ExhaustiveBackupPerformerTest {
 
   private DecPOMDPWithStateController decPOMDP;
   private ExhaustiveBackupPerformer exhaustiveBackupPerformer;
+  private Set<Distribution<State>> beliefPoints;
 
   @BeforeEach
   void setUp() {
     decPOMDP = DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC();
     exhaustiveBackupPerformer = spy(new ExhaustiveBackupPerformer());
+    beliefPoints = Set.of(
+      Distribution.of(Map.of(
+        decPOMDP.getStates().getFirst(), 0.5,
+        decPOMDP.getStates().getLast(), 0.5
+      )),
+      Distribution.of(Map.of(
+        decPOMDP.getStates().getFirst(), 0.6,
+        decPOMDP.getStates().getLast(), 0.4
+      )),
+      Distribution.of(Map.of(
+        decPOMDP.getStates().getFirst(), 0.4,
+        decPOMDP.getStates().getLast(), 0.6
+      ))
+    );
   }
 
   @Test
@@ -40,8 +60,17 @@ class ExhaustiveBackupPerformerTest {
   }
 
   @Test
+  void performExhaustiveBackup_ShouldThrowIfBeliefPointsNotSet() {
+    assertThrows(IllegalStateException.class, () ->
+      exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackup());
+  }
+
+  @Test
   void performExhaustiveBackup_ShouldCallExhaustiveBackupForEachAgent() {
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackup();
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .performExhaustiveBackup();
 
     for (var agent : decPOMDP.getAgents()) {
       verify(exhaustiveBackupPerformer).performExhaustiveBackupForAgent(agent);
@@ -50,7 +79,10 @@ class ExhaustiveBackupPerformerTest {
 
   @Test
   void performExhaustiveBackup_ShouldCallUpdateValueFunction() {
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackup();
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .performExhaustiveBackup();
     verify(exhaustiveBackupPerformer).updateValueFunction();
   }
 
@@ -62,7 +94,10 @@ class ExhaustiveBackupPerformerTest {
     var observationCount = agent.getObservations().size();
     var expectedNodeCount = nodeCount + actionCount * Math.pow(nodeCount, observationCount);
 
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackupForAgent(agent);
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .performExhaustiveBackupForAgent(agent);
     var actualNodeCount = agent.getControllerNodes().size();
 
     assertEquals(expectedNodeCount, actualNodeCount);
@@ -73,17 +108,23 @@ class ExhaustiveBackupPerformerTest {
     var agent = decPOMDP.getAgents().get(0);
     var originalNodes = List.copyOf(agent.getControllerNodes());
 
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackupForAgent(agent);
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .performExhaustiveBackupForAgent(agent);
     var newNodes = List.copyOf(agent.getControllerNodes());
 
     assertTrue(newNodes.containsAll(originalNodes));
   }
 
   @Test
-  void updateValueFunction_ShouldUpdateAllMissingValuesOfValueFunction() {
+  void updateValueFunction_ShouldUpdateAllMissingValuesOfValueFunctionForBeliefPoints() {
     var agent = decPOMDP.getAgents().get(0);
     var originalNodes = List.copyOf(agent.getControllerNodes());
-    exhaustiveBackupPerformer.setDecPOMDP(decPOMDP).performExhaustiveBackupForAgent(agent);
+    exhaustiveBackupPerformer
+      .setDecPOMDP(decPOMDP)
+      .setBeliefPoints(beliefPoints)
+      .performExhaustiveBackupForAgent(agent);
     var addedNodes = agent.getControllerNodes();
     addedNodes.removeAll(originalNodes);
 
@@ -101,7 +142,8 @@ class ExhaustiveBackupPerformerTest {
 
     exhaustiveBackupPerformer.updateValueFunction();
 
-    for (var state : decPOMDP.getStates()) {
+    var statesInBeliefPoints = beliefPoints.stream().map(Distribution::keySet).flatMap(Set::stream).collect(Collectors.toSet());
+    for (var state : statesInBeliefPoints) {
       for (var nodeCombination : newNodeCombinations) {
         var optionalValue = decPOMDP.hasValue(state, nodeCombination);
         assertTrue(optionalValue, "Missing value for " + state + " and " + nodeCombination);
