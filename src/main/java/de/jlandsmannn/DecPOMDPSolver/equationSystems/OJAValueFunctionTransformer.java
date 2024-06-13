@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.LongStream;
 
 /**
  * This class implements the {@link ValueFunctionTransformer}
@@ -64,19 +66,22 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get matrix");
     LOG.info("Retrieving transition matrix from DecPOMDP");
     var matrixBuilder = SparseStore.R032.make(
-      stateCount * nodeCombinationCount,
-      stateCount * nodeCombinationCount
+      getNumberOfEquations(),
+      getNumberOfVariables()
     );
+    var rowsCalculated = new AtomicLong(0);
 
-    AtomicLong row = new AtomicLong(0L);
-    decPOMDP.getStates().stream().parallel().forEach(state -> {
-      nodeCombinations.stream().parallel().forEach(nodeVector -> {
-        calculateMatrixRow(matrixBuilder, state, nodeVector, row.getAndIncrement());
-        if (row.get() % 100 == 0) {
-          LOG.info("Calculated {} / {} rows for transition matrix", row.get(), getNumberOfEquations());
+    LongStream.range(0, getNumberOfEquations())
+      .parallel()
+      .forEach(rowIndex -> {
+        var state = getStateByIndex(rowIndex);
+        var nodeVector = getNodeVectorByIndex(rowIndex);
+        calculateMatrixRow(matrixBuilder, state, nodeVector, rowIndex);
+        if (rowsCalculated.incrementAndGet() % 100 == 0) {
+          LOG.info("Calculated {} / {} rows for transition matrix", rowsCalculated.get(), getNumberOfEquations());
         }
       });
-    });
+    LOG.info("Calculated all {} rows for transition matrix", rowsCalculated.get());
     return matrixBuilder;
   }
 
@@ -84,14 +89,17 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
   public MatrixStore<Double> getVectorFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get vector");
     LOG.info("Retrieving reward vector from DecPOMDP");
-    var matrixBuilder = SparseStore.R032.make(stateCount * nodeCombinationCount,1);
-    AtomicLong index = new AtomicLong();
-    for (var state : decPOMDP.getStates()) {
-      for (var nodeVector : nodeCombinations) {
+    var matrixBuilder = SparseStore.R032.make(getNumberOfEquations(), 1);
+    LongStream.range(0, getNumberOfEquations())
+      .parallel()
+      .forEach(rowIndex -> {
+        var state = getStateByIndex(rowIndex);
+        var nodeVector = getNodeVectorByIndex(rowIndex);
         var reward = calculateAllRewardsForStateAndNodes(state, nodeVector);
-        matrixBuilder.set(index.getAndAdd(1), 0, -reward);
-      }
-    }
+        synchronized (matrixBuilder) {
+          matrixBuilder.set(rowIndex, 0, -reward);
+        }
+      });
     return matrixBuilder;
   }
 
@@ -110,35 +118,48 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     }
   }
 
-  private void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long row) {
-    AtomicLong col = new AtomicLong(0);
-    for (var newState : decPOMDP.getStates()) {
-      for (var newNodeVector : nodeCombinations) {
+  private State getStateByIndex(long index) {
+    var realIndex = Math.floorDiv(index, nodeCombinationCount);
+    return decPOMDP.getStates().get(Math.toIntExact(realIndex));
+  }
+
+  private Vector<Node> getNodeVectorByIndex(long index) {
+    var realIndex = index % nodeCombinationCount;
+    return nodeCombinations.get(Math.toIntExact(realIndex));
+  }
+
+  private void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
+    LongStream.range(0, getNumberOfVariables())
+      .parallel()
+      .forEach(columnIndex -> {
+        var newState = getStateByIndex(columnIndex);
+        var newNodeVector = getNodeVectorByIndex(columnIndex);
         var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
-        matrixBuilder.set(row, col.get(), coefficient);
-        col.getAndIncrement();
-      }
-    }
+        synchronized (matrixBuilder) {
+          matrixBuilder.set(rowIndex, columnIndex, coefficient);
+        }
+      });
   }
 
   private double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
-    var coefficient = 0D;
     var discountFactor = decPOMDP.getDiscountFactor();
-
-    for (var actionVector : actionCombinations) {
-      for (var observationVector : observationsCombinations) {
-        var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-        var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
-        var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
-        coefficient += discountFactor * actionProbability * stateTransitionProbability * nodeTransitionProbability;
-      }
-    }
-
+    var coefficientModification = 0;
     if (state.equals(newState) && nodeVector.equals(newNodeVector)) {
-      coefficient -= 1D;
+      coefficientModification = -1;
     }
-
-    return coefficient;
+    return actionCombinations.stream()
+      .flatMapToDouble(actionVector ->
+        observationsCombinations.stream()
+          .parallel()
+          .mapToDouble(observationVector -> {
+            var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
+            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, newState);
+            var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
+            return discountFactor * actionProbability * stateTransitionProbability * nodeTransitionProbability;
+          })
+      )
+      .reduce(coefficientModification, Double::sum)
+    ;
   }
 
   private double calculateAllRewardsForStateAndNodes(State state, Vector<Node> nodeVector) {
