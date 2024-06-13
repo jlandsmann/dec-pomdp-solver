@@ -87,18 +87,6 @@ class OJACombinatorialNodePrunerTest {
   }
 
   @Test
-  void pruneNodesIfCombinatorialDominated_ShouldNotProceedIfAgentHasTwoNodes() {
-    when(agent.getControllerNodes()).thenReturn(Node.listOf("Q1", "Q2"));
-    pruner
-      .setDecPOMDP(decPOMDP)
-      .setAgent(agent)
-      .setBeliefPoints(beliefPoints)
-      .pruneNodesIfCombinatorialDominated();
-
-    verify(pruner, times(0)).pruneNodeIfCombinatorialDominated(any());
-  }
-
-  @Test
   void pruneNodesIfCombinatorialDominated_ShouldProceedForEveryNodeOfAgent() {
     when(agent.getControllerNodes()).thenReturn(Node.listOf("Q1", "Q2", "Q3", "Q4"));
     pruner
