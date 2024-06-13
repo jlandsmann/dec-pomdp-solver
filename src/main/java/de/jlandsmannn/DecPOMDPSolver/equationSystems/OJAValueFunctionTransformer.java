@@ -96,9 +96,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         var state = getStateByIndex(rowIndex);
         var nodeVector = getNodeVectorByIndex(rowIndex);
         var reward = calculateAllRewardsForStateAndNodes(state, nodeVector);
-        synchronized (matrixBuilder) {
-          matrixBuilder.set(rowIndex, 0, -reward);
-        }
+        matrixBuilder.set(rowIndex, 0, -reward);
       });
     return matrixBuilder;
   }
@@ -135,9 +133,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
         var newState = getStateByIndex(columnIndex);
         var newNodeVector = getNodeVectorByIndex(columnIndex);
         var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
-        synchronized (matrixBuilder) {
-          matrixBuilder.set(rowIndex, columnIndex, coefficient);
-        }
+        matrixBuilder.set(rowIndex, columnIndex, coefficient);
       });
   }
 
