@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.BasicDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * which use {@link FiniteStateController} to represent their policies.
  * It inherits from {@link DecPOMDP}.
  */
-public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
+public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateController> {
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
 
