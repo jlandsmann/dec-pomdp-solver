@@ -16,46 +16,6 @@ public class Vector<T> {
   private final List<T> values;
 
   /**
-   * This method creates a vector containing all elements given.
-   *
-   * @param elements the elements of the vector
-   * @return a vector containing all elements
-   * @param <U> the data type of the elements
-   */
-  public static <U> Vector<U> of(U... elements) {
-    return of(List.of(elements));
-  }
-
-  /**
-   * This method creates a vector containing all elements given.
-   *
-   * @param elements the elements of the vector
-   * @return a vector containing all elements
-   * @param <U> the data type of the elements
-   */
-  public static <U> Vector<U> of(SequencedCollection<U> elements) {
-    return new Vector<>(elements);
-  }
-
-  /**
-   * This method creates a new vector based on the given on.
-   * But at the given index, the given element is inserted.
-   * All elements, starting from the given index,
-   * will be shifted to the right by 1.
-   *
-   * @param vector the vector to copy from
-   * @param index the index to insert the new element
-   * @param elementToAdd the element to add to the new vector
-   * @return a new vector containing the new element
-   * @param <U> the data type of the elements
-   */
-  public static <U> Vector<U> addEntry(Vector<U> vector, int index, U elementToAdd) {
-    var list = new ArrayList<>(vector.values);
-    list.add(index, elementToAdd);
-    return new Vector<>(list);
-  }
-
-  /**
    * This constructor creates a vector containing all elements given.
    *
    * @param elements the elements of the vector
@@ -68,7 +28,48 @@ public class Vector<T> {
   }
 
   /**
+   * This method creates a vector containing all elements given.
+   *
+   * @param elements the elements of the vector
+   * @param <U>      the data type of the elements
+   * @return a vector containing all elements
+   */
+  public static <U> Vector<U> of(U... elements) {
+    return of(List.of(elements));
+  }
+
+  /**
+   * This method creates a vector containing all elements given.
+   *
+   * @param elements the elements of the vector
+   * @param <U>      the data type of the elements
+   * @return a vector containing all elements
+   */
+  public static <U> Vector<U> of(SequencedCollection<U> elements) {
+    return new Vector<>(elements);
+  }
+
+  /**
+   * This method creates a new vector based on the given on.
+   * But at the given index, the given element is inserted.
+   * All elements, starting from the given index,
+   * will be shifted to the right by 1.
+   *
+   * @param vector       the vector to copy from
+   * @param index        the index to insert the new element
+   * @param elementToAdd the element to add to the new vector
+   * @param <U>          the data type of the elements
+   * @return a new vector containing the new element
+   */
+  public static <U> Vector<U> addEntry(Vector<U> vector, int index, U elementToAdd) {
+    var list = new ArrayList<>(vector.values);
+    list.add(index, elementToAdd);
+    return new Vector<>(list);
+  }
+
+  /**
    * Gets the element at the given index
+   *
    * @param index the index to get the element from
    * @return the element at the given index
    */

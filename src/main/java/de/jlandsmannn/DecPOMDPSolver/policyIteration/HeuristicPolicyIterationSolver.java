@@ -24,20 +24,18 @@ import java.util.Set;
 @Service
 public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithStateController, HeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationSolver.class);
-
-  protected int numberOfBeliefPoints;
-  protected int maxIterations = 0;
-  protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
-  protected Set<Distribution<State>> beliefPoints = new HashSet<>();
-  protected double controllerState = 0;
-  protected int currentIteration = 0;
-
   protected final BeliefPointGenerator beliefPointGenerator;
   protected final ValueFunctionEvaluater<DecPOMDPWithStateController, ?> valueFunctionEvaluater;
   protected final ExhaustiveBackupPerformer exhaustiveBackupPerformer;
   protected final DominatingNodesRetainer dominatingNodesRetainer;
   protected final CombinatorialNodePruner<?, ?> combinatorialNodePruner;
   protected final double valueChangeThreshold;
+  protected int numberOfBeliefPoints;
+  protected int maxIterations = 0;
+  protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
+  protected Set<Distribution<State>> beliefPoints = new HashSet<>();
+  protected double controllerState = 0;
+  protected int currentIteration = 0;
 
   @Autowired
   public HeuristicPolicyIterationSolver(BeliefPointGenerator beliefPointGenerator,

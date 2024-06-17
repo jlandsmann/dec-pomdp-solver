@@ -54,6 +54,6 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
       .stream()
       .map(v -> Map.entry(v.getName(), v.getValue().doubleValue()))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-    ;
+      ;
   }
 }

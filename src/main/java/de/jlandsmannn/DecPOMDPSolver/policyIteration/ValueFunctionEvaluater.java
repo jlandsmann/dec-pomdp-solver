@@ -10,7 +10,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransfo
  * and solves it with a suitable {@link EquationSystemSolver}.
  *
  * @param <DECPOMDP> the data type of the DecPOMDP
- * @param <MATRIX> the data type of the matrices and vectors
+ * @param <MATRIX>   the data type of the matrices and vectors
  */
 public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRIX> {
 
@@ -44,8 +44,7 @@ public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRI
       .setMatrix(matrix)
       .setVector(vector)
       .solve()
-      .orElseThrow(() -> new IllegalStateException("Could not solve equation system to evaluate value function"))
-    ;
+      .orElseThrow(() -> new IllegalStateException("Could not solve equation system to evaluate value function"));
     transformer.applyValuesToDecPOMDP(result);
   }
 }

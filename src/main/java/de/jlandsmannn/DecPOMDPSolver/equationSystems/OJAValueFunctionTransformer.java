@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.LongStream;
 
 /**
@@ -155,7 +154,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
           })
       )
       .reduce(coefficientModification, Double::sum)
-    ;
+      ;
   }
 
   private double calculateAllRewardsForStateAndNodes(State state, Vector<Node> nodeVector) {

@@ -13,7 +13,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FiniteStateControllerTest {
-  private FiniteStateController finiteStateController;
   private final Set<Node> nodes = Set.of(
     new Node("N1"),
     new Node("N2"),
@@ -34,6 +33,7 @@ class FiniteStateControllerTest {
     new Observation("O4"),
     new Observation("O5")
   );
+  private FiniteStateController finiteStateController;
 
   @BeforeEach
   void setUp() {

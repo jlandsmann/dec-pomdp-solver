@@ -15,11 +15,11 @@ public record Node(String name) {
     return new Node(name);
   }
 
-  public static List<Node> listOf(String ...names) {
+  public static List<Node> listOf(String... names) {
     return Arrays.stream(names).map(Node::from).toList();
   }
 
-  public static Set<Node> setOf(String ...names) {
+  public static Set<Node> setOf(String... names) {
     return Arrays.stream(names).map(Node::from).collect(Collectors.toSet());
   }
 

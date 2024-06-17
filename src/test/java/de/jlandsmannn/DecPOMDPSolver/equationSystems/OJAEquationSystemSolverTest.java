@@ -55,7 +55,7 @@ class OJAEquationSystemSolverTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {1,2,3,7,13,16,21})
+  @ValueSource(ints = {1, 2, 3, 7, 13, 16, 21})
   void setMatrix_ShouldThrowIfMatrixHasNoRows(int columns) {
     assertThrows(IllegalArgumentException.class, () -> {
       solver.setMatrix(generateRandomMatrix(0, columns));
@@ -63,7 +63,7 @@ class OJAEquationSystemSolverTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {1,2,3,7,13,16,21})
+  @ValueSource(ints = {1, 2, 3, 7, 13, 16, 21})
   void setMatrix_ShouldThrowIfMatrixHasNoCols(int rows) {
     assertThrows(IllegalArgumentException.class, () -> {
       solver.setMatrix(generateRandomMatrix(rows, 0));
@@ -104,31 +104,31 @@ class OJAEquationSystemSolverTest {
 
   @Test
   void solve_ShouldReturnCorrectResultForGivenEquationSystem() {
-    var matrix = Primitive64Store.FACTORY.make(4,4);
-    var vector = Primitive64Store.FACTORY.make(4,1);
+    var matrix = Primitive64Store.FACTORY.make(4, 4);
+    var vector = Primitive64Store.FACTORY.make(4, 1);
     // a + b + c + d = 13.2
-    matrix.set(0,0,1);
-    matrix.set(0,1,1);
-    matrix.set(0,2,1);
-    matrix.set(0,3,1);
+    matrix.set(0, 0, 1);
+    matrix.set(0, 1, 1);
+    matrix.set(0, 2, 1);
+    matrix.set(0, 3, 1);
     vector.set(0, 0, 13.2);
     // 2a + b + d = 17.8
-    matrix.set(1,0,2);
-    matrix.set(1,1,1);
-    matrix.set(1,2,0);
-    matrix.set(1,3,1);
+    matrix.set(1, 0, 2);
+    matrix.set(1, 1, 1);
+    matrix.set(1, 2, 0);
+    matrix.set(1, 3, 1);
     vector.set(1, 0, 17.8);
     // a + 3b + c + 5d = 28.4
-    matrix.set(2,0,1);
-    matrix.set(2,1,3);
-    matrix.set(2,2,1);
-    matrix.set(2,3,5);
+    matrix.set(2, 0, 1);
+    matrix.set(2, 1, 3);
+    matrix.set(2, 2, 1);
+    matrix.set(2, 3, 5);
     vector.set(2, 0, 28.4);
     // 2b + 3c + 6d = 16
-    matrix.set(3,0,0);
-    matrix.set(3,1,2);
-    matrix.set(3,2,3);
-    matrix.set(3,3,6);
+    matrix.set(3, 0, 0);
+    matrix.set(3, 1, 2);
+    matrix.set(3, 2, 3);
+    matrix.set(3, 3, 6);
     vector.set(3, 0, 16);
 
     var result = solver.setMatrix(matrix).setVector(vector).solve();
@@ -137,31 +137,31 @@ class OJAEquationSystemSolverTest {
     var resultVector = result.get();
     // a = 5, b = 8, c = 0.4, d = -0.2
     // for some reason, the result diverges at a factor of less than 10^-7
-    assertEquals(resultVector.get(0,0), 5, 1e-7);
-    assertEquals(resultVector.get(1,0), 8, 1e-7);
-    assertEquals(resultVector.get(2,0), 0.4, 1e-7);
-    assertEquals(resultVector.get(3,0), -0.2, 1e-7);
+    assertEquals(resultVector.get(0, 0), 5, 1e-7);
+    assertEquals(resultVector.get(1, 0), 8, 1e-7);
+    assertEquals(resultVector.get(2, 0), 0.4, 1e-7);
+    assertEquals(resultVector.get(3, 0), -0.2, 1e-7);
 
   }
 
   @Test
   void solve_ShouldReturnNoResultForNonSolvableEquationSystem() {
-    var matrix = Primitive64Store.FACTORY.make(3,3);
-    var vector = Primitive64Store.FACTORY.make(3,1);
+    var matrix = Primitive64Store.FACTORY.make(3, 3);
+    var vector = Primitive64Store.FACTORY.make(3, 1);
     // x + y = 0
-    matrix.set(0,0,1);
-    matrix.set(0,1,1);
-    matrix.set(0,2,0);
+    matrix.set(0, 0, 1);
+    matrix.set(0, 1, 1);
+    matrix.set(0, 2, 0);
     vector.set(0, 0, 0);
     // x = 17.8
-    matrix.set(1,0,1);
-    matrix.set(1,1,0);
-    matrix.set(1,2,0);
+    matrix.set(1, 0, 1);
+    matrix.set(1, 1, 0);
+    matrix.set(1, 2, 0);
     vector.set(1, 0, 17.8);
     // y = -3
-    matrix.set(2,0,0);
-    matrix.set(2,1,1);
-    matrix.set(2,2,0);
+    matrix.set(2, 0, 0);
+    matrix.set(2, 1, 1);
+    matrix.set(2, 2, 0);
     vector.set(2, 0, -3);
 
     var result = solver.setMatrix(matrix).setVector(vector).solve();

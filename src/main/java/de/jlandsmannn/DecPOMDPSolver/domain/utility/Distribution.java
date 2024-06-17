@@ -38,8 +38,8 @@ public class Distribution<T> implements Iterable<T> {
    * This method creates a random distribution with all elements from the given collection.
    *
    * @param entries the elements to include in the distribution
+   * @param <T>     the data type of the elements
    * @return a distribution with (pseudo) random probabilities
-   * @param <T> the data type of the elements
    */
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries) {
     return createRandomDistribution(entries, new Random());
@@ -50,9 +50,9 @@ public class Distribution<T> implements Iterable<T> {
    * The required generation of random numbers is done by the given random object.
    *
    * @param entries the elements to include in the distribution
-   * @param random the random object used to generate probabilities
+   * @param random  the random object used to generate probabilities
+   * @param <T>     the data type of the elements
    * @return a distribution with (pseudo) random probabilities
-   * @param <T> the data type of the elements
    */
   public static <T> Distribution<T> createRandomDistribution(Collection<T> entries, Random random) {
     if (entries.size() == 1) {
@@ -83,8 +83,8 @@ public class Distribution<T> implements Iterable<T> {
    * This method creates a uniform distribution with all elements from the given collection.
    *
    * @param entries the elements to include in the distribution
+   * @param <T>     the data type of the elements
    * @return a distribution with equal probabilities
-   * @param <T> the data type of the elements
    */
   public static <T> Distribution<T> createUniformDistribution(Collection<T> entries) {
     var entriesAsSet = Set.copyOf(entries);
@@ -102,8 +102,8 @@ public class Distribution<T> implements Iterable<T> {
    * This method creates a distribution with a single entry, which has a probability of 1.
    *
    * @param entry the element to include in the distribution
+   * @param <T>   the data type of the element
    * @return a distribution with a single entry
-   * @param <T> the data type of the element
    */
   public static <T> Distribution<T> createSingleEntryDistribution(T entry) {
     try {
@@ -118,8 +118,8 @@ public class Distribution<T> implements Iterable<T> {
    * weighted by the given probability inside the map.
    *
    * @param distributionOfDistributions the distributions and their weights
+   * @param <T>                         the data type of the elements
    * @return a distribution with all entries of all distributions
-   * @param <T> the data type of the elements
    */
   public static <T> Distribution<T> createWeightedDistribution(Map<Distribution<T>, Double> distributionOfDistributions) {
     Map<T, Double> probabilities = new HashMap<>();
@@ -177,6 +177,7 @@ public class Distribution<T> implements Iterable<T> {
   /**
    * This method returns a set containing all elements
    * that have probability which is larger than 0.
+   *
    * @return all elements with non-zero probability
    */
   public Set<T> keySet() {
@@ -187,6 +188,7 @@ public class Distribution<T> implements Iterable<T> {
    * This method returns a set containing all entries
    * where the key is the element, and the value is the probability
    * that have probability which is larger than 0.
+   *
    * @return all entries with non-zero probability
    */
   public Set<Map.Entry<T, Double>> entrySet() {
@@ -196,6 +198,7 @@ public class Distribution<T> implements Iterable<T> {
   /**
    * Returns the probability of the given item.
    * If the item is not part of the distribution, 0 is returned.
+   *
    * @param item the item to check for
    * @return the probability of the item
    */
@@ -206,6 +209,7 @@ public class Distribution<T> implements Iterable<T> {
   /**
    * Selects an element (pseudo) randomly
    * weighted by their probabilities.
+   *
    * @return a random element from the distribution
    */
   public T getRandom() {
@@ -219,7 +223,8 @@ public class Distribution<T> implements Iterable<T> {
 
   /**
    * Removes an element from the distribution and replaces its probability with given distribution.
-   * @param element the element to replace
+   *
+   * @param element     the element to replace
    * @param replacement the distribution to weight the elements to replace the element with
    */
   public void replaceEntryWithDistribution(T element, Distribution<T> replacement) {
@@ -240,6 +245,7 @@ public class Distribution<T> implements Iterable<T> {
   /**
    * Returns a readonly map where the keys are the elements
    * and the values are their probabilities.
+   *
    * @return readonly map of the distribution's elements
    */
   public Map<T, Double> toMap() {

@@ -10,6 +10,7 @@ public class ListCombinationBuilder<T> extends CombinationBuilder<List<T>, T> {
 
   /**
    * This method creates a stream of all combinations from the given list of lists.
+   *
    * @param possibleValues a list of lists of items
    * @return a stream with all combinations
    */
@@ -20,6 +21,7 @@ public class ListCombinationBuilder<T> extends CombinationBuilder<List<T>, T> {
 
   /**
    * This method creates a list of all combinations from the given list of lists.
+   *
    * @param possibleValues a list of lists of items
    * @return a list with all combinations
    */
@@ -30,6 +32,7 @@ public class ListCombinationBuilder<T> extends CombinationBuilder<List<T>, T> {
 
   /**
    * This method transforms the input list into a readonly list.
+   *
    * @param combinationAsList the combination as a list
    * @return a readonly list representing the combination
    */

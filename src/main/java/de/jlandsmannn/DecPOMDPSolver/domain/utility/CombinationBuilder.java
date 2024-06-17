@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toCollection;
-
 /**
  * This is class can be used to create a list or a stream
  * of all possible combinations based on a list of list.
@@ -23,6 +21,7 @@ public abstract class CombinationBuilder<C, T> {
 
   /**
    * This method creates a list of all combinations from the given list of lists.
+   *
    * @param possibleValues a list of lists of items
    * @return a list with all combinations
    */
@@ -32,6 +31,7 @@ public abstract class CombinationBuilder<C, T> {
 
   /**
    * This method creates a set of all combinations from the given list of lists.
+   *
    * @param possibleValues a list of lists of items
    * @return a set with all combinations
    */
@@ -41,6 +41,7 @@ public abstract class CombinationBuilder<C, T> {
 
   /**
    * This method creates a stream of all combinations from the given list of lists.
+   *
    * @param possibleValues a list of lists of items
    * @return a stream with all combinations
    */
@@ -72,7 +73,7 @@ public abstract class CombinationBuilder<C, T> {
    *
    * @param possibleValues a list of lists of items
    * @param takeNthElement a list of combinations to skip before heading to the next element of the regarding list
-   * @param idx the idx identifying which combination should be calculated
+   * @param idx            the idx identifying which combination should be calculated
    * @return the combination for the given index
    */
   protected C iterate(List<? extends List<T>> possibleValues, List<Long> takeNthElement, long idx) {

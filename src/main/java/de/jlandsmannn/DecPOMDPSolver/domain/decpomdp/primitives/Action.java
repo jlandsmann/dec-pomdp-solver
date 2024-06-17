@@ -16,11 +16,11 @@ public record Action(String name) {
     return new Action(name);
   }
 
-  public static List<Action> listOf(String ...names) {
+  public static List<Action> listOf(String... names) {
     return Arrays.stream(names).map(Action::from).toList();
   }
 
-  public static Set<Action> setOf(String ...names) {
+  public static Set<Action> setOf(String... names) {
     return Arrays.stream(names).map(Action::from).collect(Collectors.toSet());
   }
 

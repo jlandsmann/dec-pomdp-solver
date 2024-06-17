@@ -73,7 +73,7 @@ class OJALinearProgramSolverTest {
     var result = solver.minimise();
     assertFalse(result.isPresent());
   }
-  
+
   @Test
   void minimise_ShouldReturnMapWithAllVariables() {
     solver.setLinearProgram(solvableLP);
@@ -92,7 +92,7 @@ class OJALinearProgramSolverTest {
     assertTrue(result.get("y") <= 0);
     assertTrue(2 * result.get("x") + result.get("y") == 10);
   }
-  
+
   private ExpressionsBasedModel createSolvableModel() {
     var model = new ExpressionsBasedModel();
     // 0 <= x

@@ -16,13 +16,15 @@ import java.util.Optional;
  * for a given node and a set of belief points.
  * It can be solved by an {@link LinearOptimizationSolver}.
  *
- * @param <LP> the linear program itself
+ * @param <LP>     the linear program itself
  * @param <RESULT> the LP's result data type
  */
 public interface CombinatorialNodePruningTransformer<LP, RESULT> {
 
   void setDecPOMDP(DecPOMDPWithStateController decPOMDP);
+
   void setAgent(AgentWithStateController agent);
+
   void setBeliefPoints(Collection<Distribution<State>> beliefPoints);
 
   LP getLinearProgramForNode(Node nodeToPrune);

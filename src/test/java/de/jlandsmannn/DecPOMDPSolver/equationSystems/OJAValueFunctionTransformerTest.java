@@ -1,14 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +11,6 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.random.Uniform;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +34,8 @@ class OJAValueFunctionTransformerTest {
     int nodeCombinationCount = decPOMDP.getAgents().stream()
       .map(AgentWithStateController::getControllerNodes)
       .map(Collection::size)
-      .reduce(1, Math::multiplyExact);;
+      .reduce(1, Math::multiplyExact);
+    ;
 
     var expectedRows = stateCount * nodeCombinationCount;
     var expectedCols = stateCount * nodeCombinationCount;
@@ -60,7 +52,7 @@ class OJAValueFunctionTransformerTest {
 
     for (int i = 0; i < matrix.getRowDim(); i++) {
       var actualSumOfRow = matrix.aggregateRow(i, Aggregator.SUM);
-      assertEquals(expectedSumOfRow, actualSumOfRow,  allowedDelta, "Row " + i + " should have sum of " + expectedSumOfRow +" but has sum of " + actualSumOfRow);
+      assertEquals(expectedSumOfRow, actualSumOfRow, allowedDelta, "Row " + i + " should have sum of " + expectedSumOfRow + " but has sum of " + actualSumOfRow);
     }
   }
 

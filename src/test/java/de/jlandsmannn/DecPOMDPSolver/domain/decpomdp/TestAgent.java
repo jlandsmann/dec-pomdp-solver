@@ -4,7 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 
 import java.util.List;
-import java.util.Set;
 
 public class TestAgent extends Agent {
 

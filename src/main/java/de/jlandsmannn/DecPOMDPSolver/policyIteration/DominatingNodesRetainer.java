@@ -40,7 +40,8 @@ public class DominatingNodesRetainer {
   public void retainDominatingNodes() {
     LOG.info("Retaining dominating nodes");
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to retain dominating nodes.");
-    else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to retain dominating nodes.");
+    else if (beliefPoints == null)
+      throw new IllegalStateException("Belief points must be set to retain dominating nodes.");
 
     var nodeVectorsToRetain = findDominatingNodeVectors();
     retainNodeVectors(nodeVectorsToRetain);
@@ -74,6 +75,7 @@ public class DominatingNodesRetainer {
   private void validateBeliefPoints(Set<Distribution<State>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
-    };
+    }
+    ;
   }
 }

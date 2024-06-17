@@ -16,6 +16,7 @@ public enum DPOMDPCommonKeyword {
   DPOMDPCommonKeyword(String keyword) {
     this(keyword, keyword);
   }
+
   DPOMDPCommonKeyword(String keyword, String pattern) {
     this.keyword = keyword;
     this.pattern = pattern;

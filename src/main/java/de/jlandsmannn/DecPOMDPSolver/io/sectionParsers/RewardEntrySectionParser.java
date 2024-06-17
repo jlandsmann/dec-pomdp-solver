@@ -64,6 +64,11 @@ public class RewardEntrySectionParser extends BaseSectionParser {
     return rewards;
   }
 
+  public RewardEntrySectionParser setRewards(Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards) {
+    this.rewards = rewards;
+    return this;
+  }
+
   public RewardEntrySectionParser setStates(List<State> states) {
     this.states = states;
     return this;
@@ -79,17 +84,14 @@ public class RewardEntrySectionParser extends BaseSectionParser {
     return this;
   }
 
-  public RewardEntrySectionParser setRewards(Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards) {
-    this.rewards = rewards;
-    return this;
-  }
-
   public void parseSection(String section) {
     LOG.debug("Parsing 'R' section.");
     assertAllDependenciesSet();
     var match = getMatchOrThrow(section);
-    if (!match.hasGroup("actionVector")) throw new ParsingFailedException("'R' section was parsed successfully, but actionVector is not present.");
-    else if (!match.hasGroup("startState")) throw new ParsingFailedException("'R' section was parsed successfully, but startState is not present.");
+    if (!match.hasGroup("actionVector"))
+      throw new ParsingFailedException("'R' section was parsed successfully, but actionVector is not present.");
+    else if (!match.hasGroup("startState"))
+      throw new ParsingFailedException("'R' section was parsed successfully, but startState is not present.");
     var actionVectors = CommonParser.parseActionVector(agentActions, match.getGroupAsStringOrThrow("actionVector"));
     var startStates = CommonParser.parseStateOrWildcard(states, match.getGroupAsStringOrThrow("startState"));
     if (match.hasGroup("endState")) {

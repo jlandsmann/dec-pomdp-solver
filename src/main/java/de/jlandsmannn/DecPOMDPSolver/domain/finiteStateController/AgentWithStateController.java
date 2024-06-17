@@ -22,10 +22,11 @@ public class AgentWithStateController extends Agent {
 
   /**
    * Default constructor with name, actions, observations and controller.
-   * @param name The name of this agent
-   * @param actions The actions of this agent
+   *
+   * @param name         The name of this agent
+   * @param actions      The actions of this agent
    * @param observations The observations of this agent
-   * @param controller The controller of this agent
+   * @param controller   The controller of this agent
    */
   public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);
@@ -34,6 +35,7 @@ public class AgentWithStateController extends Agent {
 
   /**
    * Getter for {@link AgentWithStateController#initialControllerNodes}
+   *
    * @return the nodes of controller that provide most utility at the initial belief state(s)
    */
   public Set<Node> getInitialControllerNodes() {
@@ -42,6 +44,7 @@ public class AgentWithStateController extends Agent {
 
   /**
    * Setter for {@link AgentWithStateController#initialControllerNodes}
+   *
    * @param initialNodes the nodes of controller that provide most utility at the initial belief state(s)
    */
   public void setInitialControllerNodes(Set<Node> initialNodes) {
@@ -72,10 +75,11 @@ public class AgentWithStateController extends Agent {
 
   /**
    * {@link FiniteStateController#getTransition(Node, Action, Observation)}
-   * @param node the node from where the transition starts
-   * @param action the action to be taken when in node
+   *
+   * @param node        the node from where the transition starts
+   * @param action      the action to be taken when in node
    * @param observation the observation observed after taking action
-   * @param followNode the node to land in
+   * @param followNode  the node to land in
    * @return the probability of the described transition
    */
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
@@ -86,8 +90,9 @@ public class AgentWithStateController extends Agent {
 
   /**
    * {@link FiniteStateController#getTransition(Node, Action, Observation)}
-   * @param node the node from where the transition starts
-   * @param action the action to be taken when in node
+   *
+   * @param node        the node from where the transition starts
+   * @param action      the action to be taken when in node
    * @param observation the observation observed after taking action
    * @return the distribution of nodes to land in
    */

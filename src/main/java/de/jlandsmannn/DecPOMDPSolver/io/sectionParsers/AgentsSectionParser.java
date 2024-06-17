@@ -24,10 +24,10 @@ public class AgentsSectionParser extends BaseSectionParser {
     super(
       DPOMDPSectionKeyword.AGENTS,
       DPOMDPSectionKeyword.AGENTS + ": ?" +
-      OR(
-        "(?<agentCount>" + COUNT_PATTERN + ")",
-        "(?<agentNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
-      ));
+        OR(
+          "(?<agentCount>" + COUNT_PATTERN + ")",
+          "(?<agentNames>" + LIST_OF(IDENTIFIER_PATTERN) + ")"
+        ));
   }
 
   public List<String> getAgentNames() {
@@ -42,7 +42,7 @@ public class AgentsSectionParser extends BaseSectionParser {
       if (agentCount <= 0) throw new ParsingFailedException("agentCount must be greater than zero.");
       LOG.debug("Found number of agents, creating {} agents with generic names.", agentCount);
       agentNames = IntStream.range(0, agentCount).mapToObj(i -> "A" + i).toList();
-    } else if (match.hasGroup("agentNames")){
+    } else if (match.hasGroup("agentNames")) {
       var rawAgentNames = match.getGroupAsStringArrayOrThrow("agentNames", " ");
       agentNames = List.of(rawAgentNames);
       LOG.debug("Found custom names of agents, creating {} agents with given names.", agentNames.size());

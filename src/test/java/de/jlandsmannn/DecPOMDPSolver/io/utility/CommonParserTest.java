@@ -342,7 +342,7 @@ class CommonParserTest {
     var actual = CommonParser.parseObservationVector(possibleObservations, input);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   void parseStateOrWildcard_ShouldMapStatesByName() {
     var states = State.listOf("S1", "S2");
@@ -414,7 +414,7 @@ class CommonParserTest {
     var actual = CommonParser.parseStateOrWildcard(states, input);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   void parseActionOrWildcard_ShouldMapActionsByName() {
     var actions = Action.listOf("A1", "A2");
@@ -486,7 +486,7 @@ class CommonParserTest {
     var actual = CommonParser.parseActionOrWildcard(actions, input);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   void parseObservationOrWildcard_ShouldMapObservationsByName() {
     var observations = Observation.listOf("O1", "O2");

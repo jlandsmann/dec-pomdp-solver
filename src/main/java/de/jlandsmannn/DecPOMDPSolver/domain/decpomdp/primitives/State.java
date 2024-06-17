@@ -16,11 +16,11 @@ public record State(String name) {
     return new State(name);
   }
 
-  public static List<State> listOf(String ...names) {
+  public static List<State> listOf(String... names) {
     return Arrays.stream(names).map(State::from).toList();
   }
 
-  public static Set<State> setOf(String ...names) {
+  public static Set<State> setOf(String... names) {
     return Arrays.stream(names).map(State::from).collect(Collectors.toSet());
   }
 

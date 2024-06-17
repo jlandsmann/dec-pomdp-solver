@@ -64,6 +64,11 @@ public class ObservationEntrySectionParser extends BaseSectionParser {
     return observations;
   }
 
+  public ObservationEntrySectionParser setObservations(Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations) {
+    this.observations = observations;
+    return this;
+  }
+
   public ObservationEntrySectionParser setStates(List<State> states) {
     this.states = states;
     return this;
@@ -79,16 +84,12 @@ public class ObservationEntrySectionParser extends BaseSectionParser {
     return this;
   }
 
-  public ObservationEntrySectionParser setObservations(Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations) {
-    this.observations = observations;
-    return this;
-  }
-
   public void parseSection(String section) {
     LOG.debug("Parsing 'O' section.");
     assertAllDependenciesSet();
     var match = getMatchOrThrow(section);
-    if (!match.hasGroup("actionVector")) throw new ParsingFailedException("'O' section was parsed successfully, but actionVector is not present.");
+    if (!match.hasGroup("actionVector"))
+      throw new ParsingFailedException("'O' section was parsed successfully, but actionVector is not present.");
     var actionVectors = CommonParser.parseActionVector(agentActions, match.getGroupAsStringOrThrow("actionVector"));
     if (match.hasGroup("endState")) {
       var endStates = CommonParser.parseStateOrWildcard(states, match.getGroupAsStringOrThrow("endState"));

@@ -22,7 +22,7 @@ import java.util.Optional;
  * and for all belief points a value at least as high as the given node.
  * This class is independent of the concrete implementation or data types.
  *
- * @param <LP> the data type of the linear program
+ * @param <LP>     the data type of the linear program
  * @param <RESULT> the data type of the linear program's result
  */
 public abstract class CombinatorialNodePruner<LP, RESULT> {

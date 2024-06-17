@@ -19,7 +19,12 @@ public enum DPOMDPSectionKeyword {
   TRANSITION_ENTRY("T"),
   REWARD_ENTRY("R"),
   OBSERVATION_ENTRY("O");
-  
+
+  public static final Set<DPOMDPSectionKeyword> ALL = Set.of(
+    COMMENT, AGENTS, DISCOUNT, REWARD_TYPE,
+    STATES, START, ACTIONS, OBSERVATIONS,
+    TRANSITION_ENTRY, REWARD_ENTRY, OBSERVATION_ENTRY
+  );
   private final String keyword;
 
   DPOMDPSectionKeyword(String keyword) {
@@ -38,10 +43,4 @@ public enum DPOMDPSectionKeyword {
   public String toString() {
     return keyword;
   }
-
-  public static final Set<DPOMDPSectionKeyword> ALL = Set.of(
-    COMMENT, AGENTS, DISCOUNT, REWARD_TYPE,
-    STATES, START, ACTIONS, OBSERVATIONS,
-    TRANSITION_ENTRY, REWARD_ENTRY, OBSERVATION_ENTRY
-  );
 }

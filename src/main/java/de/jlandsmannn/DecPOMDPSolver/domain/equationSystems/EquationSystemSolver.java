@@ -5,6 +5,7 @@ import java.util.Optional;
 /**
  * This interface describes a library and data type independent class
  * which can solve a system of linear equations in the form of A*x=B.
+ *
  * @param <MATRIX> the data type of matrices and vectors
  */
 public interface EquationSystemSolver<MATRIX> {

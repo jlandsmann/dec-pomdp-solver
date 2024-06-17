@@ -34,7 +34,7 @@ class DistributionTest {
   }
 
   @ParameterizedTest()
-  @ValueSource(ints = {1,2,3,4,5,6,7,8,9,10})
+  @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
   void createUniformDistribution_ShouldGiveAllItemsSameProbability(int numberOfItems) {
     var inputSet = IntStream.range(0, numberOfItems).boxed().collect(Collectors.toSet());
     var distribution = Distribution.createUniformDistribution(inputSet);

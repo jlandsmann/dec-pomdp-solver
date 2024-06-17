@@ -69,6 +69,11 @@ public class TransitionEntrySectionParser extends BaseSectionParser {
     return transitions;
   }
 
+  public TransitionEntrySectionParser setTransitions(Map<State, Map<Vector<Action>, Map<State, Double>>> transitions) {
+    this.transitions = transitions;
+    return this;
+  }
+
   public TransitionEntrySectionParser setStates(List<State> states) {
     this.states = states;
     return this;
@@ -79,16 +84,12 @@ public class TransitionEntrySectionParser extends BaseSectionParser {
     return this;
   }
 
-  public TransitionEntrySectionParser setTransitions(Map<State, Map<Vector<Action>, Map<State, Double>>> transitions) {
-    this.transitions = transitions;
-    return this;
-  }
-
   public void parseSection(String section) {
     LOG.debug("Parsing 'T' section.");
     assertAllDependenciesSet();
     var match = getMatchOrThrow(section);
-    if (!match.hasGroup("actionVector")) throw new ParsingFailedException("'T' section was parsed successfully, but actionVector is not present.");
+    if (!match.hasGroup("actionVector"))
+      throw new ParsingFailedException("'T' section was parsed successfully, but actionVector is not present.");
     var actionVectors = CommonParser.parseActionVector(agentActions, match.getGroupAsStringOrThrow("actionVector"));
     if (match.hasGroup("startState")) {
       var startStates = CommonParser.parseStateOrWildcard(states, match.getGroupAsStringOrThrow("startState"));

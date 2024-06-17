@@ -47,7 +47,7 @@ public class StatesSectionParser extends BaseSectionParser {
         .mapToObj(i -> "S" + i)
         .map(State::from)
         .toList();
-    } else if (match.hasGroup("stateNames")){
+    } else if (match.hasGroup("stateNames")) {
       var stateNames = match.getGroupAsStringArrayOrThrow("stateNames", " ");
       states = State.listOf(stateNames);
       LOG.debug("Found custom names of states, creating {} states with given names.", states.size());

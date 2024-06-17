@@ -14,8 +14,8 @@ public final class CommonPattern {
   public static final String PROBABILITY_PATTERN = "(?:1(?:\\.0)?|0\\.[0-9]+)";
   public static final String IDENTIFIER_PATTERN = "[a-zA-Z][a-zA-Z0-9\\-\\_]*";
 
-  public static String OR(String ...patterns) {
-    var joined = Arrays.stream(patterns).reduce((a,b) -> a + "|" + b).orElse("");
+  public static String OR(String... patterns) {
+    var joined = Arrays.stream(patterns).reduce((a, b) -> a + "|" + b).orElse("");
     return GROUP(joined);
   }
 
@@ -28,7 +28,7 @@ public final class CommonPattern {
   }
 
   private static String LIST_OF(String pattern, String separator) {
-    return  GROUP(GROUP(pattern + separator) + "*" + GROUP(pattern));
+    return GROUP(GROUP(pattern + separator) + "*" + GROUP(pattern));
   }
 
   public static String NAMED_GROUP(String name, String pattern) {

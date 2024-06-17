@@ -63,21 +63,17 @@ public class StartSectionParser extends BaseSectionParser {
       var stateName = match.getGroupAsStringOrThrow("startState");
       var state = State.from(stateName);
       initialBeliefState = Distribution.createSingleEntryDistribution(state);
-    }
-    else if (match.hasGroup("startStateIndex")) {
+    } else if (match.hasGroup("startStateIndex")) {
       var stateIndex = match.getGroupAsIntOrThrow("startStateIndex");
       var state = states.get(stateIndex);
       initialBeliefState = Distribution.createSingleEntryDistribution(state);
-    }
-    else if (match.hasGroup("uniformDistribution")) {
+    } else if (match.hasGroup("uniformDistribution")) {
       initialBeliefState = Distribution.createUniformDistribution(states);
-    }
-    else if (match.hasGroup("distribution")) {
+    } else if (match.hasGroup("distribution")) {
       var rawStateProbabilities = match.getGroupAsStringOrThrow("distribution");
       var rawDistribution = CommonParser.parseStatesAndTheirDistributions(states, rawStateProbabilities);
       initialBeliefState = Distribution.of(rawDistribution);
-    }
-    else if (match.hasGroup("includeStates")) {
+    } else if (match.hasGroup("includeStates")) {
       var rawStates = match.getGroupAsStringArrayOrThrow("includeStates", " ");
       var statesToInclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {
@@ -88,8 +84,7 @@ public class StartSectionParser extends BaseSectionParser {
         }
       }).toList();
       initialBeliefState = Distribution.createUniformDistribution(statesToInclude);
-    }
-    else if (match.hasGroup("excludeStates")) {
+    } else if (match.hasGroup("excludeStates")) {
       var rawStates = match.getGroupAsStringArrayOrThrow("excludeStates", " ");
       var statesToExclude = Arrays.stream(rawStates).map(s -> {
         if (s.matches(CommonPattern.INDEX_PATTERN)) {

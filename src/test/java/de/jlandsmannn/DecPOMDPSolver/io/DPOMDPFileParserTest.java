@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void doParseDecPOMDP() {
+  void tryParseDecPOMDP() {
   }
 
   @Test

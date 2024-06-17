@@ -16,11 +16,11 @@ public record Observation(String name) {
     return new Observation(name);
   }
 
-  public static List<Observation> listOf(String ...names) {
+  public static List<Observation> listOf(String... names) {
     return Arrays.stream(names).map(Observation::from).toList();
   }
 
-  public static Set<Observation> setOf(String ...names) {
+  public static Set<Observation> setOf(String... names) {
     return Arrays.stream(names).map(Observation::from).collect(Collectors.toSet());
   }
 

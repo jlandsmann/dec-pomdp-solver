@@ -30,7 +30,7 @@ public class ActionsSectionParser extends BaseSectionParser {
   public ActionsSectionParser() {
     super(DPOMDPSectionKeyword.ACTIONS,
       DPOMDPSectionKeyword.ACTIONS + ": ?\\R" +
-      "(?<agentActions>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
+        "(?<agentActions>" + ROWS_OF(OR(COUNT_PATTERN, LIST_OF(IDENTIFIER_PATTERN))) + ")"
     );
   }
 
