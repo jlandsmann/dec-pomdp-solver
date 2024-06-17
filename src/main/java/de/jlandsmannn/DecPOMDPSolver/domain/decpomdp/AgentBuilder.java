@@ -2,40 +2,34 @@ package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 /**
- * This class is used to build an agent.
- * It ensures an agent has unique actions and observations
- * and creates needed objects, like an arbitrary finite state controller.
+ * This abstract class is used to create an agent builder.
+ * It ensures an agent has unique actions and observations.
  */
-public class AgentBuilder {
-  private String name;
-  private List<Action> actions;
-  private List<Observation> observations;
+public abstract class AgentBuilder<AGENT extends Agent, THIS extends AgentBuilder<AGENT, ?>> {
+  protected String name;
+  protected List<Action> actions;
+  protected List<Observation> observations;
 
-  public AgentBuilder setName(String name) {
+  public THIS setName(String name) {
     this.name = name;
-    return this;
+    return (THIS) this;
   }
 
-  public AgentBuilder setActions(Collection<Action> actions) {
+  public THIS setActions(Collection<Action> actions) {
     this.actions = List.copyOf(Set.copyOf(actions));
-    return this;
+    return (THIS) this;
   }
 
-  public AgentBuilder setObservations(Collection<Observation> observations) {
+  public THIS setObservations(Collection<Observation> observations) {
     this.observations = List.copyOf(Set.copyOf(observations));
-    return this;
+    return (THIS) this;
   }
 
-  public AgentWithStateController createAgent() {
-    var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
-    return new AgentWithStateController(name, actions, observations, controller);
-  }
+  public abstract AGENT createAgent();
 }

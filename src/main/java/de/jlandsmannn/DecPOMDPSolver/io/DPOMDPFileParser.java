@@ -1,11 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,25 +24,33 @@ import java.util.Optional;
  * The given filename can be a path either inside the resources directory
  * or relative to the directory, where the program is executed.
  */
-public class DPOMDPFileParser {
+public class DPOMDPFileParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 
-  protected DPOMDPSectionParser sectionParser;
+  protected DPOMDPSectionParser<BUILDER> sectionParser;
   protected DPOMDPSectionKeyword currentKeyword = DPOMDPSectionKeyword.COMMENT;
   protected StringBuilder currentSectionBuilder = new StringBuilder();
 
-  public DPOMDPFileParser() {
-    this(new DPOMDPSectionParser(new DecPOMDPBuilder()));
+  public DPOMDPFileParser(BUILDER builder) {
+    this(new DPOMDPSectionParser<>(builder));
   }
 
-  public DPOMDPFileParser(DPOMDPSectionParser parser) {
+  public DPOMDPFileParser(DPOMDPSectionParser<BUILDER> parser) {
     sectionParser = parser;
   }
 
-  public static Optional<DecPOMDPBuilder> parseDecPOMDP(String fileName) {
+  public static Optional<DecPOMDPWithStateControllerBuilder> parse(String fileName) {
+    return parse(new DecPOMDPWithStateControllerBuilder(), fileName);
+  }
+
+  public static <BUILDER extends DecPOMDPBuilder<?, ?, ?>> Optional<BUILDER> parse(BUILDER builder, String fileName) {
+    var parser = new DPOMDPFileParser<>(builder);
+    return parser.parseDecPOMDP(fileName);
+  }
+
+  public Optional<BUILDER> parseDecPOMDP(String fileName) {
     try {
-      var parser = new DPOMDPFileParser();
-      var decPOMDP = parser.doParseDecPOMDP(fileName);
+      var decPOMDP = tryParseDecPOMDP(fileName);
       return Optional.of(decPOMDP);
     } catch (Exception e) {
       LOG.warn("Could not parse decPOMDP file: {}", fileName, e);
@@ -50,7 +58,7 @@ public class DPOMDPFileParser {
     }
   }
 
-  protected DecPOMDPBuilder doParseDecPOMDP(String fileName) throws IOException {
+  protected BUILDER tryParseDecPOMDP(String fileName) throws IOException {
     try (var file = readFile(fileName)) {
       String currentLine = null;
       do {

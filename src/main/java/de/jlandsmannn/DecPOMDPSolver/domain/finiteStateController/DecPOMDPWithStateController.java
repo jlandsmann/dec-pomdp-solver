@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
@@ -9,7 +10,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
+
   private final Map<State, Map<Vector<Node>, Double>> preCalculatedValueFunction = new ConcurrentHashMap<>(getStates().size() + 2, 1F);
 
   public DecPOMDPWithStateController(List<AgentWithStateController> agents,
@@ -43,8 +48,8 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @return the expected sum of rewards
    */
   public double getValue(Distribution<State> beliefState) {
-    var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
-    return VectorCombinationBuilder.streamOf(nodeCombinations)
+    return getNodeCombinations()
+      .stream()
       .map(nodes -> getValue(beliefState, nodes))
       .reduce(Double::max)
       .orElse(0D);
@@ -58,8 +63,8 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @return the vector of nodes to start from, that maximizes the expected sum of rewards
    */
   public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
-    var nodeCombinations = agents.stream().map(AgentWithStateController::getControllerNodes).toList();
-    return VectorCombinationBuilder.streamOf(nodeCombinations)
+    return getNodeCombinations()
+      .stream()
       .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
       .max(Map.Entry.comparingByValue(Double::compareTo))
       .map(Map.Entry::getKey)
@@ -72,7 +77,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * If the value was not set previously, it returns 0.
    *
    * @param beliefState the belief state to check the value for
-   * @param nodes the vector of nodes to check the value for
+   * @param nodes       the vector of nodes to check the value for
    * @return the expected sum of rewards
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
@@ -125,6 +130,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
 
   /**
    * Sets the value for the given state and nodes.
+   *
    * @param state the state to set the value for
    * @param nodes the vector of nodes to set the value for
    * @param value the value to set
@@ -142,7 +148,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * Returns the probability to choose actions
    * when the agents are in the nodes defined by nodes.
    *
-   * @param nodes the vector of nodes to start from
+   * @param nodes   the vector of nodes to start from
    * @param actions the vector of actions to check for
    * @return the probability of choosing actions when in nodes
    * @throws IllegalArgumentException if the vector of nodes or the vector of actions has different size as the DecPOMDP has agents
@@ -154,7 +160,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     var probability = 1D;
-    for (int i = 0; i < actions.size(); i++) {
+    for (int i = 0; i < actions.size() && probability != 0; i++) {
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
@@ -170,10 +176,10 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * observing the given observations
    * and ending in the given new nodes.
    *
-   * @param nodes the vector of nodes to start from
-   * @param actions the vector of actions to check for
+   * @param nodes        the vector of nodes to start from
+   * @param actions      the vector of actions to check for
    * @param observations the vector of observations to check for
-   * @param newNodes the vector of nodes to land in
+   * @param newNodes     the vector of nodes to land in
    * @return the probability of the transition
    * @throws IllegalArgumentException if one of the vectors has different size as the DecPOMDP has agents
    */
@@ -197,6 +203,22 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       probability *= agent.getNodeTransitionProbability(node, action, observation, newNode);
     }
     return probability;
+  }
+
+  public List<Vector<Node>> getNodeCombinations() {
+    var readonlyRawCombinations = getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
+    var rawCombinations = new ArrayList<>(readonlyRawCombinations);
+    return VectorCombinationBuilder.listOf(rawCombinations);
+  }
+
+  public List<Vector<Action>> getActionCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getActions).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
+  }
+
+  public List<Vector<Observation>> getObservationCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
   @Override

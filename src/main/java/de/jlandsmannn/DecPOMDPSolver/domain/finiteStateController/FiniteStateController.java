@@ -4,7 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmptyException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,15 +20,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * the history of the agent space-efficient.
  */
 public class FiniteStateController {
-  protected AtomicLong nodeIndex;
   protected final List<Node> nodes;
   protected final Map<Node, Distribution<Action>> actionFunction;
   protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
+  protected AtomicLong nodeIndex;
 
   /**
    * Default constructor with nodes, action- and transition function.
-   * @param nodes the nodes of this controller
-   * @param actionFunction the action function of this controller
+   *
+   * @param nodes              the nodes of this controller
+   * @param actionFunction     the action function of this controller
    * @param transitionFunction the transition function of this controller
    */
   public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
@@ -41,6 +41,7 @@ public class FiniteStateController {
 
   /**
    * Getter for {@link FiniteStateController#nodes}
+   *
    * @return the nodes of this controller
    */
   public List<Node> getNodes() {
@@ -59,6 +60,7 @@ public class FiniteStateController {
 
   /**
    * Returns the distribution nodes based on the given node.
+   *
    * @param node the node check for
    * @return the distribution of actions
    */
@@ -68,13 +70,17 @@ public class FiniteStateController {
 
   /**
    * Return
+   *
    * @param node
    * @param action
    * @param observation
    * @return
    */
   public Distribution<Node> getTransition(Node node, Action action, Observation observation) {
-    return transitionFunction.getOrDefault(node, Map.of()).getOrDefault(action, Map.of()).get(observation);
+    return transitionFunction
+      .getOrDefault(node, Map.of())
+      .getOrDefault(action, Map.of())
+      .get(observation);
   }
 
   public void addNode(Node node, Action action) {
@@ -142,8 +148,7 @@ public class FiniteStateController {
   private void replaceIncomingConnections(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
     for (var node : transitionFunction.keySet()) {
       for (var action : transitionFunction.get(node).keySet()) {
-        for (var observation : transitionFunction.get(node).get(action).keySet()) {
-          var distribution = transitionFunction.get(node).get(action).get(observation);
+        for (var distribution : transitionFunction.get(node).get(action).values()) {
           for (var nodeToPrune : nodesToPrune) {
             distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
           }

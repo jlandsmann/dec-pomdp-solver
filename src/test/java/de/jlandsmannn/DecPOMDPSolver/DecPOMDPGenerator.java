@@ -6,10 +6,13 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,9 +20,10 @@ public class DecPOMDPGenerator {
 
   private static final State tigerLeft = State.from("tiger-left");
   private static final State tigerRight = State.from("tiger-right");
+  private static final List<Node> correlationNodes = Node.listOf("C1");
 
   public static DecPOMDPWithStateController getDecTigerPOMDP() {
-    var builder = new DecPOMDPBuilder();
+    var builder = new DecPOMDPWithStateControllerBuilder();
     initializeStates(builder);
     initializeAgents(builder);
     initializeTransitions(builder);
@@ -30,7 +34,7 @@ public class DecPOMDPGenerator {
   }
 
   public static DecPOMDPWithStateController getDecTigerPOMDPWithLargeFSC() {
-    var builder = new DecPOMDPBuilder();
+    var builder = new DecPOMDPWithStateControllerBuilder();
     initializeStates(builder);
     initializeLargeAgents(builder);
     initializeTransitions(builder);
@@ -40,21 +44,21 @@ public class DecPOMDPGenerator {
     return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
 
-  private static void initializeStates(DecPOMDPBuilder builder) {
+  private static void initializeStates(DecPOMDPBuilder<?, ?, ?> builder) {
     builder
       .addState("tiger-left")
       .addState("tiger-right")
     ;
   }
 
-  private static void initializeAgents(DecPOMDPBuilder builder) {
+  private static void initializeAgents(DecPOMDPBuilder<?, AgentWithStateController, ?> builder) {
     builder
       .addAgent(createAgent("A1"))
       .addAgent(createAgent("A2"))
     ;
   }
 
-  private static void initializeLargeAgents(DecPOMDPBuilder builder) {
+  private static void initializeLargeAgents(DecPOMDPBuilder<?, AgentWithStateController, ?> builder) {
     builder
       .addAgent(createLargeAgent("A1"))
       .addAgent(createLargeAgent("A2"))
@@ -65,23 +69,23 @@ public class DecPOMDPGenerator {
   private static AgentWithStateController createAgent(String name) {
     var actions = Action.listOf("listen", "open-left", "open-right");
     var observations = Observation.listOf("hear-left", "hear-right");
-    var controller = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, correlationNodes, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 
   private static AgentWithStateController createLargeAgent(String name) {
     var actions = Action.listOf("listen", "open-left", "open-right");
     var observations = Observation.listOf("hear-left", "hear-right");
-    var controller = FiniteStateControllerBuilder.createArbitraryController(name, 4, actions, observations);
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, correlationNodes, 4, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
   }
 
-  private static void initializeInitialBeliefState(DecPOMDPBuilder builder) {
+  private static void initializeInitialBeliefState(DecPOMDPBuilder<?, ?, ?> builder) {
     var beliefState = Distribution.createUniformDistribution(builder.getStates());
     builder.setInitialBeliefState(beliefState);
   }
 
-  private static void initializeTransitions(DecPOMDPBuilder builder) {
+  private static void initializeTransitions(DecPOMDPBuilder<?, ?, ?> builder) {
     var uniformStateDistribution = Distribution.createUniformDistribution(State.setOf("tiger-left", "tiger-right"));
     builder
       .addTransition(tigerLeft, createActionVector("listen", "listen"), tigerLeft)
@@ -105,11 +109,11 @@ public class DecPOMDPGenerator {
     ;
   }
 
-  private static void initializeRewards(DecPOMDPBuilder builder) {
+  private static void initializeRewards(DecPOMDPBuilder<?, ?, ?> builder) {
     builder
       .addReward(tigerLeft, createActionVector("listen", "listen"), -2D)
       .addReward(tigerLeft, createActionVector("listen", "open-left"), -101D)
-      .addReward(tigerLeft, createActionVector( "listen", "open-right"), 9D)
+      .addReward(tigerLeft, createActionVector("listen", "open-right"), 9D)
       .addReward(tigerLeft, createActionVector("open-left", "listen"), -101D)
       .addReward(tigerLeft, createActionVector("open-left", "open-left"), -50D)
       .addReward(tigerLeft, createActionVector("open-left", "open-right"), -100D)
@@ -118,7 +122,7 @@ public class DecPOMDPGenerator {
       .addReward(tigerLeft, createActionVector("open-right", "open-right"), 20D)
       .addReward(tigerRight, createActionVector("listen", "listen"), -2D)
       .addReward(tigerRight, createActionVector("listen", "open-left"), 9D)
-      .addReward(tigerRight, createActionVector( "listen", "open-right"), -101D)
+      .addReward(tigerRight, createActionVector("listen", "open-right"), -101D)
       .addReward(tigerRight, createActionVector("open-left", "listen"), 9D)
       .addReward(tigerRight, createActionVector("open-left", "open-left"), 20D)
       .addReward(tigerRight, createActionVector("open-left", "open-right"), -100D)
@@ -129,7 +133,7 @@ public class DecPOMDPGenerator {
 
   }
 
-  private static void initializeObservations(DecPOMDPBuilder builder) {
+  private static void initializeObservations(DecPOMDPBuilder<?, ?, ?> builder) {
     var uniformObservationDistribution = Distribution.createUniformDistribution(Set.of(
       Vector.of(Observation.listOf("hear-left", "hear-left")),
       Vector.of(Observation.listOf("hear-right", "hear-left")),

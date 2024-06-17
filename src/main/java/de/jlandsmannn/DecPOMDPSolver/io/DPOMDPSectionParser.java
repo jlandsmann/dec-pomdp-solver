@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
@@ -29,10 +28,10 @@ import java.util.Map;
  * When all mandatory sections were parsed, and
  * sufficient information about the DecPOMDP was given, it can be built.
  */
-public class DPOMDPSectionParser {
+public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 
-  protected DecPOMDPBuilder builder;
+  protected BUILDER builder;
 
   protected List<String> agentNames = new ArrayList<>();
   protected List<List<Action>> agentActions = new ArrayList<>();
@@ -42,7 +41,7 @@ public class DPOMDPSectionParser {
   protected Map<State, Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>>> rewards = new HashMap<>();
   protected Map<Vector<Action>, Map<State, Map<Vector<Observation>, Double>>> observations = new HashMap<>();
 
-  public DPOMDPSectionParser(DecPOMDPBuilder builder) {
+  public DPOMDPSectionParser(BUILDER builder) {
     this.builder = builder;
   }
 
@@ -81,12 +80,12 @@ public class DPOMDPSectionParser {
     }
   }
 
-  public DPOMDPSectionParser gatherData() {
+  public DPOMDPSectionParser<BUILDER> gatherData() {
     gatherDataAndAddToBuilder();
     return this;
   }
 
-  public DecPOMDPBuilder getBuilder() {
+  public BUILDER getBuilder() {
     return builder;
   }
 
@@ -196,7 +195,7 @@ public class DPOMDPSectionParser {
       var name = agentNames.get(i);
       var actions = agentActions.get(i);
       var observations = agentObservations.get(i);
-      var agent = new AgentBuilder()
+      var agent = builder.getAgentBuilder()
         .setName(name)
         .setActions(actions)
         .setObservations(observations)
@@ -212,7 +211,8 @@ public class DPOMDPSectionParser {
       if (actionMap == null) throw new IllegalStateException("State " + state + " has no transitions.");
       for (var actionVector : actionCombinations) {
         var transitionMap = actionMap.get(actionVector);
-        if (transitionMap == null) throw new IllegalStateException("State " + state + " with actions " + actionVector + " has no transitions.");
+        if (transitionMap == null)
+          throw new IllegalStateException("State " + state + " with actions " + actionVector + " has no transitions.");
         var distribution = Distribution.of(transitionMap);
         builder.addTransition(state, actionVector, distribution);
       }
@@ -227,7 +227,8 @@ public class DPOMDPSectionParser {
       if (stateMap == null) throw new IllegalStateException("Actions " + actionVector + " have no observations.");
       for (var state : builder.getStates()) {
         var observationMap = stateMap.get(state);
-        if (observationMap == null) throw new IllegalStateException("State " + state + " has no observations for actions " + actionVector + ".");
+        if (observationMap == null)
+          throw new IllegalStateException("State " + state + " has no observations for actions " + actionVector + ".");
         var distribution = Distribution.of(observationMap);
         builder.addObservation(actionVector, state, distribution);
       }

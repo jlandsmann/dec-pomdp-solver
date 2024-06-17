@@ -25,16 +25,15 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class ExhaustiveBackupPerformer {
   private static final Logger LOG = LoggerFactory.getLogger(ExhaustiveBackupPerformer.class);
-  private DecPOMDPWithStateController decPOMDP;
 
+  private DecPOMDPWithStateController decPOMDP;
   private List<Vector<Node>> originalNodeCombinations = List.of();
   private Set<Distribution<State>> beliefPoints;
 
   public ExhaustiveBackupPerformer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
-    var originalNodes = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    originalNodeCombinations = VectorCombinationBuilder.listOf(originalNodes);
+    this.originalNodeCombinations = decPOMDP.getNodeCombinations();
     return this;
   }
 
@@ -48,7 +47,8 @@ public class ExhaustiveBackupPerformer {
   public void performExhaustiveBackup() {
     LOG.info("Performing global exhaustive backup");
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
-    else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
+    else if (beliefPoints == null)
+      throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
     for (var agent : decPOMDP.getAgents()) {
       performExhaustiveBackupForAgent(agent);
     }
@@ -58,7 +58,8 @@ public class ExhaustiveBackupPerformer {
   protected void performExhaustiveBackupForAgent(AgentWithStateController agent) {
     LOG.info("Performing local exhaustive backup for Agent {}", agent);
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
-    else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
+    else if (beliefPoints == null)
+      throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
 
     var originalNodes = List.copyOf(agent.getControllerNodes());
     var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
@@ -86,8 +87,7 @@ public class ExhaustiveBackupPerformer {
 
   protected void updateValueFunction() {
     LOG.info("Calculating missing values of value function");
-    var rawNodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
+    var nodeCombinations = decPOMDP.getNodeCombinations();
     var beliefPointStatesStream = beliefPoints.stream().map(Distribution::keySet).flatMap(Set::stream).distinct();
     AtomicInteger updatedCombinations = new AtomicInteger();
     beliefPointStatesStream
@@ -110,10 +110,8 @@ public class ExhaustiveBackupPerformer {
 
   protected double calculateValue(State state, Vector<Node> nodeVector) {
     LOG.debug("Calculating missing value of value function for {} and {}", state, nodeVector);
-    var rawActionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
-    var actionCombinations = VectorCombinationBuilder.listOf(rawActionCombinations);
-    var rawObservationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
-    var observationsCombinations = VectorCombinationBuilder.listOf(rawObservationsCombinations);
+    var actionCombinations = decPOMDP.getActionCombinations();
+    var observationsCombinations = decPOMDP.getObservationCombinations();
 
     var value = 0D;
     var discount = decPOMDP.getDiscountFactor();
@@ -143,6 +141,7 @@ public class ExhaustiveBackupPerformer {
   private void validateBeliefPoints(Set<Distribution<State>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
-    };
+    }
+    ;
   }
 }

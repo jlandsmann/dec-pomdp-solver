@@ -105,7 +105,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
   ) {
     LOG.info("Command 'load' was called with filename={}.", filename);
     if (!initialized) throw new IllegalStateException("Heuristic policy iteration is not initialized yet.");
-    var optionalBuilder = DPOMDPFileParser.parseDecPOMDP(filename);
+    var optionalBuilder = DPOMDPFileParser.parse(filename);
     if (optionalBuilder.isEmpty()) {
       LOG.warn("Parsing failed for file {}", filename);
       return "Could not parse " + filename + ". Make sure the file exists.";
@@ -132,7 +132,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
    * Therefore, a space-separated list of probabilities for each action of each agent has to be defined,
    * and those have to be enclosed by quotes.
    * There must be such a list for each agent, separated by a space.
-   *
+   * <p>
    * `heuristic initialPolicy "0.8 0.1 0.1" "0.8 0.1 0.1"`
    * Is an example for the DecTiger problem,
    * where listening happens by a chance of 80% and hearing left or right each by a chance of 10%.
