@@ -8,6 +8,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmpty
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionSumNotOneException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class can be used to build a {@link FiniteStateController} step by step.
@@ -15,8 +16,8 @@ import java.util.*;
  */
 public class FiniteStateControllerBuilder {
   private final List<Node> nodes = new ArrayList<>();
-  private final Map<Node, Distribution<Action>> actionFunction = new HashMap<>();
-  private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new HashMap<>();
+  private final Map<Node, Distribution<Action>> actionFunction = new ConcurrentHashMap<>();
+  private final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction = new ConcurrentHashMap<>();
 
   /**
    * This function creates an arbitrary controller with a single node,
@@ -79,8 +80,8 @@ public class FiniteStateControllerBuilder {
   }
 
   public FiniteStateControllerBuilder addTransition(Node node, Action action, Observation observation, Distribution<Node> nextNodeDistribution) {
-    this.transitionFunction.putIfAbsent(node, new HashMap<>());
-    this.transitionFunction.get(node).putIfAbsent(action, new HashMap<>());
+    this.transitionFunction.putIfAbsent(node, new ConcurrentHashMap<>());
+    this.transitionFunction.get(node).putIfAbsent(action, new ConcurrentHashMap<>());
     this.transitionFunction.get(node).get(action).put(observation, nextNodeDistribution);
     return this;
   }

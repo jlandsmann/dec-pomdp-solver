@@ -7,6 +7,8 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.exceptions.DistributionEmptyException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A finite state controller is a graph consisting of nodes.
@@ -19,7 +21,7 @@ import java.util.*;
  * the history of the agent space-efficient.
  */
 public class FiniteStateController {
-  protected long nodeIndex;
+  protected AtomicLong nodeIndex;
   protected final List<Node> nodes;
   protected final Map<Node, Distribution<Action>> actionFunction;
   protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
@@ -31,8 +33,8 @@ public class FiniteStateController {
    * @param transitionFunction the transition function of this controller
    */
   public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
-    this.nodes = nodes;
-    this.nodeIndex = nodes.size();
+    this.nodes = Collections.synchronizedList(new ArrayList<>(nodes));
+    this.nodeIndex = new AtomicLong(nodes.size());
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;
   }
@@ -52,7 +54,7 @@ public class FiniteStateController {
    * to create unique nodes containing the index in the name.
    */
   public long getNodeIndex() {
-    return nodeIndex;
+    return nodeIndex.getAndIncrement();
   }
 
   /**
@@ -84,7 +86,6 @@ public class FiniteStateController {
       throw new IllegalArgumentException("Node " + node + " already exists");
     }
     nodes.add(node);
-    nodeIndex++;
     actionFunction.put(node, action);
   }
 
@@ -96,8 +97,8 @@ public class FiniteStateController {
     if (!nodes.contains(node)) {
       throw new IllegalArgumentException("Node " + node + " does not exist.");
     }
-    transitionFunction.putIfAbsent(node, new HashMap<>());
-    transitionFunction.get(node).putIfAbsent(a, new HashMap<>());
+    transitionFunction.putIfAbsent(node, new ConcurrentHashMap<>());
+    transitionFunction.get(node).putIfAbsent(a, new ConcurrentHashMap<>());
     transitionFunction.get(node).get(a).put(o, transition);
   }
 

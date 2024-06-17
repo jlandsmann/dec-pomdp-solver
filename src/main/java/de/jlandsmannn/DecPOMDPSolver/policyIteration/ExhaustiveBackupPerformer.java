@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class performs exhaustive backups on an agent's state controller.
@@ -58,23 +59,28 @@ public class ExhaustiveBackupPerformer {
     LOG.info("Performing local exhaustive backup for Agent {}", agent);
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
     else if (beliefPoints == null) throw new IllegalStateException("Belief points must be set to perform exhaustive backup.");
-    long nodesAdded = 0;
+
     var originalNodes = List.copyOf(agent.getControllerNodes());
     var rawObservationNodeCombinations = agent.getObservations().stream().map(o -> originalNodes).toList();
     var observationNodeCombinations = VectorCombinationBuilder.listOf(rawObservationNodeCombinations);
     LOG.info("Starting with {} nodes for Agent {}", originalNodes.size(), agent);
-    for (var action : agent.getActions()) {
-      for (var observationNodeCombination : observationNodeCombinations) {
+
+    AtomicLong nodesAdded = new AtomicLong();
+    agent.getActions().stream().parallel().forEach(action -> {
+      observationNodeCombinations.stream().parallel().forEach(observationNodeCombination -> {
+
         var node = Node.from(agent.getName() + "-Q" + agent.getControllerNodeIndex());
         agent.addNode(node, action);
-        nodesAdded++;
+        nodesAdded.getAndIncrement();
+
         var observationIndex = 0;
         for (var observation : agent.getObservations()) {
           var followNode = observationNodeCombination.get(observationIndex++);
           agent.addTransition(node, action, observation, followNode);
         }
-      }
-    }
+      });
+    });
+
     LOG.info("Added {} nodes to Agent {}.", nodesAdded, agent);
   }
 
