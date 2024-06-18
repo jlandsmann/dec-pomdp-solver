@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.BasicDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
@@ -146,8 +145,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
   }
 
   /**
-   * Returns the probability to choose actions
-   * when the agents are in the nodes defined by nodes.
+   * Returns the probability to choose actions when the agents are in the nodes defined by nodes.
    *
    * @param nodes   the vector of nodes to start from
    * @param actions the vector of actions to check for
@@ -171,10 +169,8 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
   }
 
   /**
-   * Returns the probability to transit
-   * starting from the given nodes,
-   * choosing the given actions,
-   * observing the given observations
+   * Returns the probability to transit starting from the given nodes,
+   * choosing the given actions, observing the given observations
    * and ending in the given new nodes.
    *
    * @param nodes        the vector of nodes to start from
@@ -209,16 +205,6 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
   public List<Vector<Node>> getNodeCombinations() {
     var readonlyRawCombinations = getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
     var rawCombinations = new ArrayList<>(readonlyRawCombinations);
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
-
-  public List<Vector<Action>> getActionCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getActions).toList();
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
-
-  public List<Vector<Observation>> getObservationCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 

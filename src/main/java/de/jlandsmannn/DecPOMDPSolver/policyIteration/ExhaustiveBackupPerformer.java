@@ -134,10 +134,11 @@ public class ExhaustiveBackupPerformer {
           var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, followNodeVector);
           if (nodeTransitionProbability == 0) continue;
           for (var followState : decPOMDP.getStates()) {
-            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, observationVector, followState);
-            if (stateTransitionProbability == 0) continue;
+            var stateTransitionProbability = decPOMDP.getTransition(state, actionVector).getProbability(followState);
+            var observationProbability = decPOMDP.getObservations(actionVector, followState).getProbability(observationVector);
+            if (stateTransitionProbability == 0 || observationProbability == 0) continue;
             var followValue = decPOMDP.getValue(followState, followNodeVector);
-            value += discount * actionVectorProbability * stateTransitionProbability * nodeTransitionProbability * followValue;
+            value += discount * actionVectorProbability * stateTransitionProbability * observationProbability * nodeTransitionProbability * followValue;
           }
         }
       }

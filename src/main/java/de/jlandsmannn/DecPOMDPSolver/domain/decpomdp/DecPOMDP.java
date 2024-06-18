@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -32,12 +33,16 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     validateDiscountFactor();
   }
 
+  public List<AGENT> getAgents() {
+    return agents;
+  }
+
   public List<State> getStates() {
     return states;
   }
 
-  public List<AGENT> getAgents() {
-    return agents;
+  public double getDiscountFactor() {
+    return discountFactor;
   }
 
   public Distribution<State> getInitialBeliefState() {
@@ -95,25 +100,20 @@ public abstract class DecPOMDP<AGENT extends Agent> {
 
   public abstract Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState);
 
-  public double getDiscountFactor() {
-    return discountFactor;
-  }
-
   public double getValue() {
     return getValue(initialBeliefState);
   }
 
   public abstract double getValue(Distribution<State> beliefSate);
 
-  public double getTransitionProbability(State state, Vector<Action> actions, Vector<Observation> observations, State newState) {
-    if (actions.size() != agents.size()) {
-      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    } else if (observations.size() != agents.size()) {
-      throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
-    }
-    var stateProbability = getTransition(state, actions).getProbability(newState);
-    var observationProbability = getObservations(actions, newState).getProbability(observations);
-    return stateProbability * observationProbability;
+  public List<Vector<Action>> getActionCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getActions).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
+  }
+
+  public List<Vector<Observation>> getObservationCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
   @Override

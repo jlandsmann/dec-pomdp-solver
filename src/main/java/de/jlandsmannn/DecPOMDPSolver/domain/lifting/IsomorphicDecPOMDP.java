@@ -7,17 +7,15 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public abstract class LiftedDecPOMDP extends DecPOMDP<LiftedAgent> {
+public abstract class IsomorphicDecPOMDP extends DecPOMDP<IsomorphicAgent> {
 
-  protected LiftedDecPOMDP(List<LiftedAgent> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState) {
+  protected IsomorphicDecPOMDP(List<IsomorphicAgent> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState) {
     super(agents, states, discountFactor, initialBeliefState);
   }
 
-  public double getTransitionProbability(State state, Vector<Vector<Action>> actions, State newState) {
+  public double getTransitionProbability(State state, Vector<Action> actions, State newState) {
     var probability = 1D;
     for (int i = 0; i < agents.size(); i++) {
       var agent = agents.get(i);
@@ -27,13 +25,13 @@ public abstract class LiftedDecPOMDP extends DecPOMDP<LiftedAgent> {
     return probability;
   }
 
-  public double getObservationProbability(Vector<Vector<Action>> actions, State newState, Vector<Vector<Observation>> observations) {
+  public double getObservationProbability(Vector<Action> actions, State newState, Vector<Observation> observations) {
     var probability = 1D;
     for (int i = 0; i < agents.size(); i++) {
       var agent = agents.get(i);
-      var actionVector = actions.get(i);
-      var observationVector = observations.get(i);
-      probability *= agent.getObservationProbability(actionVector, newState, observationVector);
+      var action = actions.get(i);
+      var observation = observations.get(i);
+      probability *= agent.getObservationProbability(action, newState, observation);
     }
     return probability;
   }
