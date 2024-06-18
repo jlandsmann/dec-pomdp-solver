@@ -20,6 +20,7 @@ public class IsomorphicAgent extends Agent {
   public double getTransitionProbability(State state, Action action, State followState) {
     var transition = getTransition(state, action);
     var probability = transition.getProbability(followState);
+    // TODO: check next line
     return Math.pow(probability, numberOfAgents);
   }
 
@@ -31,6 +32,7 @@ public class IsomorphicAgent extends Agent {
   public double getObservationProbability(Action action, State followState, Observation observation) {
     var transition = getObservation(action, followState);
     var probability = transition.getProbability(observation);
+    // TODO: check next line
     return Math.pow(probability, numberOfAgents);
   }
 
