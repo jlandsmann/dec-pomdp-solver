@@ -17,28 +17,4 @@ public class IsomorphicAgent extends Agent {
     this.numberOfAgents = numberOfAgents;
   }
 
-  public double getTransitionProbability(State state, Action action, State followState) {
-    var transition = getTransition(state, action);
-    var probability = transition.getProbability(followState);
-    // TODO: check next line
-    return Math.pow(probability, numberOfAgents);
-  }
-
-  public Distribution<State> getTransition(State state, Action action) {
-    // TODO: how to implement this
-    return Distribution.createSingleEntryDistribution(state);
-  }
-
-  public double getObservationProbability(Action action, State followState, Observation observation) {
-    var transition = getObservation(action, followState);
-    var probability = transition.getProbability(observation);
-    // TODO: check next line
-    return Math.pow(probability, numberOfAgents);
-  }
-
-  public Distribution<Observation> getObservation(Action action, State nextState) {
-    // TODO: how to implement this
-    return Distribution.createUniformDistribution(observations);
-  }
-
 }
