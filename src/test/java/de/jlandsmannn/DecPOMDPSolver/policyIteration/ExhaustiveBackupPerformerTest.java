@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,13 +26,13 @@ class ExhaustiveBackupPerformerTest {
 
   private DecPOMDPWithStateController decPOMDP;
   private ExhaustiveBackupPerformer exhaustiveBackupPerformer;
-  private Set<Distribution<State>> beliefPoints;
+  private Map<Agent, Set<Distribution<State>>> beliefPoints;
 
   @BeforeEach
   void setUp() {
     decPOMDP = DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC();
     exhaustiveBackupPerformer = spy(new ExhaustiveBackupPerformer());
-    beliefPoints = Set.of(
+    var agentBeliefPoints = Set.of(
       Distribution.of(Map.of(
         decPOMDP.getStates().getFirst(), 0.5,
         decPOMDP.getStates().getLast(), 0.5
@@ -43,6 +45,10 @@ class ExhaustiveBackupPerformerTest {
         decPOMDP.getStates().getFirst(), 0.4,
         decPOMDP.getStates().getLast(), 0.6
       ))
+    );
+    beliefPoints = Map.of(
+      decPOMDP.getAgents().getFirst(), agentBeliefPoints,
+      decPOMDP.getAgents().getLast(), agentBeliefPoints
     );
   }
 
@@ -142,7 +148,11 @@ class ExhaustiveBackupPerformerTest {
 
     exhaustiveBackupPerformer.updateValueFunction();
 
-    var statesInBeliefPoints = beliefPoints.stream().map(Distribution::keySet).flatMap(Set::stream).collect(Collectors.toSet());
+    var statesInBeliefPoints = beliefPoints.values().stream()
+      .flatMap(Collection::stream)
+      .map(Distribution::keySet)
+      .flatMap(Set::stream)
+      .collect(Collectors.toSet());
     for (var state : statesInBeliefPoints) {
       for (var nodeCombination : newNodeCombinations) {
         var optionalValue = decPOMDP.hasValue(state, nodeCombination);

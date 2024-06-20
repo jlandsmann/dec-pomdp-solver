@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
@@ -11,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,7 +31,7 @@ public class ExhaustiveBackupPerformer {
 
   private DecPOMDPWithStateController decPOMDP;
   private List<Vector<Node>> originalNodeCombinations = List.of();
-  private Set<Distribution<State>> beliefPoints;
+  private Map<Agent, Set<Distribution<State>>> beliefPoints;
 
   public ExhaustiveBackupPerformer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
@@ -37,7 +40,7 @@ public class ExhaustiveBackupPerformer {
     return this;
   }
 
-  public ExhaustiveBackupPerformer setBeliefPoints(Set<Distribution<State>> beliefPoints) {
+  public ExhaustiveBackupPerformer setBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
     LOG.debug("Retrieving belief points: {}", beliefPoints);
     validateBeliefPoints(beliefPoints);
     this.beliefPoints = beliefPoints;
@@ -88,7 +91,11 @@ public class ExhaustiveBackupPerformer {
   protected void updateValueFunction() {
     LOG.info("Calculating missing values of value function");
     var nodeCombinations = decPOMDP.getNodeCombinations();
-    var beliefPointStatesStream = beliefPoints.stream().map(Distribution::keySet).flatMap(Set::stream).distinct();
+    var beliefPointStatesStream = beliefPoints.values().stream()
+      .flatMap(Collection::stream)
+      .map(Distribution::keySet)
+      .flatMap(Set::stream)
+      .distinct();
     AtomicInteger updatedCombinations = new AtomicInteger();
     beliefPointStatesStream
       .parallel()
@@ -138,7 +145,7 @@ public class ExhaustiveBackupPerformer {
     return value;
   }
 
-  private void validateBeliefPoints(Set<Distribution<State>> beliefPoints) {
+  private void validateBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -71,38 +72,39 @@ public class BeliefPointGenerator {
     return this;
   }
 
-  public Set<Distribution<State>> generateBeliefPoints() {
+  public Map<Agent, Set<Distribution<State>>> generateBeliefPoints() {
+    assertAllDependenciesAreSet();
+    var beliefPoints = new ConcurrentHashMap<Agent, Set<Distribution<State>>>(decPOMDP.getAgents().size());
+    decPOMDP.getAgents().stream().parallel().forEach(agent -> {
+      var newBeliefPoints = generateBeliefPointsForAgent(agent);
+      beliefPoints.put(agent, newBeliefPoints);
+    });
+    return beliefPoints;
+  }
+
+  public Set<Distribution<State>> generateBeliefPointsForAgent(Agent agent) {
     assertAllDependenciesAreSet();
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
+    var beliefPoint = currentBeliefState;
     generatedBeliefPoints.add(currentBeliefState);
-    var enoughBeliefPointsGenerated = false;
-    for (int i = 0; i < maxGenerationRuns && !enoughBeliefPointsGenerated; i++) {
-      if (i > 0) randomizePoliciesAndBeliefState();
-      var pointsNeeded = numberOfBeliefPoints - generatedBeliefPoints.size();
-      var newBeliefPoints = doGenerateBeliefPoints(pointsNeeded);
-      addOnlyDiversePoints(generatedBeliefPoints, newBeliefPoints);
-      enoughBeliefPointsGenerated = generatedBeliefPoints.size() >= numberOfBeliefPoints;
+
+    for (int generation = 0; generation < maxGenerationRuns; generation++) {
+      if (generatedBeliefPoints.size() >= numberOfBeliefPoints) break;
+      if (generation > 0) randomizePoliciesAndBeliefState();
+      for (int i = 0; i < numberOfBeliefPoints; i++) {
+        if (generatedBeliefPoints.size() >= numberOfBeliefPoints) break;
+        var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint);
+        addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
+        beliefPoint = newBeliefPoint;
+      }
     }
-    LOG.info("Generated {} belief points.", generatedBeliefPoints.size());
+    LOG.info("Generated {} belief points for {}.", generatedBeliefPoints.size(), agent);
     return generatedBeliefPoints;
   }
 
-  protected Set<Distribution<State>> doGenerateBeliefPoints(int numberOfBeliefPoints) {
-    var generatedBeliefPoints = new HashSet<Distribution<State>>();
-    for (int i = 0; i < numberOfBeliefPoints; i++) {
-      var agent = decPOMDP.getAgents().get(i % decPOMDP.getAgents().size());
-      var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, currentBeliefState);
-      generatedBeliefPoints.add(newBeliefPoint);
-      currentBeliefState = newBeliefPoint;
-    }
-    return generatedBeliefPoints;
-  }
-
-  protected void addOnlyDiversePoints(Set<Distribution<State>> alreadyFound, Set<Distribution<State>> pointsToAdd) {
-    for (Distribution<State> pointToAdd : pointsToAdd) {
-      var closeBeliefStateExists = alreadyFound.stream().anyMatch(pointAdded -> pointAdded.closeTo(pointToAdd, beliefPointDistanceThreshold));
-      if (!closeBeliefStateExists) alreadyFound.add(pointToAdd);
-    }
+  protected void addPointOnlyIfDiverse(Set<Distribution<State>> alreadyFound, Distribution<State> pointToAdd) {
+    var closeBeliefStateExists = alreadyFound.stream().anyMatch(pointAdded -> pointAdded.closeTo(pointToAdd, beliefPointDistanceThreshold));
+    if (!closeBeliefStateExists) alreadyFound.add(pointToAdd);
   }
 
   protected void assertAllDependenciesAreSet() {

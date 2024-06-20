@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +33,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
   protected int numberOfBeliefPoints;
   protected int maxIterations = 0;
   protected Map<Agent, Map<State, Distribution<Action>>> initialPolicies;
-  protected Set<Distribution<State>> beliefPoints = new HashSet<>();
+  protected Map<Agent, Set<Distribution<State>>> beliefPoints = new HashMap<>();
   protected double controllerState = 0;
   protected int currentIteration = 0;
 
@@ -96,7 +96,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       .setDesiredNumberOfBeliefPoints(numberOfBeliefPoints)
       .setPolicies(initialPolicies);
     var generateBeliefPoints = beliefPointGenerator.generateBeliefPoints();
-    beliefPoints.addAll(generateBeliefPoints);
+    beliefPoints.putAll(generateBeliefPoints);
   }
 
   protected void saveControllerState() {
@@ -134,7 +134,7 @@ public class HeuristicPolicyIterationSolver extends DecPOMDPSolver<DecPOMDPWithS
       LOG.debug("Pruning combinatorial dominated nodes for Agent {}.", agent);
       combinatorialNodePruner
         .setAgent(agent)
-        .setBeliefPoints(beliefPoints)
+        .setBeliefPoints(beliefPoints.get(agent))
         .pruneNodesIfCombinatorialDominated();
     }
   }
