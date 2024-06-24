@@ -40,14 +40,14 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
   }
 
   public double getReward(State currentState, Vector<Action> agentActions) {
-    if (agentActions.size() != agents.size()) {
+    if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return rewardFunction.get(currentState).get(agentActions);
   }
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
-    if (agentActions.size() != agents.size()) {
+    if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return observationFunction.get(agentActions).get(nextState);
@@ -75,7 +75,7 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
     for (var state : transitionFunction.keySet()) {
       var innerMap = transitionFunction.get(state);
       for (var actionVector : innerMap.keySet()) {
-        if (actionVector.size() != agents.size()) {
+        if (actionVector.size() != getAgentCount()) {
           throw new IllegalArgumentException("Some action vector of transition function does not match agent count.");
         }
       }
@@ -86,7 +86,7 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
     for (var state : rewardFunction.keySet()) {
       var innerMap = rewardFunction.get(state);
       for (var actionVector : innerMap.keySet()) {
-        if (actionVector.size() != agents.size()) {
+        if (actionVector.size() != getAgentCount()) {
           throw new IllegalArgumentException("Some action vector of reward function does not match agent count.");
         }
       }
@@ -95,7 +95,7 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
 
   protected void validateObservationFunction() {
     for (var actionVector : observationFunction.keySet()) {
-      if (actionVector.size() != agents.size()) {
+      if (actionVector.size() != getAgentCount()) {
         throw new IllegalArgumentException("Some action vector of observation function does not match agent count.");
       } else if (observationFunction.get(actionVector).size() != states.size()) {
         throw new IllegalArgumentException("For some action vector of observation function not every state is matched." + "Action vector: " + actionVector);
@@ -103,7 +103,7 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
       var innerMap = observationFunction.get(actionVector);
       for (var state : innerMap.keySet()) {
         for (var vector : innerMap.get(state)) {
-          if (vector.size() != agents.size()) {
+          if (vector.size() != getAgentCount()) {
             throw new IllegalArgumentException("For some action vector of observation function observations does not match agent count.");
           }
         }

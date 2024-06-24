@@ -106,7 +106,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public double getValue(State state, Vector<Node> nodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     var preCalculatedValuesForState = preCalculatedValueFunction.getOrDefault(state, Map.of());
@@ -122,7 +122,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public boolean hasValue(State state, Vector<Node> nodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     return preCalculatedValueFunction.getOrDefault(state, Map.of()).containsKey(nodes);
@@ -137,7 +137,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public void setValue(State state, Vector<Node> nodes, double value) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>(INITIAL_VALUE_FUNCTION_SIZE_PER_STATE, VALUE_FUNCTION_LOAD_FACTOR));
@@ -153,9 +153,9 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @throws IllegalArgumentException if the vector of nodes or the vector of actions has different size as the DecPOMDP has agents
    */
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
-    } else if (actions.size() != agents.size()) {
+    } else if (actions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     var probability = 1D;
@@ -181,13 +181,13 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @throws IllegalArgumentException if one of the vectors has different size as the DecPOMDP has agents
    */
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
-    } else if (actions.size() != agents.size()) {
+    } else if (actions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    } else if (observations.size() != agents.size()) {
+    } else if (observations.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
-    } else if (newNodes.size() != agents.size()) {
+    } else if (newNodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of newNodes vector doesn't match agent count.");
     }
     var probability = 1D;

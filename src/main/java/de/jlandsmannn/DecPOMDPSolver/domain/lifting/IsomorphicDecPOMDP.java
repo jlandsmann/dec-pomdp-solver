@@ -1,13 +1,13 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.BasicDecPOMDP;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,37 +20,39 @@ public abstract class IsomorphicDecPOMDP<AGENT extends IsomorphicAgent> extends 
     super(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
-  public double getTransitionProbability(State state, Vector<Action> actions, State newState) {
-    var probability = 1D;
-    for (int i = 0; i < agents.size(); i++) {
-      var agent = agents.get(i);
-      var actionVector = actions.get(i);
-      // TODO: expand action vector to represent all agents explicitly
-      probability *= 1;
-    }
-    return probability;
+  @Override
+  public int getAgentCount() {
+    return agents.stream().mapToInt(IsomorphicAgent::getNumberOfAgents).sum();
   }
 
-  public double getObservationProbability(Vector<Action> actions, State newState, Vector<Observation> observations) {
-    var probability = 1D;
-    for (int i = 0; i < agents.size(); i++) {
-      var agent = agents.get(i);
-      var action = actions.get(i);
-      var observation = observations.get(i);
-      // TODO: expand action vector to represent all agents explicitly
-      probability *= 1;
-    }
-    return probability;
+  @Override
+  public Distribution<State> getTransition(State currentState, Vector<Action> agentActions) {
+    var expandedActionVector = expandVectorForLiftedAgents(agentActions);
+    return super.getTransition(currentState, expandedActionVector);
+  }
+
+  @Override
+  public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
+    var expandedActionVector = expandVectorForLiftedAgents(agentActions);
+    return super.getObservations(expandedActionVector, nextBeliefState);
   }
 
   @Override
   public double getReward(State currentState, Vector<Action> agentActions) {
-    // TODO: how to calculate the isolated reward of this state?
-    return 0;
+    var expandedActionVector = expandVectorForLiftedAgents(agentActions);
+    return super.getReward(currentState, expandedActionVector);
   }
 
-  public double getReward(State state) {
-    // TODO: how to calculate the isolated reward of this state?
-    return 0D;
+  protected <U> Vector<U> expandVectorForLiftedAgents(Vector<U> inputVector) {
+    var output = new ArrayList<U>();
+    for (int i = 0; i < agents.size(); i++) {
+      var agent = agents.get(i);
+      var agentCount = agent.getNumberOfAgents();
+      var element = inputVector.get(i);
+      for (int j = 0; j < agentCount; j++) {
+        output.add(element);
+      }
+    }
+    return Vector.of(output);
   }
 }

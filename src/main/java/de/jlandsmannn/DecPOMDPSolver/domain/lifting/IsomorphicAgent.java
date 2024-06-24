@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
+import java.util.Objects;
 
 public class IsomorphicAgent extends Agent {
 
@@ -17,4 +18,20 @@ public class IsomorphicAgent extends Agent {
     this.numberOfAgents = numberOfAgents;
   }
 
+  public int getNumberOfAgents() {
+    return numberOfAgents;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof IsomorphicAgent agent)) return false;
+    return super.equals(agent) &&
+      Objects.equals(getNumberOfAgents(), agent.getNumberOfAgents());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getNumberOfAgents());
+  }
 }

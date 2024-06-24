@@ -32,6 +32,10 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     this.initialBeliefState = initialBeliefState;
     validateDiscountFactor();
   }
+  
+  public int getAgentCount() {
+    return agents.size();
+  }
 
   public List<AGENT> getAgents() {
     return agents;
@@ -50,7 +54,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   }
 
   public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
-    if (agentActions.size() != agents.size()) {
+    if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     Map<Distribution<State>, Double> map = currentBeliefState.entrySet().stream()
@@ -67,7 +71,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   public abstract Distribution<State> getTransition(State currentState, Vector<Action> agentActions);
 
   public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
-    if (agentActions.size() != agents.size()) {
+    if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return currentBeliefState.entrySet().stream()
@@ -84,7 +88,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
   public abstract double getReward(State currentState, Vector<Action> agentActions);
 
   public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
-    if (agentActions.size() != agents.size()) {
+    if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
