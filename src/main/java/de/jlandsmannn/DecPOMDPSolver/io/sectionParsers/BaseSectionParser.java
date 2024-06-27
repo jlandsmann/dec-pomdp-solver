@@ -30,7 +30,7 @@ public abstract class BaseSectionParser {
   protected Optional<SectionMatchResult> getMatch(String section) {
     var matcher = pattern.matcher(section);
     if (!matcher.find() || !matcher.matches()) return Optional.empty();
-    return Optional.of(matcher.toMatchResult()).map(SectionMatchResult::new);
+    return Optional.of(matcher).map(SectionMatchResult::new);
   }
 
   protected SectionMatchResult getMatchOrThrow(String section) {

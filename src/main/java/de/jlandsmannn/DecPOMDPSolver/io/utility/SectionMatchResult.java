@@ -4,6 +4,7 @@ import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 
 import java.util.Optional;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 
 /**
  * This class wraps the {@link MatchResult} class from java,
@@ -12,9 +13,9 @@ import java.util.regex.MatchResult;
  */
 public class SectionMatchResult {
 
-  private final MatchResult result;
+  private final Matcher result;
 
-  public SectionMatchResult(MatchResult result) {
+  public SectionMatchResult(Matcher result) {
     this.result = result;
   }
 

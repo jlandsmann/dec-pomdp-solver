@@ -34,12 +34,12 @@ class OJACombinatorialNodePruningTransformerTest {
   @BeforeEach
   void setUp() {
     decPOMDP = spy(DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC());
-    agent = decPOMDP.getAgents().getFirst();
+    agent = decPOMDP.getAgents().get(0);
     beliefPoints = new ArrayList<>(List.of(
       Distribution.createRandomDistribution(decPOMDP.getStates()),
       Distribution.createRandomDistribution(decPOMDP.getStates())
     ));
-    node = agent.getControllerNodes().getFirst();
+    node = agent.getControllerNodes().get(0);
     transformer = spy(new OJACombinatorialNodePruningTransformer());
   }
 

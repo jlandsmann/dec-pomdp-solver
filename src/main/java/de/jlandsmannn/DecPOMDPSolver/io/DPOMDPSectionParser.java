@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword.*;
+
 /**
  * This class serves as a delegator for the various section parsers in
  * {@link de.jlandsmannn.DecPOMDPSolver.io.sectionParsers}.
@@ -47,34 +49,34 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
 
   public void parseSection(DPOMDPSectionKeyword keyword, String section) {
     switch (keyword) {
-      case DPOMDPSectionKeyword.AGENTS:
+      case AGENTS:
         parseAgents(section);
         break;
-      case DPOMDPSectionKeyword.DISCOUNT:
+      case DISCOUNT:
         parseDiscount(section);
         break;
-      case DPOMDPSectionKeyword.REWARD_TYPE:
+      case REWARD_TYPE:
         parseRewardType(section);
         break;
-      case DPOMDPSectionKeyword.STATES:
+      case STATES:
         parseStates(section);
         break;
-      case DPOMDPSectionKeyword.START:
+      case START:
         parseStart(section);
         break;
-      case DPOMDPSectionKeyword.ACTIONS:
+      case ACTIONS:
         parseActions(section);
         break;
-      case DPOMDPSectionKeyword.OBSERVATIONS:
+      case OBSERVATIONS:
         parseObservations(section);
         break;
-      case DPOMDPSectionKeyword.TRANSITION_ENTRY:
+      case TRANSITION_ENTRY:
         parseTransitionEntry(section);
         break;
-      case DPOMDPSectionKeyword.REWARD_ENTRY:
+      case REWARD_ENTRY:
         parseRewardEntry(section);
         break;
-      case DPOMDPSectionKeyword.OBSERVATION_ENTRY:
+      case OBSERVATION_ENTRY:
         parseObservationEntry(section);
         break;
     }

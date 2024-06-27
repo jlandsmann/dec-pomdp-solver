@@ -34,21 +34,21 @@ class ExhaustiveBackupPerformerTest {
     exhaustiveBackupPerformer = spy(new ExhaustiveBackupPerformer());
     var agentBeliefPoints = Set.of(
       Distribution.of(Map.of(
-        decPOMDP.getStates().getFirst(), 0.5,
-        decPOMDP.getStates().getLast(), 0.5
+        decPOMDP.getStates().get(0), 0.5,
+        decPOMDP.getStates().get(decPOMDP.getStates().size() - 1), 0.5
       )),
       Distribution.of(Map.of(
-        decPOMDP.getStates().getFirst(), 0.6,
-        decPOMDP.getStates().getLast(), 0.4
+        decPOMDP.getStates().get(0), 0.6,
+        decPOMDP.getStates().get(decPOMDP.getStates().size() - 1), 0.4
       )),
       Distribution.of(Map.of(
-        decPOMDP.getStates().getFirst(), 0.4,
-        decPOMDP.getStates().getLast(), 0.6
+        decPOMDP.getStates().get(0), 0.4,
+        decPOMDP.getStates().get(decPOMDP.getStates().size() - 1), 0.6
       ))
     );
     beliefPoints = Map.of(
-      decPOMDP.getAgents().getFirst(), agentBeliefPoints,
-      decPOMDP.getAgents().getLast(), agentBeliefPoints
+      decPOMDP.getAgents().get(0), agentBeliefPoints,
+      decPOMDP.getAgents().get(decPOMDP.getStates().size() - 1), agentBeliefPoints
     );
   }
 

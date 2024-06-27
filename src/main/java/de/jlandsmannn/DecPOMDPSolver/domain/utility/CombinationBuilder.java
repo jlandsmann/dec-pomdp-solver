@@ -59,7 +59,7 @@ public abstract class CombinationBuilder<C, T> {
     for (int i = possibleValues.size() - 1; 1 <= i; i--) {
       var collectionSize = possibleValues.get(i).size();
       scannedItems *= collectionSize;
-      takeNthElement.addFirst(scannedItems);
+      takeNthElement.add(0, scannedItems);
     }
     AtomicLong idx = new AtomicLong(0);
     return Stream

@@ -20,7 +20,7 @@ public class Vector<T> {
    *
    * @param elements the elements of the vector
    */
-  public Vector(SequencedCollection<T> elements) {
+  public Vector(List<T> elements) {
     this.values = List.copyOf(elements);
     if (this.values.isEmpty()) {
       throw new IllegalArgumentException("Vector is empty");
@@ -45,7 +45,7 @@ public class Vector<T> {
    * @param <U>      the data type of the elements
    * @return a vector containing all elements
    */
-  public static <U> Vector<U> of(SequencedCollection<U> elements) {
+  public static <U> Vector<U> of(List<U> elements) {
     return new Vector<>(elements);
   }
 
