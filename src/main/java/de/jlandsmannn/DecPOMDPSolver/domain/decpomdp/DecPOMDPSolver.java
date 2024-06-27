@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * @param <T>    the DecPOMDP class to solve
  * @param <THIS> identity class, for better return values
  */
-public abstract class DecPOMDPSolver<T extends DecPOMDP<? extends Agent>, THIS extends DecPOMDPSolver<T, ?>> {
+public abstract class DecPOMDPSolver<T extends DecPOMDP<? extends Agent, ?, ?>, THIS extends DecPOMDPSolver<T, ?>> {
   private static final Logger LOG = LoggerFactory.getLogger(DecPOMDPSolver.class);
   protected T decPOMDP;
 

@@ -11,7 +11,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
  * @param <DECPOMDP> the concrete class of the {@link DecPOMDP}
  * @param <MATRIX>   the data type of matrices and vectors
  */
-public interface ValueFunctionTransformer<DECPOMDP extends DecPOMDP<? extends Agent>, MATRIX> {
+public interface ValueFunctionTransformer<DECPOMDP extends DecPOMDP<? extends Agent, ?, ?>, MATRIX> {
 
   void setDecPOMDP(DECPOMDP decPOMDP);
 

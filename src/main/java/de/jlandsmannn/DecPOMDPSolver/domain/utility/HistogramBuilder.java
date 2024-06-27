@@ -32,7 +32,7 @@ public class HistogramBuilder<T> {
     if (possibleValues.isEmpty()) return List.of();
     var totalHistograms = new ArrayList<Histogram<T>>();
 
-    var current = possibleValues.getFirst();
+    var current = possibleValues.get(0);
     var child = possibleValues.subList(1, possibleValues.size());
 
 

@@ -1,11 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
  * Furthermore, this class does not instantiate the transition-,
  * the observation- nor the reward function, to be as general as possible.
  */
-public abstract class DecPOMDP<AGENT extends Agent> {
+public abstract class DecPOMDP<AGENT extends Agent, ACTION, OBSERVATION> {
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;
@@ -53,7 +51,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return initialBeliefState;
   }
 
-  public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+  public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<ACTION> agentActions) {
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
@@ -68,9 +66,9 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return Distribution.createWeightedDistribution(map);
   }
 
-  public abstract Distribution<State> getTransition(State currentState, Vector<Action> agentActions);
+  public abstract Distribution<State> getTransition(State currentState, Vector<ACTION> agentActions);
 
-  public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
+  public double getReward(Distribution<State> currentBeliefState, Vector<ACTION> agentActions) {
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
@@ -85,13 +83,13 @@ public abstract class DecPOMDP<AGENT extends Agent> {
       .orElse(0D);
   }
 
-  public abstract double getReward(State currentState, Vector<Action> agentActions);
+  public abstract double getReward(State currentState, Vector<ACTION> agentActions);
 
-  public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, Distribution<State> nextBeliefState) {
+  public Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, Distribution<State> nextBeliefState) {
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
-    Map<Distribution<Vector<Observation>>, Double> map = nextBeliefState.entrySet().stream()
+    Map<Distribution<Vector<OBSERVATION>>, Double> map = nextBeliefState.entrySet().stream()
       .map(entry -> {
         var state = entry.getKey();
         var probability = entry.getValue();
@@ -102,7 +100,7 @@ public abstract class DecPOMDP<AGENT extends Agent> {
     return Distribution.createWeightedDistribution(map);
   }
 
-  public abstract Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState);
+  public abstract Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, State nextState);
 
   public double getValue() {
     return getValue(initialBeliefState);
@@ -110,20 +108,14 @@ public abstract class DecPOMDP<AGENT extends Agent> {
 
   public abstract double getValue(Distribution<State> beliefSate);
 
-  public List<Vector<Action>> getActionCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getActions).toList();
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
+  public abstract List<Vector<ACTION>> getActionCombinations();
 
-  public List<Vector<Observation>> getObservationCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
+  public abstract List<Vector<OBSERVATION>> getObservationCombinations();
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DecPOMDP<?> decPOMDP)) return false;
+    if (!(o instanceof DecPOMDP<?, ?, ?> decPOMDP)) return false;
     return Double.compare(getDiscountFactor(), decPOMDP.getDiscountFactor()) == 0
       && Objects.equals(getAgents(), decPOMDP.getAgents())
       && Objects.equals(getStates(), decPOMDP.getStates());

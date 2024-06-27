@@ -1,8 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Histogram<T> {
 
@@ -34,6 +34,13 @@ public class Histogram<T> {
 
   public int numberOfBuckets() {
     return buckets.size();
+  }
+
+  public List<T> toList() {
+    return buckets.keySet()
+      .stream()
+      .flatMap(element -> IntStream.of(get(element)).mapToObj(i -> element))
+      .toList();
   }
 
   @Override

@@ -33,7 +33,7 @@ public class BeliefPointGenerator {
   private final Random random;
   private final int maxGenerationRuns;
   private final double beliefPointDistanceThreshold;
-  private DecPOMDP<?> decPOMDP;
+  private DecPOMDP<?, Action, Observation> decPOMDP;
   private Distribution<State> currentBeliefState;
   private Map<Agent, Map<State, Distribution<Action>>> policies;
   private int numberOfBeliefPoints;
@@ -48,7 +48,7 @@ public class BeliefPointGenerator {
     }
   }
 
-  public BeliefPointGenerator setDecPOMDP(DecPOMDP<?> decPOMDP) {
+  public BeliefPointGenerator setDecPOMDP(DecPOMDP<?, Action, Observation> decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
     this.currentBeliefState = decPOMDP.getInitialBeliefState();

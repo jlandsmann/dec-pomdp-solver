@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.Objects;
  * On creation, it validates all parameters on their consistency.
  * @param <AGENT>
  */
-public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT> {
+public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT, Action, Observation> {
   protected final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   protected final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   protected final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
@@ -51,6 +52,16 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT>
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     return observationFunction.get(agentActions).get(nextState);
+  }
+
+  public List<Vector<Action>> getActionCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getActions).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
+  }
+
+  public List<Vector<Observation>> getObservationCombinations() {
+    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
   @Override
