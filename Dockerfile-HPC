@@ -1,0 +1,27 @@
+FROM --platform=AMD64 ghcr.io/graalvm/native-image-community:21 as build
+WORKDIR /workspace/app
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+RUN ./mvnw install -DskipTests
+RUN ./mvnw native:compile -DskipTests -Pnative
+
+FROM --platform=AMD64 centos:8 as exec
+
+WORKDIR /workspace/app
+VOLUME /workspace/app
+
+# RUN addgroup -S solver && adduser -S solver -G solver
+# USER solver
+
+COPY --from=build /workspace/app/target/Dec-POMDP-Solver Dec-POMDP-Solver
+COPY scripts scripts
+
+ENV SPRING_PROFILES_ACTIVE=production
+ENV SPRING_SHELL_INTERACTIVE_ENABLED=false
+ENV PROBLEM=GridSmall
+ENV SCRIPT=scripts/solve-${PROBLEM}
+
+ENTRYPOINT ./Dec-POMDP-Solver @${SCRIPT}
