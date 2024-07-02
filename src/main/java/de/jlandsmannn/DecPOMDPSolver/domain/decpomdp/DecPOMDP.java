@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Furthermore, this class does not instantiate the transition-,
  * the observation- nor the reward function, to be as general as possible.
  */
-public abstract class DecPOMDP<AGENT extends Agent, ACTION, OBSERVATION> {
+public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;

@@ -18,7 +18,7 @@ import java.util.Objects;
  * On creation, it validates all parameters on their consistency.
  * @param <AGENT>
  */
-public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT, Action, Observation> {
+public abstract class BasicDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGENT, Action, Observation> {
   protected final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   protected final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   protected final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
@@ -55,12 +55,12 @@ public abstract class BasicDecPOMDP<AGENT extends Agent> extends DecPOMDP<AGENT,
   }
 
   public List<Vector<Action>> getActionCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getActions).toList();
+    var rawCombinations = agents.stream().map(IAgent::getActions).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
   public List<Vector<Observation>> getObservationCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
+    var rawCombinations = agents.stream().map(IAgent::getObservations).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 

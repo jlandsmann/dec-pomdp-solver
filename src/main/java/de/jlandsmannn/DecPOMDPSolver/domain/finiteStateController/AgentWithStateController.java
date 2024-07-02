@@ -15,7 +15,7 @@ import java.util.Set;
  * which uses {@link FiniteStateController} to represent its own policy.
  * This agent is used by {@link DecPOMDPWithStateController}.
  */
-public class AgentWithStateController extends Agent {
+public class AgentWithStateController extends Agent implements IAgentWithStateController {
 
   protected final FiniteStateController controller;
   protected Set<Node> initialControllerNodes = Set.of();

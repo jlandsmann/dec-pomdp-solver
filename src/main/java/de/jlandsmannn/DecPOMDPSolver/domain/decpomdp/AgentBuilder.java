@@ -11,7 +11,7 @@ import java.util.Set;
  * This abstract class is used to create an agent builder.
  * It ensures an agent has unique actions and observations.
  */
-public abstract class AgentBuilder<AGENT extends Agent, THIS extends AgentBuilder<AGENT, ?>> {
+public abstract class AgentBuilder<AGENT extends IAgent, THIS extends AgentBuilder<AGENT, ?>> {
   protected String name;
   protected List<Action> actions;
   protected List<Observation> observations;
