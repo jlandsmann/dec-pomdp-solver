@@ -68,9 +68,8 @@ public class LiftedAgentWithStateController extends AgentWithStateController imp
     return getActionSelection(nodeHistogram).getProbability(actionHistogram);
   }
 
-  @Override
   public double getNodeTransitionProbability(Histogram<Node> node, Histogram<Action> action, Histogram<Observation> observation, Histogram<Node> followNode) {
-    
+    return 0D;
   }
 
   @Override

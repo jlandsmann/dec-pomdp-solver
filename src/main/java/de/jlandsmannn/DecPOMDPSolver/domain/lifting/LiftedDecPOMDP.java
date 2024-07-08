@@ -9,6 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class LiftedDecPOMDP<AGENT extends ILiftedAgent, ACTION extends Histogram<Action>, OBSERVATION extends Histogram<Observation>> extends DecPOMDP<AGENT, ACTION, OBSERVATION> implements IDecPOMDP<AGENT, ACTION, OBSERVATION> {
 
@@ -26,21 +27,36 @@ public abstract class LiftedDecPOMDP<AGENT extends ILiftedAgent, ACTION extends 
     this.observationFunction = observationFunction;
   }
 
+  public int getTotalAgentCount() {
+    return getAgents().stream().mapToInt(ILiftedAgent::getNumberOfAgents).sum();
+  }
+
   @Override
-  public int getAgentCount() {
-    return agents.stream().mapToInt(ILiftedAgent::getNumberOfAgents).sum();
-  }
-
-  public Distribution<State> getTransition(State currentState, Vector<ACTION> agentActions) {
-    return transitionFunction.getOrDefault(currentState, Map.of()).get(agentActions);
-  }
-
-  public Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, State nextState) {
-    return observationFunction.getOrDefault(agentActions, Map.of()).get(nextState);
+  public double getTransitionProbability(State currentState, Vector<ACTION> agentActions, State followState) {
+    return Optional
+      .ofNullable(transitionFunction.get(currentState))
+      .map(t -> t.get(agentActions))
+      .map(t -> t.getProbability(followState))
+      .orElse(0D);
   }
 
   public double getReward(State currentState, Vector<ACTION> agentActions) {
-    return rewardFunction.getOrDefault(currentState, Map.of()).getOrDefault(agentActions, 0D);
+    if (agentActions.size() != getAgentCount()) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
+    return Optional
+      .ofNullable(rewardFunction.get(currentState))
+      .map(t -> t.get(agentActions))
+      .orElse(0D);
+  }
+
+  @Override
+  public double getObservationProbability(Vector<ACTION> agentActions, State followState, Vector<OBSERVATION> agentObservations) {
+    return Optional
+      .ofNullable(observationFunction.get(agentActions))
+      .map(t -> t.get(followState))
+      .map(t -> t.getProbability(agentObservations))
+      .orElse(0D);
   }
 
   public abstract List<Vector<ACTION>> getActionCombinations();

@@ -17,10 +17,10 @@ public interface IDecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
   double getDiscountFactor();
   Distribution<State> getInitialBeliefState();
 
-  Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<ACTION> agentActions);
-  Distribution<State> getTransition(State currentState, Vector<ACTION> agentActions);
+  double getTransitionProbability(Distribution<State> currentBeliefState, Vector<ACTION> agentActions, State followState);
+  double getTransitionProbability(State currentState, Vector<ACTION> agentActions, State followState);
   double getReward(Distribution<State> currentBeliefState, Vector<ACTION> agentActions);
-  Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, State nextState);
+  double getObservationProbability(Vector<ACTION> agentActions, State followState, Vector<OBSERVATION> agentObservations);
 
   double getValue();
   double getValue(Distribution<State> beliefSate);

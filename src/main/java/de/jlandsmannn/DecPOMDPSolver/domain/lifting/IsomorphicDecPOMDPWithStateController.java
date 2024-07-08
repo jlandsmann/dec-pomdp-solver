@@ -47,6 +47,11 @@ public class IsomorphicDecPOMDPWithStateController extends LiftedDecPOMDPWithSta
     return probability;
   }
 
+  private <U> List<Vector<U>> getGroundings(Vector<Histogram<U>> combination) {
+    var rawCombinations = combination.stream().map(Histogram::toList).toList();
+    return VectorCombinationBuilder.listOf(rawCombinations);
+  }
+
   @Override
   public List<Vector<Histogram<Node>>> getNodeCombinations() {
     var combinations = getAgents().stream()

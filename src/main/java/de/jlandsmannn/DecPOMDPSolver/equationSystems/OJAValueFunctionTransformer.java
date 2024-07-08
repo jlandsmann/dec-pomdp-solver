@@ -148,8 +148,8 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
           .parallel()
           .mapToDouble(observationVector -> {
             var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-            var stateTransitionProbability = decPOMDP.getTransition(state, actionVector).getProbability(newState);
-            var observationProbability = decPOMDP.getObservations(actionVector, newState).getProbability(observationVector);
+            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, newState);
+            var observationProbability = decPOMDP.getObservationProbability(actionVector, newState, observationVector);
             var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
             return discountFactor * actionProbability * stateTransitionProbability * observationProbability * nodeTransitionProbability;
           })

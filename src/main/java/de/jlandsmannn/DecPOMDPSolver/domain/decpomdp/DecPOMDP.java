@@ -1,14 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * This is the abstract base class representing a DecPOMDP.
@@ -17,7 +14,7 @@ import java.util.stream.Collectors;
  * Furthermore, this class does not instantiate the transition-,
  * the observation- nor the reward function, to be as general as possible.
  */
-public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
+public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implements IDecPOMDP<AGENT, ACTION, OBSERVATION> {
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;
@@ -51,22 +48,20 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
     return initialBeliefState;
   }
 
-  public Distribution<State> getTransition(Distribution<State> currentBeliefState, Vector<ACTION> agentActions) {
-    if (agentActions.size() != getAgentCount()) {
-      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    }
-    Map<Distribution<State>, Double> map = currentBeliefState.entrySet().stream()
-      .map(entry -> {
-        var state = entry.getKey();
-        var probability = entry.getValue();
-        var distribution = getTransition(state, agentActions);
-        return Map.entry(distribution, probability);
+  @Override
+  public double getTransitionProbability(Distribution<State> currentBeliefState, Vector<ACTION> agentActions, State followState) {
+    return currentBeliefState.keySet()
+      .stream()
+      .mapToDouble(state -> {
+        double stateProbability = currentBeliefState.getProbability(state);
+        double transitionProbability = getTransitionProbability(state, agentActions, followState);
+        return stateProbability * transitionProbability;
       })
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return Distribution.createWeightedDistribution(map);
+      .sum();
   }
 
-  public abstract Distribution<State> getTransition(State currentState, Vector<ACTION> agentActions);
+  @Override
+  public abstract double getTransitionProbability(State currentState, Vector<ACTION> agentActions, State followState);
 
   public double getReward(Distribution<State> currentBeliefState, Vector<ACTION> agentActions) {
     if (agentActions.size() != getAgentCount()) {
@@ -85,22 +80,19 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
 
   public abstract double getReward(State currentState, Vector<ACTION> agentActions);
 
-  public Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, Distribution<State> nextBeliefState) {
-    if (agentActions.size() != getAgentCount()) {
-      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    }
-    Map<Distribution<Vector<OBSERVATION>>, Double> map = nextBeliefState.entrySet().stream()
-      .map(entry -> {
-        var state = entry.getKey();
-        var probability = entry.getValue();
-        var distribution = getObservations(agentActions, state);
-        return Map.entry(distribution, probability);
+  public double getObservationProbability(Vector<ACTION> agentActions, Distribution<State> followBeliefState, Vector<OBSERVATION> agentObservations) {
+    return followBeliefState.keySet()
+      .stream()
+      .mapToDouble(followState -> {
+        double stateProbability = followBeliefState.getProbability(followState);
+        double observationProbability = getObservationProbability(agentActions, followState, agentObservations);
+        return stateProbability * observationProbability;
       })
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    return Distribution.createWeightedDistribution(map);
+      .sum();
   }
 
-  public abstract Distribution<Vector<OBSERVATION>> getObservations(Vector<ACTION> agentActions, State nextState);
+  @Override
+  public abstract double getObservationProbability(Vector<ACTION> agentActions, State followState, Vector<OBSERVATION> agentObservations);
 
   public double getValue() {
     return getValue(initialBeliefState);

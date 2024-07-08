@@ -227,11 +227,11 @@ public class BeliefPointGenerator {
   }
 
   private double getTransitionProbability(State state, Vector<Action> actionVector, State followState) {
-    return decPOMDP.getTransition(state, actionVector).getProbability(followState);
+    return decPOMDP.getTransitionProbability(state, actionVector, followState);
   }
 
   private double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
-    return decPOMDP.getObservations(actionVector, followState).getProbability(observationVector);
+    return decPOMDP.getObservationProbability(actionVector, followState, observationVector);
   }
 
   private List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, Agent agent) {

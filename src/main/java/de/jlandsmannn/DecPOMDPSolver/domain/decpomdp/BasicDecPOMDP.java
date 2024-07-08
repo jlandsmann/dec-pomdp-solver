@@ -10,6 +10,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This class is an abstract implementation of {@link DecPOMDP}.
@@ -36,22 +37,32 @@ public abstract class BasicDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGENT
     validateObservationFunction();
   }
 
-  public Distribution<State> getTransition(State currentState, Vector<Action> agentActions) {
-    return transitionFunction.get(currentState).get(agentActions);
+  @Override
+  public double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
+    return Optional
+      .ofNullable(transitionFunction.get(currentState))
+      .map(t -> t.get(agentActions))
+      .map(t -> t.getProbability(followState))
+      .orElse(0D);
   }
 
   public double getReward(State currentState, Vector<Action> agentActions) {
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
-    return rewardFunction.get(currentState).get(agentActions);
+    return Optional
+      .ofNullable(rewardFunction.get(currentState))
+      .map(t -> t.get(agentActions))
+      .orElse(0D);
   }
 
-  public Distribution<Vector<Observation>> getObservations(Vector<Action> agentActions, State nextState) {
-    if (agentActions.size() != getAgentCount()) {
-      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    }
-    return observationFunction.get(agentActions).get(nextState);
+  @Override
+  public double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
+    return Optional
+      .ofNullable(observationFunction.get(agentActions))
+      .map(t -> t.get(followState))
+      .map(t -> t.getProbability(agentObservations))
+      .orElse(0D);
   }
 
   public List<Vector<Action>> getActionCombinations() {
