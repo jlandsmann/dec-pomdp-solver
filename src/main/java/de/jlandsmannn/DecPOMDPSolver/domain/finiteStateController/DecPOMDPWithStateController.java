@@ -163,7 +163,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
-      probability *= agent.getActionSelection(node).getProbability(action);
+      probability *= agent.getActionSelectionProbability(node, action);
     }
     return probability;
   }

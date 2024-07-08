@@ -61,9 +61,12 @@ class FiniteStateControllerTest {
 
   @Test
   void getAction_ShouldReturnActionSelectionDistributionBasedOnGivenNode() {
-    var actual = finiteStateController.getActionSelection(new Node("N1"));
-    var expected = Distribution.createUniformDistribution(actions);
-    assertEquals(expected, actual);
+    var node = Node.from("N1");
+    var expected = 1D / actions.size();
+    for (var action : actions) {
+      var actual = finiteStateController.getActionSelectionProbability(node, action);
+      assertEquals(expected, actual);
+    }
   }
 
   @Test
@@ -71,9 +74,11 @@ class FiniteStateControllerTest {
     var node = new Node("N1");
     var action = new Action("A1");
     var observation = new Observation("O1");
-    var actual = finiteStateController.getTransition(node, action, observation);
-    var expected = Distribution.createUniformDistribution(nodes);
-    assertEquals(expected, actual);
+    var expected = 1D / nodes.size();
+    for (var followNode: nodes) {
+      var actual = finiteStateController.getTransitionProbability(node, action, observation, followNode);
+      assertEquals(expected, actual);
+    }
   }
 
   @Test
@@ -87,16 +92,17 @@ class FiniteStateControllerTest {
 
   @Test
   void addNode_ShouldAddNodeAndActionDistribution() {
-    var newNode = new Node("NN1");
-    var actionDistribution = Distribution.createUniformDistribution(actions);
+    var newNode = Node.from("NN1");
+    var action = Action.from("A1");
+    var actionDistribution = Distribution.createSingleEntryDistribution(action);
     finiteStateController.addNode(newNode, actionDistribution);
 
     var expectedSize = nodes.size() + 1;
     var actualSize = finiteStateController.getNodes().size();
     assertEquals(expectedSize, actualSize);
 
-    var actualDistribution = finiteStateController.getActionSelection(newNode);
-    assertEquals(actionDistribution, actualDistribution);
+    var actualDistribution = finiteStateController.getActionSelectionProbability(newNode, action);
+    assertEquals(1D, actualDistribution);
   }
 
   @Test
@@ -109,9 +115,8 @@ class FiniteStateControllerTest {
     var actualSize = finiteStateController.getNodes().size();
     assertEquals(expectedSize, actualSize);
 
-    var expectedDistribution = Distribution.createSingleEntryDistribution(action);
-    var actualDistribution = finiteStateController.getActionSelection(newNode);
-    assertEquals(expectedDistribution, actualDistribution);
+    var actualDistribution = finiteStateController.getActionSelectionProbability(newNode, action);
+    assertEquals(1D, actualDistribution);
   }
 
   @Test
@@ -130,12 +135,13 @@ class FiniteStateControllerTest {
     var newNode = new Node("NN1");
     var action = new Action("A1");
     var observation = new Observation("O1");
-    var nodeDistribution = Distribution.createUniformDistribution(nodes);
+    var followNode = Node.from("N1");
+    var nodeDistribution = Distribution.createSingleEntryDistribution(followNode);
     finiteStateController.addNode(newNode, action);
     finiteStateController.addTransition(newNode, action, observation, nodeDistribution);
 
-    var actualFollowNode = finiteStateController.getTransition(newNode, action, observation);
-    assertEquals(nodeDistribution, actualFollowNode);
+    var actualFollowNode = finiteStateController.getTransitionProbability(newNode, action, observation, followNode);
+    assertEquals(1D, actualFollowNode);
   }
 
   @Test
@@ -147,27 +153,45 @@ class FiniteStateControllerTest {
     finiteStateController.addNode(newNode, action);
     finiteStateController.addTransition(newNode, action, observation, followNode);
 
-    var expectedFollowNode = Distribution.createSingleEntryDistribution(followNode);
-    var actualFollowNode = finiteStateController.getTransition(newNode, action, observation);
-    assertEquals(expectedFollowNode, actualFollowNode);
+    var actualFollowNode = finiteStateController.getTransitionProbability(newNode, action, observation, followNode);
+    assertEquals(1D, actualFollowNode);
   }
 
   @Test
-  void pruneNode_ShouldRemoveAllOccurrencesOfNode() {
+  void pruneNode_ShouldRemoveNodeFromNodes() {
     var nodeToPrune = new Node("N1");
     var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
     finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
 
     assertFalse(finiteStateController.getNodes().contains(nodeToPrune));
-    assertNull(finiteStateController.getActionSelection(nodeToPrune));
+  }
+
+  @Test
+  void pruneNode_ShouldRemoveNodeFromActionSelection() {
+    var nodeToPrune = new Node("N1");
+    var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
+    finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
+
     for (var action : actions) {
-      for (var observation : observations) {
-        assertNull(finiteStateController.getTransition(nodeToPrune, action, observation));
-        for (var otherNodes : finiteStateController.getNodes()) {
-          var followNodeDistribution = finiteStateController.getTransition(otherNodes, action, observation);
-          var expectedProbability = 0D;
-          var actualProbability = followNodeDistribution.getProbability(nodeToPrune);
-          assertEquals(expectedProbability, actualProbability);
+      var actual = finiteStateController.getActionSelectionProbability(nodeToPrune, action);
+      assertEquals(0D, actual);
+    }
+  }
+
+  @Test
+  void pruneNode_ShouldRemoveNodeFromTransitionFunction() {
+    var nodeToPrune = new Node("N1");
+    var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
+    finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
+
+    for (var node : finiteStateController.getNodes()) {
+      for (var action : actions) {
+        for (var observation : observations) {
+          var actualProbability = finiteStateController.getTransitionProbability(nodeToPrune, action, observation, nodeToPrune);
+          assertEquals(0D, actualProbability);
+
+          var actualProbability2 = finiteStateController.getTransitionProbability(nodeToPrune, action, observation, node);
+          assertEquals(0D, actualProbability2);
         }
       }
     }
@@ -195,15 +219,16 @@ class FiniteStateControllerTest {
     for (var otherNodes : finiteStateController.getNodes()) {
       for (var action : actions) {
         for (var observation : observations) {
-          var followNodeDistribution = finiteStateController.getTransition(otherNodes, action, observation);
           var expectedProbabilityN2 = originalDistributionWeight + (nodeN2ReplacementWeight * originalDistributionWeight);
-          var actualProbabilityN2 = followNodeDistribution.getProbability(nodeN2);
+          var actualProbabilityN2 = finiteStateController.getTransitionProbability(otherNodes, action, observation, nodeN2);
           assertEquals(expectedProbabilityN2, actualProbabilityN2);
+
+          var actualProbabilityN3 = finiteStateController.getTransitionProbability(otherNodes, action, observation, nodeN3);
           var expectedProbabilityN3 = originalDistributionWeight + (nodeN3ReplacementWeight * originalDistributionWeight);
-          var actualProbabilityN3 = followNodeDistribution.getProbability(nodeN3);
           assertEquals(expectedProbabilityN3, actualProbabilityN3);
+
+          var actualProbabilityN4 = finiteStateController.getTransitionProbability(otherNodes, action, observation, nodeN4);
           var expectedProbabilityN4 = originalDistributionWeight + (nodeN4ReplacementWeight * originalDistributionWeight);
-          var actualProbabilityN4 = followNodeDistribution.getProbability(nodeN4);
           assertEquals(expectedProbabilityN4, actualProbabilityN4);
         }
       }

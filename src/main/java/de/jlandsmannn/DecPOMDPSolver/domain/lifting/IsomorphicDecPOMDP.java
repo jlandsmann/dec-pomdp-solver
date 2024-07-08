@@ -16,16 +16,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public abstract class IsomorphicDecPOMDP extends BasicDecPOMDP<ILiftedAgent> {
+public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends BasicDecPOMDP<AGENT> implements ILiftedDecPOMDP<AGENT, Action, Observation> {
 
-  public IsomorphicDecPOMDP(List<ILiftedAgent> iLiftedAgents,
+  public IsomorphicDecPOMDP(List<AGENT> agents,
                             List<State> states,
                             double discountFactor,
                             Distribution<State> initialBeliefState,
                             Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
                             Map<State, Map<Vector<Action>, Double>> rewardFunction,
                             Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
-    super(iLiftedAgents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
+    super(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
 
   public int getTotalAgentCount() {

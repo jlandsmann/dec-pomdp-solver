@@ -7,7 +7,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -66,15 +65,13 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
     return controller.getNodes();
   }
 
-  /**
-   * {@link FiniteStateController#getActionSelection(Node)}
-   */
-  public Distribution<Action> getActionSelection(Node node) {
-    return controller.getActionSelection(node);
+  @Override
+  public double getActionSelectionProbability(Node node, Action action) {
+    return controller.getActionSelectionProbability(node, action);
   }
 
   /**
-   * {@link FiniteStateController#getTransition(Node, Action, Observation)}
+   * {@link FiniteStateController#getTransitionProbability(Node, Action, Observation, Node)}
    *
    * @param node        the node from where the transition starts
    * @param action      the action to be taken when in node
@@ -83,21 +80,7 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
    * @return the probability of the described transition
    */
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
-    return getNodeTransition(node, action, observation)
-      .map(transition -> transition.getProbability(followNode))
-      .orElse(0D);
-  }
-
-  /**
-   * {@link FiniteStateController#getTransition(Node, Action, Observation)}
-   *
-   * @param node        the node from where the transition starts
-   * @param action      the action to be taken when in node
-   * @param observation the observation observed after taking action
-   * @return the distribution of nodes to land in
-   */
-  public Optional<Distribution<Node>> getNodeTransition(Node node, Action action, Observation observation) {
-    return Optional.ofNullable(controller.getTransition(node, action, observation));
+    return controller.getTransitionProbability(node, action, observation, followNode);
   }
 
   /**
