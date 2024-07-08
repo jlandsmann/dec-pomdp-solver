@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -33,7 +34,7 @@ public class BeliefPointGenerator {
   private final Random random;
   private final int maxGenerationRuns;
   private final double beliefPointDistanceThreshold;
-  private DecPOMDP<?, Action, Observation> decPOMDP;
+  private DecPOMDP<AgentWithStateController, Action, Observation> decPOMDP;
   private Distribution<State> currentBeliefState;
   private Map<Agent, Map<State, Distribution<Action>>> policies;
   private int numberOfBeliefPoints;
@@ -48,7 +49,7 @@ public class BeliefPointGenerator {
     }
   }
 
-  public BeliefPointGenerator setDecPOMDP(DecPOMDP<?, Action, Observation> decPOMDP) {
+  public BeliefPointGenerator setDecPOMDP(DecPOMDP<AgentWithStateController, Action, Observation> decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
     this.currentBeliefState = decPOMDP.getInitialBeliefState();

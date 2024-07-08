@@ -26,13 +26,12 @@ public abstract class DecPOMDPBuilder<DECPOMDP extends DecPOMDP<AGENT, ?, ?>, AG
 
   public abstract AgentBuilder<AGENT, ?> getAgentBuilder();
 
-  public THIS addAgents(Collection<AGENT> agents) {
-    this.agents.removeAll(agents);
-    this.agents.addAll(agents);
+  public THIS addAgents(Collection<? extends IAgent> agents) {
+    agents.forEach(this::addAgent);
     return (THIS) this;
   }
 
-  public THIS addAgent(Agent agent) {
+  public THIS addAgent(IAgent agent) {
     this.agents.remove((AGENT) agent);
     this.agents.add((AGENT) agent);
     return (THIS) this;

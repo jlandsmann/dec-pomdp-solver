@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
@@ -9,7 +10,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 import java.util.List;
 import java.util.Map;
 
-public abstract class LiftedDecPOMDP<AGENT extends ILiftedAgent, ACTION extends Histogram<Action>, OBSERVATION extends Histogram<Observation>> extends DecPOMDP<AGENT, ACTION, OBSERVATION> {
+public abstract class LiftedDecPOMDP<AGENT extends ILiftedAgent, ACTION extends Histogram<Action>, OBSERVATION extends Histogram<Observation>> extends DecPOMDP<AGENT, ACTION, OBSERVATION> implements IDecPOMDP<AGENT, ACTION, OBSERVATION> {
 
   private final Map<State, Map<Vector<ACTION>, Distribution<State>>> transitionFunction;
   private final Map<State, Map<Vector<ACTION>, Double>> rewardFunction;
