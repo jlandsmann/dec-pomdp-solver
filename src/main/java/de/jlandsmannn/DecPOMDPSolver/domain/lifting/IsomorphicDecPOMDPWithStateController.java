@@ -22,6 +22,32 @@ public class IsomorphicDecPOMDPWithStateController extends LiftedDecPOMDPWithSta
   }
 
   @Override
+  public double getActionVectorProbability(Vector<Histogram<Node>> nodes, Vector<Histogram<Action>> actions) {
+    var probability = 1D;
+    for (int i = 0; i < agents.size(); i++) {
+      var agent = agents.get(i);
+      var nodeHistogram = nodes.get(i);
+      var actionHistogram = actions.get(i);
+      probability *= agent.getActionSelectionProbability(nodeHistogram, actionHistogram);
+    }
+    return probability;
+  }
+
+  @Override
+  public double getNodeTransitionProbability(Vector<Histogram<Node>> nodes, Vector<Histogram<Action>> actions, Vector<Histogram<Observation>> observations, Vector<Histogram<Node>> newNodes) {
+    var probability = 1D;
+    for (int i = 0; i < agents.size(); i++) {
+      var agent = agents.get(i);
+      var nodeHistogram = nodes.get(i);
+      var actionHistogram = actions.get(i);
+      var observationHistogram = observations.get(i);
+      var newNodeHistogram = newNodes.get(i);
+      probability *= agent.getNodeTransitionProbability(nodeHistogram, actionHistogram, observationHistogram, newNodeHistogram);
+    }
+    return probability;
+  }
+
+  @Override
   public List<Vector<Histogram<Node>>> getNodeCombinations() {
     var combinations = getAgents().stream()
       .map(agent -> HistogramBuilder.listOf(agent.getControllerNodes(), agent.getNumberOfAgents()))

@@ -8,10 +8,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateCon
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Histogram;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.HistogramBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.HistogramCombinationBuilder;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This is an extension of the base agent,
@@ -34,6 +36,41 @@ public class LiftedAgentWithStateController extends AgentWithStateController imp
   public LiftedAgentWithStateController(String name, List<Action> actions, List<Observation> observations, int numberOfAgents, FiniteStateController controller) {
     super(name, actions, observations, controller);
     this.numberOfAgents = numberOfAgents;
+  }
+
+  public Distribution<Histogram<Action>> getActionSelection(Histogram<Node> nodeHistogram) {
+    var listOfHistograms = new ArrayList<List<Map.Entry<Histogram<Action>, Double>>>();
+    for (var node : nodeHistogram.keySet()) {
+        var numberOfAgents = nodeHistogram.get(node);
+        var localActionSelection = getActionSelection(node);
+        var actionSelection = new HashMap<Histogram<Action>, Double>();
+        var histograms = HistogramBuilder.listOfPeakShaped(List.copyOf(localActionSelection.keySet()), numberOfAgents);
+        for (var histogram : histograms) {
+          var probability = histogram.entrySet().stream()
+            .mapToDouble(entry -> {
+              var action = entry.getKey();
+              var frequency = entry.getValue();
+              var localProbability = localActionSelection.getProbability(action);
+              return Math.pow(localProbability, frequency);
+            })
+            .sum();
+          actionSelection.put(histogram, probability);
+        }
+        listOfHistograms.add(List.copyOf(actionSelection.entrySet()));
+    }
+    var rawDistribution = HistogramCombinationBuilder
+      .streamOf(listOfHistograms)
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return Distribution.of(rawDistribution);
+  }
+
+  public double getActionSelectionProbability(Histogram<Node> nodeHistogram, Histogram<Action> actionHistogram) {
+    return getActionSelection(nodeHistogram).getProbability(actionHistogram);
+  }
+
+  @Override
+  public double getNodeTransitionProbability(Histogram<Node> node, Histogram<Action> action, Histogram<Observation> observation, Histogram<Node> followNode) {
+    
   }
 
   @Override

@@ -3,14 +3,19 @@ package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class LiftedDecPOMDPWithStateController<ACTION extends Histogram<Action>, OBSERVATION extends Histogram<Observation>, NODE extends Histogram<Node>> extends LiftedDecPOMDP<LiftedAgentWithStateController, ACTION, OBSERVATION> {
+public abstract class LiftedDecPOMDPWithStateController<ACTION extends Histogram<Action>, OBSERVATION extends Histogram<Observation>, NODE extends Histogram<Node>>
+  extends LiftedDecPOMDP<LiftedAgentWithStateController, ACTION, OBSERVATION>
+  implements IDecPOMDPWithStateController<LiftedAgentWithStateController, ACTION, OBSERVATION, NODE> {
+
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
 
@@ -56,6 +61,16 @@ public abstract class LiftedDecPOMDPWithStateController<ACTION extends Histogram
       })
       .reduce(Double::sum)
       .orElse(0D);
+  }
+
+  @Override
+  public Vector<NODE> getBestNodeCombinationFor(Distribution<State> beliefState) {
+    return getNodeCombinations()
+      .stream()
+      .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
+      .max(Comparator.comparingDouble(Map.Entry::getValue))
+      .map(Map.Entry::getKey)
+      .orElseThrow(IllegalStateException::new);
   }
 
   /**

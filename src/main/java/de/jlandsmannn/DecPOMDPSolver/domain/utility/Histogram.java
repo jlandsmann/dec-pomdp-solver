@@ -24,6 +24,11 @@ public class Histogram<T> {
     return buckets.getOrDefault(element, 0);
   }
 
+  public void add(T element, int numberOfElements) {
+    var currentNumberOfElements = buckets.get(element);
+    put(element, currentNumberOfElements + numberOfElements);
+  }
+
   public void put(T element, int numberOfElements) {
     buckets.put(element, numberOfElements);
   }
@@ -34,6 +39,14 @@ public class Histogram<T> {
 
   public int numberOfBuckets() {
     return buckets.size();
+  }
+
+  public Set<Map.Entry<T, Integer>> entrySet() {
+    return buckets.entrySet();
+  }
+
+  public Set<T> keySet() {
+    return buckets.keySet();
   }
 
   public List<T> toList() {
