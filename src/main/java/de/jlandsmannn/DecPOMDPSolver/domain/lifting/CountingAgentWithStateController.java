@@ -7,14 +7,14 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithSt
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * This is an extension of the base agent,
  * which uses {@link FiniteStateController} to represent its own policy.
  * This agent is used by {@link DecPOMDPWithStateController}.
  */
-public class IsomorphicAgentWithStateController extends AgentWithStateController implements IAgentWithStateController, ILiftedAgent {
+public class CountingAgentWithStateController extends AgentWithStateController implements IAgentWithStateController, ILiftedAgent {
 
   private final int numberOfAgents;
 
@@ -27,11 +27,11 @@ public class IsomorphicAgentWithStateController extends AgentWithStateController
    * @param controller     The controller of this agent
    * @param numberOfAgents The number of agents of this agent
    */
-  public IsomorphicAgentWithStateController(String name,
-                                            List<Action> actions,
-                                            List<Observation> observations,
-                                            FiniteStateController controller,
-                                            int numberOfAgents) {
+  public CountingAgentWithStateController(String name,
+                                          List<Action> actions,
+                                          List<Observation> observations,
+                                          FiniteStateController controller,
+                                          int numberOfAgents) {
     super(name, actions, observations, controller);
     this.numberOfAgents = numberOfAgents;
   }
