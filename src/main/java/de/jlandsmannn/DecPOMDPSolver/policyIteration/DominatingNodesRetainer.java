@@ -1,9 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
@@ -22,16 +22,16 @@ import java.util.Set;
 @Service
 public class DominatingNodesRetainer {
   private static final Logger LOG = LoggerFactory.getLogger(DominatingNodesRetainer.class);
-  private DecPOMDPWithStateController decPOMDP;
-  private Map<Agent, Set<Distribution<State>>> beliefPoints;
+  private IDecPOMDPWithStateController<?> decPOMDP;
+  private Map<IAgent, Set<Distribution<State>>> beliefPoints;
 
-  public DominatingNodesRetainer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+  public DominatingNodesRetainer setDecPOMDP(IDecPOMDPWithStateController<?> decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
     return this;
   }
 
-  public DominatingNodesRetainer setBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
+  public DominatingNodesRetainer setBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to validate belief points.");
     LOG.debug("Retrieving belief points: {}", beliefPoints);
     validateBeliefPoints(beliefPoints);
@@ -50,7 +50,7 @@ public class DominatingNodesRetainer {
       .forEach(this::retainDominatingNodesForAgent);
   }
 
-  protected void retainDominatingNodesForAgent(AgentWithStateController agent) {
+  protected void retainDominatingNodesForAgent(IAgentWithStateController agent) {
     LOG.info("Calculating dominating node vectors for {}", agent);
     var nodesToRetain = new HashSet<Node>();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
@@ -63,7 +63,7 @@ public class DominatingNodesRetainer {
     agent.setInitialControllerNodes(nodesToRetain);
   }
 
-  private void validateBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
+  private void validateBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {
     var entryForEachAgent = decPOMDP.getAgents().stream().allMatch(beliefPoints::containsKey);
     var someEntryEmpty = beliefPoints.values().stream().anyMatch(Collection::isEmpty);
     if (!entryForEachAgent || someEntryEmpty) {

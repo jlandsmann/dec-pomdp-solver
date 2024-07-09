@@ -19,15 +19,15 @@ import java.util.Optional;
  * On creation, it validates all parameters on their consistency.
  * @param <AGENT>
  */
-public abstract class BasicDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGENT, Action, Observation> {
+public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGENT> {
   protected final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction;
   protected final Map<State, Map<Vector<Action>, Double>> rewardFunction;
   protected final Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction;
 
-  public BasicDecPOMDP(List<AGENT> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState,
-                  Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
-                  Map<State, Map<Vector<Action>, Double>> rewardFunction,
-                  Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
+  public GroundDecPOMDP(List<AGENT> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState,
+                        Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
+                        Map<State, Map<Vector<Action>, Double>> rewardFunction,
+                        Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
     super(agents, states, discountFactor, initialBeliefState);
     this.transitionFunction = transitionFunction;
     this.rewardFunction = rewardFunction;
@@ -78,7 +78,7 @@ public abstract class BasicDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGENT
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof BasicDecPOMDP<?> decPOMDP)) return false;
+    if (!(o instanceof GroundDecPOMDP<?> decPOMDP)) return false;
     return super.equals(decPOMDP)
       && Objects.equals(transitionFunction, decPOMDP.transitionFunction)
       && Objects.equals(rewardFunction, decPOMDP.rewardFunction)

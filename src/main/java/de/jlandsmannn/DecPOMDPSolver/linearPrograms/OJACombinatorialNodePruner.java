@@ -1,5 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.CombinatorialNodePruner;
@@ -17,11 +21,11 @@ import java.util.Map;
  * It connects {@link OJACombinatorialNodePruningTransformer} and {@link OJALinearProgramSolver}.
  */
 @Service
-public class OJACombinatorialNodePruner extends CombinatorialNodePruner<ExpressionsBasedModel, Map<String, Double>> {
+public class OJACombinatorialNodePruner extends CombinatorialNodePruner<IDecPOMDPWithStateController<?>, ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJACombinatorialNodePruner.class);
 
   @Autowired
-  public OJACombinatorialNodePruner(CombinatorialNodePruningTransformer<ExpressionsBasedModel, Map<String, Double>> transformer,
+  public OJACombinatorialNodePruner(CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, ExpressionsBasedModel, Map<String, Double>> transformer,
                                     LinearOptimizationSolver<ExpressionsBasedModel, Map<String, Double>> solver) {
     super(transformer, solver);
   }

@@ -4,18 +4,16 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 
@@ -25,29 +23,19 @@ import java.util.stream.LongStream;
  * into a matrix and vector, that work with the OjAlgo library.
  */
 @Service
-public class OJAValueFunctionTransformer implements ValueFunctionTransformer<DecPOMDPWithStateController, MatrixStore<Double>> {
+public class OJAValueFunctionTransformer implements ValueFunctionTransformer<IDecPOMDPWithStateController<?>, MatrixStore<Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJAValueFunctionTransformer.class);
 
-  private DecPOMDPWithStateController decPOMDP;
+  private IDecPOMDPWithStateController<?> decPOMDP;
   private long stateCount;
   private long nodeCombinationCount;
-  private List<Vector<Node>> nodeCombinations;
-  private List<Vector<Action>> actionCombinations;
-  private List<Vector<Observation>> observationsCombinations;
 
   @Override
-  public void setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+  public void setDecPOMDP(IDecPOMDPWithStateController<?> decPOMDP) {
     LOG.info("Initialized with DecPOMDP");
     this.decPOMDP = decPOMDP;
-    var nodeCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
-    this.nodeCombinations = VectorCombinationBuilder.listOf(nodeCombinations);
-    var actionCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getActions).toList();
-    this.actionCombinations = VectorCombinationBuilder.listOf(actionCombinations);
-    var observationsCombinations = decPOMDP.getAgents().stream().map(AgentWithStateController::getObservations).toList();
-    this.observationsCombinations = VectorCombinationBuilder.listOf(observationsCombinations);
-
     this.stateCount = decPOMDP.getStates().size();
-    this.nodeCombinationCount = this.nodeCombinations.size();
+    this.nodeCombinationCount = decPOMDP.getNodeCombinations().size();
   }
 
   public long getNumberOfEquations() {
@@ -107,7 +95,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
 
     AtomicLong index = new AtomicLong();
     for (var state : decPOMDP.getStates()) {
-      for (var nodeVector : nodeCombinations) {
+      for (var nodeVector : decPOMDP.getNodeCombinations()) {
         var value = values.get(index.getAndIncrement(), 0);
         LOG.debug("Value for state {} and node vector {} is {}", state, nodeVector, value);
         decPOMDP.setValue(state, nodeVector, value);
@@ -122,7 +110,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
 
   private Vector<Node> getNodeVectorByIndex(long index) {
     var realIndex = index % nodeCombinationCount;
-    return nodeCombinations.get(Math.toIntExact(realIndex));
+    return decPOMDP.getNodeCombinations().get(Math.toIntExact(realIndex));
   }
 
   private void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
@@ -142,9 +130,9 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
     if (state.equals(newState) && nodeVector.equals(newNodeVector)) {
       coefficientModification = -1;
     }
-    return actionCombinations.stream()
+    return decPOMDP.getActionCombinations().stream()
       .flatMapToDouble(actionVector ->
-        observationsCombinations.stream()
+        decPOMDP.getObservationCombinations().stream()
           .parallel()
           .mapToDouble(observationVector -> {
             var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
@@ -159,7 +147,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<Dec
   }
 
   private double calculateAllRewardsForStateAndNodes(State state, Vector<Node> nodeVector) {
-    return actionCombinations.stream()
+    return decPOMDP.getActionCombinations().stream()
       .map(actionVector -> calculateRewardForStateAndNodesAndActions(state, nodeVector, actionVector))
       .reduce(Double::sum)
       .orElse(0D);

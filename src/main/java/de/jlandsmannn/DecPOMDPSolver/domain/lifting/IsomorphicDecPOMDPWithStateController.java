@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 public class IsomorphicDecPOMDPWithStateController
   extends IsomorphicDecPOMDP<IsomorphicAgentWithStateController>
-  implements IDecPOMDPWithStateController<IsomorphicAgentWithStateController, Action, Observation, Node> {
+  implements IDecPOMDPWithStateController<IsomorphicAgentWithStateController> {
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
 

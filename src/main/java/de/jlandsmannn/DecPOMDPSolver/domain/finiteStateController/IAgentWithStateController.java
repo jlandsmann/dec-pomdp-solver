@@ -7,7 +7,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface IAgentWithStateController extends IAgent {

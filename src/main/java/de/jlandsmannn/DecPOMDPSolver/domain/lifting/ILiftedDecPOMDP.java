@@ -5,8 +5,8 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Histogram;
 
-public interface ILiftedDecPOMDP<AGENT extends ILiftedAgent, ACTION, OBSERVATION> extends IDecPOMDP<AGENT, ACTION, OBSERVATION> {
+public interface ILiftedDecPOMDP<AGENT extends ILiftedAgent> extends IDecPOMDP<AGENT> {
 
-  public int getTotalAgentCount();
+  int getTotalAgentCount();
 
 }

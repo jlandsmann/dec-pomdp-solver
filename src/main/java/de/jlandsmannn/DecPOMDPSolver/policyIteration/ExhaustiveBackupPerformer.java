@@ -1,9 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
@@ -29,18 +31,18 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ExhaustiveBackupPerformer {
   private static final Logger LOG = LoggerFactory.getLogger(ExhaustiveBackupPerformer.class);
 
-  private DecPOMDPWithStateController decPOMDP;
+  private IDecPOMDPWithStateController<?> decPOMDP;
   private List<Vector<Node>> originalNodeCombinations = List.of();
-  private Map<Agent, Set<Distribution<State>>> beliefPoints;
+  private Map<IAgent, Set<Distribution<State>>> beliefPoints;
 
-  public ExhaustiveBackupPerformer setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+  public ExhaustiveBackupPerformer setDecPOMDP(IDecPOMDPWithStateController<?> decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
     this.originalNodeCombinations = decPOMDP.getNodeCombinations();
     return this;
   }
 
-  public ExhaustiveBackupPerformer setBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
+  public ExhaustiveBackupPerformer setBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {
     LOG.debug("Retrieving belief points: {}", beliefPoints);
     validateBeliefPoints(beliefPoints);
     this.beliefPoints = beliefPoints;
@@ -58,7 +60,7 @@ public class ExhaustiveBackupPerformer {
     updateValueFunction();
   }
 
-  protected void performExhaustiveBackupForAgent(AgentWithStateController agent) {
+  protected void performExhaustiveBackupForAgent(IAgentWithStateController agent) {
     LOG.info("Performing local exhaustive backup for Agent {}", agent);
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to perform exhaustive backup.");
     else if (beliefPoints == null)
@@ -146,7 +148,7 @@ public class ExhaustiveBackupPerformer {
     return value;
   }
 
-  private void validateBeliefPoints(Map<Agent, Set<Distribution<State>>> beliefPoints) {
+  private void validateBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {
     if (beliefPoints.isEmpty()) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     }

@@ -1,8 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
@@ -25,31 +25,31 @@ import java.util.Optional;
  * @param <LP>     the data type of the linear program
  * @param <RESULT> the data type of the linear program's result
  */
-public abstract class CombinatorialNodePruner<LP, RESULT> {
+public abstract class CombinatorialNodePruner<DECPOMDP extends IDecPOMDPWithStateController<?>, LP, RESULT> {
   private static final Logger LOG = LoggerFactory.getLogger(CombinatorialNodePruner.class);
 
-  protected CombinatorialNodePruningTransformer<LP, RESULT> transformer;
+  protected CombinatorialNodePruningTransformer<DECPOMDP, LP, RESULT> transformer;
   protected LinearOptimizationSolver<LP, RESULT> solver;
-  protected AgentWithStateController agent;
+  protected IAgentWithStateController agent;
 
-  public CombinatorialNodePruner(CombinatorialNodePruningTransformer<LP, RESULT> transformer,
+  public CombinatorialNodePruner(CombinatorialNodePruningTransformer<DECPOMDP, LP, RESULT> transformer,
                                  LinearOptimizationSolver<LP, RESULT> solver) {
     this.transformer = transformer;
     this.solver = solver;
   }
 
-  public CombinatorialNodePruner<LP, RESULT> setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+  public CombinatorialNodePruner<DECPOMDP, LP, RESULT> setDecPOMDP(DECPOMDP decPOMDP) {
     transformer.setDecPOMDP(decPOMDP);
     return this;
   }
 
-  public CombinatorialNodePruner<LP, RESULT> setAgent(AgentWithStateController agent) {
+  public CombinatorialNodePruner<DECPOMDP, LP, RESULT> setAgent(IAgentWithStateController agent) {
     this.agent = agent;
     transformer.setAgent(agent);
     return this;
   }
 
-  public CombinatorialNodePruner<LP, RESULT> setBeliefPoints(Collection<Distribution<State>> beliefPoints) {
+  public CombinatorialNodePruner<DECPOMDP, LP, RESULT> setBeliefPoints(Collection<Distribution<State>> beliefPoints) {
     transformer.setBeliefPoints(beliefPoints);
     return this;
   }

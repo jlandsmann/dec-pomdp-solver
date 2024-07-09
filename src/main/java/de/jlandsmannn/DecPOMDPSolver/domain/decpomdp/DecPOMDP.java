@@ -1,5 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
@@ -14,7 +16,7 @@ import java.util.Objects;
  * Furthermore, this class does not instantiate the transition-,
  * the observation- nor the reward function, to be as general as possible.
  */
-public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implements IDecPOMDP<AGENT, ACTION, OBSERVATION> {
+public abstract class DecPOMDP<AGENT extends IAgent> implements IDecPOMDP<AGENT> {
   protected final List<AGENT> agents;
   protected final List<State> states;
   protected final double discountFactor;
@@ -49,7 +51,7 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implem
   }
 
   @Override
-  public double getTransitionProbability(Distribution<State> currentBeliefState, Vector<ACTION> agentActions, State followState) {
+  public double getTransitionProbability(Distribution<State> currentBeliefState, Vector<Action> agentActions, State followState) {
     return currentBeliefState.keySet()
       .stream()
       .mapToDouble(state -> {
@@ -61,9 +63,9 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implem
   }
 
   @Override
-  public abstract double getTransitionProbability(State currentState, Vector<ACTION> agentActions, State followState);
+  public abstract double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState);
 
-  public double getReward(Distribution<State> currentBeliefState, Vector<ACTION> agentActions) {
+  public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
@@ -78,9 +80,9 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implem
       .orElse(0D);
   }
 
-  public abstract double getReward(State currentState, Vector<ACTION> agentActions);
+  public abstract double getReward(State currentState, Vector<Action> agentActions);
 
-  public double getObservationProbability(Vector<ACTION> agentActions, Distribution<State> followBeliefState, Vector<OBSERVATION> agentObservations) {
+  public double getObservationProbability(Vector<Action> agentActions, Distribution<State> followBeliefState, Vector<Observation> agentObservations) {
     return followBeliefState.keySet()
       .stream()
       .mapToDouble(followState -> {
@@ -92,7 +94,7 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implem
   }
 
   @Override
-  public abstract double getObservationProbability(Vector<ACTION> agentActions, State followState, Vector<OBSERVATION> agentObservations);
+  public abstract double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations);
 
   public double getValue() {
     return getValue(initialBeliefState);
@@ -100,14 +102,14 @@ public abstract class DecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> implem
 
   public abstract double getValue(Distribution<State> beliefSate);
 
-  public abstract List<Vector<ACTION>> getActionCombinations();
+  public abstract List<Vector<Action>> getActionCombinations();
 
-  public abstract List<Vector<OBSERVATION>> getObservationCombinations();
+  public abstract List<Vector<Observation>> getObservationCombinations();
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DecPOMDP<?, ?, ?> decPOMDP)) return false;
+    if (!(o instanceof DecPOMDP<?> decPOMDP)) return false;
     return Double.compare(getDiscountFactor(), decPOMDP.getDiscountFactor()) == 0
       && Objects.equals(getAgents(), decPOMDP.getAgents())
       && Objects.equals(getStates(), decPOMDP.getStates());

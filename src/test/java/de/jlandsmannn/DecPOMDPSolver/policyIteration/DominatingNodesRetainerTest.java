@@ -1,7 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -21,7 +21,7 @@ class DominatingNodesRetainerTest {
 
   private DominatingNodesRetainer dominatingNodesRetainer;
   private DecPOMDPWithStateController decPOMDP;
-  private Map<Agent, Set<Distribution<State>>> beliefPoints;
+  private Map<IAgent, Set<Distribution<State>>> beliefPoints;
 
   @BeforeEach
   void setUp() {
@@ -76,8 +76,8 @@ class DominatingNodesRetainerTest {
     );
   }
 
-  private Map<Agent, Set<Distribution<State>>> generateRandomBeliefPoints(int count) {
-    Map<Agent, Set<Distribution<State>>> beliefPoints = new HashMap<>();
+  private Map<IAgent, Set<Distribution<State>>> generateRandomBeliefPoints(int count) {
+    Map<IAgent, Set<Distribution<State>>> beliefPoints = new HashMap<>();
     for (var agent : decPOMDP.getAgents()) {
       Set<Distribution<State>> agentBeliefPoints = new HashSet<>();
       for (int i = 0; i < count; i++) {

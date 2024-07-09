@@ -1,15 +1,14 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.decpomdp;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-public interface IDecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
+public interface IDecPOMDP<AGENT extends IAgent> {
   
   int getAgentCount();
   List<AGENT> getAgents();
@@ -17,14 +16,15 @@ public interface IDecPOMDP<AGENT extends IAgent, ACTION, OBSERVATION> {
   double getDiscountFactor();
   Distribution<State> getInitialBeliefState();
 
-  double getTransitionProbability(Distribution<State> currentBeliefState, Vector<ACTION> agentActions, State followState);
-  double getTransitionProbability(State currentState, Vector<ACTION> agentActions, State followState);
-  double getReward(Distribution<State> currentBeliefState, Vector<ACTION> agentActions);
-  double getObservationProbability(Vector<ACTION> agentActions, State followState, Vector<OBSERVATION> agentObservations);
+  double getTransitionProbability(Distribution<State> currentBeliefState, Vector<Action> agentActions, State followState);
+  double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState);
+  double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions);
+  double getReward(State currentState, Vector<Action> agentActions);
+  double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations);
 
   double getValue();
   double getValue(Distribution<State> beliefSate);
 
-  List<Vector<ACTION>> getActionCombinations();
-  List<Vector<OBSERVATION>> getObservationCombinations();
+  List<Vector<Action>> getActionCombinations();
+  List<Vector<Observation>> getObservationCombinations();
 }

@@ -1,6 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -8,8 +10,8 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.List;
 
-public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateController, ACTION, OBSERVATION, NODE> extends IDecPOMDP<AGENT, ACTION, OBSERVATION> {
-  Vector<NODE> getBestNodeCombinationFor(Distribution<State> beliefState);
+public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateController> extends IDecPOMDP<AGENT> {
+  Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState);
 
   /**
    * It returns the precalculated value, the expected sum of rewards,
@@ -21,7 +23,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @return the expected sum of rewards
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
-  double getValue(Distribution<State> beliefState, Vector<NODE> nodes);
+  double getValue(Distribution<State> beliefState, Vector<Node> nodes);
 
   /**
    * It returns the precalculated value, the expected sum of rewards,
@@ -33,7 +35,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @return the expected sum of rewards
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
-  double getValue(State state, Vector<NODE> nodes);
+  double getValue(State state, Vector<Node> nodes);
 
   /**
    * It checks if for the given state and vector of nodes a value is set.
@@ -43,7 +45,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @return whether a value is set or not
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
-  boolean hasValue(State state, Vector<NODE> nodes);
+  boolean hasValue(State state, Vector<Node> nodes);
 
   /**
    * Sets the value for the given state and nodes.
@@ -53,7 +55,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @param value the value to set
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
-  void setValue(State state, Vector<NODE> nodes, double value);
+  void setValue(State state, Vector<Node> nodes, double value);
 
   /**
    * Returns the probability to choose actions when the agents are in the nodes defined by nodes.
@@ -63,7 +65,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @return the probability of choosing actions when in nodes
    * @throws IllegalArgumentException if the vector of nodes or the vector of actions has different size as the DecPOMDP has agents
    */
-  double getActionVectorProbability(Vector<NODE> nodes, Vector<ACTION> actions);
+  double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions);
 
   /**
    * Returns the probability to transit starting from the given nodes,
@@ -77,7 +79,7 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
    * @return the probability of the transition
    * @throws IllegalArgumentException if one of the vectors has different size as the DecPOMDP has agents
    */
-  double getNodeTransitionProbability(Vector<NODE> nodes, Vector<ACTION> actions, Vector<OBSERVATION> observations, Vector<NODE> newNodes);
+  double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes);
 
-  List<Vector<NODE>> getNodeCombinations();
+  List<Vector<Node>> getNodeCombinations();
 }

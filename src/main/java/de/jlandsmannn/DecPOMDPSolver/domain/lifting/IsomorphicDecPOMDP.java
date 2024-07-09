@@ -1,22 +1,22 @@
 
 package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.BasicDecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.GroundDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuples;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuple2;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends BasicDecPOMDP<AGENT> implements ILiftedDecPOMDP<AGENT, Action, Observation> {
+public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends GroundDecPOMDP<AGENT> implements ILiftedDecPOMDP<AGENT> {
 
   public IsomorphicDecPOMDP(List<AGENT> agents,
                             List<State> states,

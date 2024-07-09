@@ -1,7 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.BasicDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.GroundDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * which use {@link FiniteStateController} to represent their policies.
  * It inherits from {@link DecPOMDP}.
  */
-public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateController> {
+public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateController> implements IDecPOMDPWithStateController<AgentWithStateController> {
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
 
@@ -47,6 +47,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @param beliefState the belief state to check the value for
    * @return the expected sum of rewards
    */
+  @Override
   public double getValue(Distribution<State> beliefState) {
     return getNodeCombinations()
       .stream()
@@ -62,6 +63,7 @@ public class DecPOMDPWithStateController extends BasicDecPOMDP<AgentWithStateCon
    * @param beliefState the belief state to check the value for
    * @return the vector of nodes to start from, that maximizes the expected sum of rewards
    */
+  @Override
   public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
     return getNodeCombinations()
       .stream()

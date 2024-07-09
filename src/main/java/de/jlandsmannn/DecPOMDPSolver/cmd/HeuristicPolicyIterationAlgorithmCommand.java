@@ -1,12 +1,13 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationConfig;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +33,18 @@ public class HeuristicPolicyIterationAlgorithmCommand {
   private static Logger LOG = LoggerFactory.getLogger(HeuristicPolicyIterationAlgorithmCommand.class);
 
   private final HeuristicPolicyIterationSolver solver;
+  private final HeuristicPolicyIterationConfig defaultConfig;
+
+  private HeuristicPolicyIterationConfig config;
   private DecPOMDPWithStateController decPOMDP;
+
   private boolean initialized = false;
   private boolean loaded = false;
 
   @Autowired
-  public HeuristicPolicyIterationAlgorithmCommand(HeuristicPolicyIterationSolver solver) {
+  public HeuristicPolicyIterationAlgorithmCommand(HeuristicPolicyIterationSolver solver, HeuristicPolicyIterationConfig defaultConfig) {
     this.solver = solver;
+    this.defaultConfig = defaultConfig;
   }
 
   /**
@@ -69,20 +75,26 @@ public class HeuristicPolicyIterationAlgorithmCommand {
    */
   @Command(command = "init", alias = "i", description = "Initialize the heuristic policy iteration solver.")
   public String init(
-    @Option(shortNames = 'k', defaultValue = "10") int numberOfBeliefPoints,
-    @Option(shortNames = 'l', defaultValue = "20") int maxIterations
+    @Option(shortNames = 'k', defaultValue = "0") int numberOfBeliefPoints,
+    @Option(shortNames = 'l', defaultValue = "0") int maxIterations
   ) {
     LOG.info("Command 'init' was called with numberOfBeliefPoints={}, maxIterations={}.", numberOfBeliefPoints, maxIterations);
-    solver
-      .setNumberOfBeliefPoints(numberOfBeliefPoints)
-      .setMaxIterations(maxIterations);
+    config = new HeuristicPolicyIterationConfig(
+      defaultConfig.beliefPointGenerationSeed(),
+      numberOfBeliefPoints > 0 ? numberOfBeliefPoints : defaultConfig.beliefPointDesiredNumber(),
+      defaultConfig.beliefPointGenerationMaxRuns(),
+      defaultConfig.beliefPointDistanceThreshold(),
+      defaultConfig.valueChangeThreshold(),
+      maxIterations > 0 ? maxIterations : defaultConfig.maxIterations(),
+      defaultConfig.initialPolicies()
+    );
     initialized = true;
 
     return new StringBuilder()
       .append("Initialized heuristic policy iteration with ")
-      .append(numberOfBeliefPoints)
+      .append(config.beliefPointDesiredNumber())
       .append(" belief points and ")
-      .append(maxIterations)
+      .append(config.maxIterations())
       .append(" max iterations.")
       .toString();
   }
@@ -105,7 +117,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
   ) {
     LOG.info("Command 'load' was called with filename={}.", filename);
     if (!initialized) throw new IllegalStateException("Heuristic policy iteration is not initialized yet.");
-    var optionalBuilder = DPOMDPFileParser.parse(filename);
+    var optionalBuilder = DPOMDPFileParser.parseDecPOMDP(filename);
     if (optionalBuilder.isEmpty()) {
       LOG.warn("Parsing failed for file {}", filename);
       return "Could not parse " + filename + ". Make sure the file exists.";
@@ -120,7 +132,6 @@ public class HeuristicPolicyIterationAlgorithmCommand {
       builder.setDiscountFactor(0.9);
     }
     decPOMDP = builder.createDecPOMDP();
-    solver.setDecPOMDP(decPOMDP);
     loaded = true;
     LOG.info("Successfully loaded DecPOMDP from file {}.", filename);
     return "Successfully loaded DecPOMDP";
@@ -151,7 +162,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
       throw new IllegalArgumentException("Number of given initial policies does not match the number of agents.");
     }
 
-    Map<Agent, Map<State, Distribution<Action>>> initialPolicies = new HashMap<>();
+    Map<IAgent, Map<State, Distribution<Action>>> initialPolicies = new HashMap<>();
     for (int i = 0; i < decPOMDP.getAgents().size(); i++) {
       var agent = decPOMDP.getAgents().get(i);
       var rawActionDistribution = CommonParser.parseActionsAndTheirDistributions(agent.getActions(), actionDistributionsPerAgent[i]);
@@ -162,7 +173,15 @@ public class HeuristicPolicyIterationAlgorithmCommand {
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
       initialPolicies.put(agent, stateActionDistributions);
     }
-    solver.setInitialPolicies(initialPolicies);
+    config = new HeuristicPolicyIterationConfig(
+      config.beliefPointGenerationSeed(),
+      config.beliefPointDesiredNumber(),
+      config.beliefPointGenerationMaxRuns(),
+      config.beliefPointDistanceThreshold(),
+      config.valueChangeThreshold(),
+      config.maxIterations(),
+      initialPolicies
+    );
     return "Successfully set initial policies";
   }
 
@@ -183,7 +202,7 @@ public class HeuristicPolicyIterationAlgorithmCommand {
       LOG.warn("Aborting solving because no DecPOMDP is loaded yet.");
       throw new IllegalStateException("Heuristic policy iteration is not loaded yet.");
     }
-    var result = solver.solve();
+    var result = solver.setDecPOMDP(decPOMDP).setConfig(config).solve();
     LOG.info("Successfully solved DecPOMDP with value of {}", result);
     return "Heuristic policy iteration finished. Result: " + result;
   }

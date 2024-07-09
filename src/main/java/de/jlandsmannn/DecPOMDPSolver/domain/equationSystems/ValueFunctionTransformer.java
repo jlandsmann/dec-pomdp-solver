@@ -1,8 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.equationSystems;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 
 /**
  * This interface describes a library and data type independent class
@@ -12,7 +11,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
  * @param <DECPOMDP> the concrete class of the {@link DecPOMDP}
  * @param <MATRIX>   the data type of matrices and vectors
  */
-public interface ValueFunctionTransformer<DECPOMDP extends DecPOMDP<? extends IAgent, ?, ?>, MATRIX> {
+public interface ValueFunctionTransformer<DECPOMDP extends IDecPOMDP<?>, MATRIX> {
 
   void setDecPOMDP(DECPOMDP decPOMDP);
 

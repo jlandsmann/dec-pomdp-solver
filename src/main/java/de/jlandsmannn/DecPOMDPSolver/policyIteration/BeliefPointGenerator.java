@@ -1,11 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -34,9 +33,9 @@ public class BeliefPointGenerator {
   private final Random random;
   private final int maxGenerationRuns;
   private final double beliefPointDistanceThreshold;
-  private DecPOMDP<AgentWithStateController, Action, Observation> decPOMDP;
+  private IDecPOMDP<?> decPOMDP;
   private Distribution<State> currentBeliefState;
-  private Map<Agent, Map<State, Distribution<Action>>> policies;
+  private Map<IAgent, Map<State, Distribution<Action>>> policies;
   private int numberOfBeliefPoints;
 
   @Autowired
@@ -49,7 +48,7 @@ public class BeliefPointGenerator {
     }
   }
 
-  public BeliefPointGenerator setDecPOMDP(DecPOMDP<AgentWithStateController, Action, Observation> decPOMDP) {
+  public BeliefPointGenerator setDecPOMDP(IDecPOMDP<?> decPOMDP) {
     LOG.debug("Retrieving DecPOMDP: {}", decPOMDP);
     this.decPOMDP = decPOMDP;
     this.currentBeliefState = decPOMDP.getInitialBeliefState();
@@ -62,7 +61,7 @@ public class BeliefPointGenerator {
     return this;
   }
 
-  public BeliefPointGenerator setPolicies(Map<Agent, Map<State, Distribution<Action>>> policies) {
+  public BeliefPointGenerator setPolicies(Map<IAgent, Map<State, Distribution<Action>>> policies) {
     if (policies == null) return setPolicies();
     this.policies = policies;
     return this;
@@ -73,9 +72,9 @@ public class BeliefPointGenerator {
     return this;
   }
 
-  public Map<Agent, Set<Distribution<State>>> generateBeliefPoints() {
+  public Map<IAgent, Set<Distribution<State>>> generateBeliefPoints() {
     assertAllDependenciesAreSet();
-    var beliefPoints = new ConcurrentHashMap<Agent, Set<Distribution<State>>>(decPOMDP.getAgents().size());
+    var beliefPoints = new ConcurrentHashMap<IAgent, Set<Distribution<State>>>(decPOMDP.getAgents().size());
     decPOMDP.getAgents().stream().parallel().forEach(agent -> {
       var newBeliefPoints = generateBeliefPointsForAgent(agent);
       beliefPoints.put(agent, newBeliefPoints);
@@ -83,7 +82,7 @@ public class BeliefPointGenerator {
     return beliefPoints;
   }
 
-  public Set<Distribution<State>> generateBeliefPointsForAgent(Agent agent) {
+  public Set<Distribution<State>> generateBeliefPointsForAgent(IAgent agent) {
     assertAllDependenciesAreSet();
     var generatedBeliefPoints = new HashSet<Distribution<State>>();
     var beliefPoint = currentBeliefState;
@@ -120,7 +119,7 @@ public class BeliefPointGenerator {
     currentBeliefState = Distribution.createRandomDistribution(decPOMDP.getStates(), random);
   }
 
-  protected Map<Agent, Map<State, Distribution<Action>>> generateRandomPolicies() {
+  protected Map<IAgent, Map<State, Distribution<Action>>> generateRandomPolicies() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate random policies.");
     LOG.info("Generating random policies for {} agents", decPOMDP.getAgents().size());
 
@@ -133,7 +132,7 @@ public class BeliefPointGenerator {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private Map<State, Distribution<Action>> generateRandomPolicy(Agent agent) {
+  private Map<State, Distribution<Action>> generateRandomPolicy(IAgent agent) {
     LOG.info("Generating random policies for {}", agent);
     return decPOMDP.getStates()
       .stream()
@@ -144,7 +143,7 @@ public class BeliefPointGenerator {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  protected Map<Agent, Map<State, Distribution<Action>>> generateUniformPolicies() {
+  protected Map<IAgent, Map<State, Distribution<Action>>> generateUniformPolicies() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set, to generate uniform policies.");
     LOG.info("Generating uniform policies for {} agents", decPOMDP.getAgents().size());
 
@@ -157,7 +156,7 @@ public class BeliefPointGenerator {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private Map<State, Distribution<Action>> generateUniformPolicy(Agent agent) {
+  private Map<State, Distribution<Action>> generateUniformPolicy(IAgent agent) {
     LOG.info("Generating uniform policies for {}", agent);
     return decPOMDP.getStates()
       .stream()
@@ -168,7 +167,7 @@ public class BeliefPointGenerator {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  protected Distribution<State> getFollowUpBeliefStateForAgent(Agent agent, Distribution<State> beliefState) {
+  protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState) {
     LOG.debug("Calculating follow-up belief state for {} starting from {}.", agent, beliefState);
     Map<State, Double> beliefStateMap = new HashMap<>();
     var sumOfProbabilities = 0D;
@@ -191,7 +190,7 @@ public class BeliefPointGenerator {
     return Distribution.of(beliefStateMap);
   }
 
-  private double getProbabilityForAgentTransition(Agent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
+  private double getProbabilityForAgentTransition(IAgent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
     var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
 
@@ -212,7 +211,7 @@ public class BeliefPointGenerator {
     return probability;
   }
 
-  private double getProbabilityForActionVector(State state, Vector<Action> actionVector, Agent agentToIgnore) {
+  private double getProbabilityForActionVector(State state, Vector<Action> actionVector, IAgent agentToIgnore) {
     var probability = 1D;
     for (int i = 0; i < actionVector.size(); i++) {
       var agent = decPOMDP.getAgents().get(i);
@@ -234,7 +233,7 @@ public class BeliefPointGenerator {
     return decPOMDP.getObservationProbability(actionVector, followState, observationVector);
   }
 
-  private List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, Agent agent) {
+  private List<Vector<Action>> getAllActionCombinationsWithFixedActionForAgent(Action action, IAgent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
       if (agent.equals(a)) return List.of(action);
       else return a.getActions();
@@ -242,7 +241,7 @@ public class BeliefPointGenerator {
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
-  private List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, Agent agent) {
+  private List<Vector<Observation>> getAllObservationCombinationsWithFixedObservationForAgent(Observation observation, IAgent agent) {
     var rawCombinations = decPOMDP.getAgents().stream().map(a -> {
       if (agent.equals(a)) return List.of(observation);
       else return a.getObservations();
