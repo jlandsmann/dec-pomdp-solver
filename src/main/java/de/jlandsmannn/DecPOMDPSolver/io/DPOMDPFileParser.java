@@ -28,7 +28,7 @@ import java.util.Optional;
 public class DPOMDPFileParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> extends SectionBasedFileParser implements IDecPOMDPParser<BUILDER> {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 
-  protected DPOMDPSectionParser<BUILDER> sectionParser;
+  protected BUILDER builder;
 
   public static Optional<DecPOMDPWithStateControllerBuilder> parseDecPOMDP(String fileName) {
     var parser = new DPOMDPFileParser<>(new DecPOMDPWithStateControllerBuilder());
@@ -37,12 +37,13 @@ public class DPOMDPFileParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> extends 
 
   protected DPOMDPFileParser(BUILDER builder) {
     super(new DPOMDPSectionParser<>(builder));
+    this.builder = builder;
   }
 
   public Optional<BUILDER> parse(String fileName) {
     try {
       tryParse(fileName);
-      return Optional.of(sectionParser.builder);
+      return Optional.of(builder);
     } catch (Exception e) {
       LOG.warn("Could not parse decPOMDP file: {}", fileName, e);
       return Optional.empty();

@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class AgentWithStateController extends Agent implements IAgentWithStateController {
 
-  protected final FiniteStateController controller;
+  protected FiniteStateController controller;
   protected Set<Node> initialControllerNodes = Set.of();
 
   /**
@@ -30,6 +30,19 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
   public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);
     this.controller = controller;
+  }
+
+  public <U extends AgentWithStateController> AgentWithStateController(U agent) {
+    this(agent.name, agent.actions, agent.observations, agent.controller);
+  }
+
+  public void setController(FiniteStateController controller) {
+    this.controller = controller;
+    initialControllerNodes.retainAll(controller.getNodes());
+  }
+
+  public FiniteStateController getController() {
+    return controller;
   }
 
   /**

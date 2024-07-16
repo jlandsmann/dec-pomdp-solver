@@ -38,4 +38,42 @@ public record HeuristicPolicyIterationConfig(
       null
     );
   }
+
+  public HeuristicPolicyIterationConfig withMaxIterations(int maxIterations) {
+    if (maxIterations <= 0) return this;
+    return new HeuristicPolicyIterationConfig(
+      beliefPointGenerationSeed(),
+      beliefPointDesiredNumber(),
+      beliefPointGenerationMaxRuns(),
+      beliefPointDistanceThreshold(),
+      valueChangeThreshold(),
+      maxIterations,
+      initialPolicies()
+    );
+  }
+
+  public HeuristicPolicyIterationConfig withNumberOfBeliefPoints(int numberOfBeliefPoints) {
+    if (numberOfBeliefPoints <= 0) return this;
+    return new HeuristicPolicyIterationConfig(
+      beliefPointGenerationSeed(),
+      numberOfBeliefPoints,
+      beliefPointGenerationMaxRuns(),
+      beliefPointDistanceThreshold(),
+      valueChangeThreshold(),
+      maxIterations(),
+      initialPolicies()
+    );
+  }
+
+  public HeuristicPolicyIterationConfig withInitialPolicies(Map<IAgent, Map<State, Distribution<Action>>> initialPolicies) {
+    return new HeuristicPolicyIterationConfig(
+      beliefPointGenerationSeed(),
+      beliefPointDesiredNumber(),
+      beliefPointGenerationMaxRuns(),
+      beliefPointDistanceThreshold(),
+      valueChangeThreshold(),
+      maxIterations(),
+      initialPolicies
+    );
+  }
 }

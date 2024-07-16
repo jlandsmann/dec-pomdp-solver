@@ -81,7 +81,10 @@ public class SectionBasedFileParser {
       return;
     }
     LOG.debug("No keyword matched current line, adding line to current section.");
-    currentSectionBuilder.append(System.lineSeparator()).append(currentLine.trim());
+    if (!currentSectionBuilder.isEmpty()) {
+      currentSectionBuilder.append(System.lineSeparator());
+    }
+    currentSectionBuilder.append(currentLine.trim());
   }
 
   protected void parseCurrentSection() {

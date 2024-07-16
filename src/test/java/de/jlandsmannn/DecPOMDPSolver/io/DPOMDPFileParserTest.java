@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,6 +32,9 @@ class DPOMDPFileParserTest {
 
   @Test
   void parseDecPOMDPLine_ShouldStartNewSectionIfLineStartsWithKeyword() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.AGENTS
+    ));
     var expectedKeyword = DPOMDPSectionKeyword.AGENTS;
     var currentLine = "agents: 5";
     parser.parseLine(currentLine);
@@ -39,6 +44,9 @@ class DPOMDPFileParserTest {
 
   @Test
   void parseLine_ShouldParseDecPOMDPCurrentSectionIfLineStartsWithKeyword() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.AGENTS
+    ));
     var currentLine = "agents: 5";
     parser.parseLine(currentLine);
 
@@ -55,6 +63,9 @@ class DPOMDPFileParserTest {
 
   @Test
   void parseDecPOMDPLine_ShouldAppendCurrentLineToCurrentSectionIfKeywordOccurs() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.STATES
+    ));
     String currentLine = "states: 5";
     parser.parseLine(currentLine);
     String expectedSection = currentLine;
@@ -64,7 +75,8 @@ class DPOMDPFileParserTest {
 
   @Test
   void parseDecPOMDPLine_ShouldAppendCurrentLineToCurrentSectionIfNoKeywordOccurs() {
-    String previousSection = parser.currentSectionBuilder.toString();
+    String previousSection = "states:";
+    parser.parseLine(previousSection);
     String currentLine = "uniform";
     parser.parseLine(currentLine);
     String expectedSection = previousSection + System.lineSeparator() + "uniform";
@@ -89,7 +101,6 @@ class DPOMDPFileParserTest {
 
     assertEquals("", parser.currentSectionBuilder.toString());
     assertEquals(keyword, parser.currentKeyword);
-
   }
 
 }

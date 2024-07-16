@@ -132,4 +132,16 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
       }
     }
   }
+
+  public Map<State, Map<Vector<Action>, Distribution<State>>> getTransitionFunction() {
+    return transitionFunction;
+  }
+
+  public Map<State, Map<Vector<Action>, Double>> getRewardFunction() {
+    return rewardFunction;
+  }
+
+  public Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> getObservationFunction() {
+    return observationFunction;
+  }
 }
