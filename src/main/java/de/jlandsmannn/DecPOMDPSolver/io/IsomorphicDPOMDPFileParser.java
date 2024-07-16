@@ -1,8 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.parsing.IDecPOMDPParser;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
- * This class handles the parsing of a .dpomdp file,
+ * This class handles the parsing of a .idpomdp file,
  * by reading the file line by line and stacking those lines
  * until a new section is found, so the former one is complete.
  * When this happens, the former section is parsed by the {@link DPOMDPSectionParser}.
@@ -25,17 +24,17 @@ import java.util.Optional;
  * The given filename can be a path either inside the resources directory
  * or relative to the directory, where the program is executed.
  */
-public class DPOMDPFileParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> extends SectionBasedFileParser implements IDecPOMDPParser<BUILDER> {
-  private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
+public class IsomorphicDPOMDPFileParser<BUILDER extends IsomorphicDecPOMDPWithStateControllerBuilder> extends SectionBasedFileParser {
+  private static final Logger LOG = LoggerFactory.getLogger(IsomorphicDPOMDPFileParser.class);
 
-  protected DPOMDPSectionParser<BUILDER> sectionParser;
+  protected IsomorphicDPOMDPSectionParser<BUILDER> sectionParser;
 
-  public static Optional<DecPOMDPWithStateControllerBuilder> parseDecPOMDP(String fileName) {
-    var parser = new DPOMDPFileParser<>(new DecPOMDPWithStateControllerBuilder());
+  public static Optional<IsomorphicDecPOMDPWithStateControllerBuilder> parseDecPOMDP(String fileName) {
+    var parser = new IsomorphicDPOMDPFileParser<>(new IsomorphicDecPOMDPWithStateControllerBuilder());
     return parser.parse(fileName);
   }
 
-  protected DPOMDPFileParser(BUILDER builder) {
+  protected IsomorphicDPOMDPFileParser(BUILDER builder) {
     super(new DPOMDPSectionParser<>(builder));
   }
 
@@ -44,9 +43,8 @@ public class DPOMDPFileParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> extends 
       tryParse(fileName);
       return Optional.of(sectionParser.builder);
     } catch (Exception e) {
-      LOG.warn("Could not parse decPOMDP file: {}", fileName, e);
+      LOG.warn("Could not parse .idpomdp file: {}", fileName, e);
       return Optional.empty();
     }
   }
-
 }

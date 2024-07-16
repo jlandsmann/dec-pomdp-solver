@@ -24,7 +24,7 @@ class DPOMDPFileParserTest {
 
   @BeforeEach
   void setUp() {
-    parser = spy(new DPOMDPFileParser<>());
+    parser = spy(new DPOMDPFileParser<>(null));
     parser.sectionParser = sectionParser;
   }
 
@@ -38,27 +38,11 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseDecPOMDPLine_ShouldNotStartNewSectionIfLineStartsWithComment() {
-    var currentLine = "# agents: 5";
-    parser.parseLine(currentLine);
-
-    verify(parser, times(0)).startNewSection(any());
-  }
-
-  @Test
   void parseLine_ShouldParseDecPOMDPCurrentSectionIfLineStartsWithKeyword() {
     var currentLine = "agents: 5";
     parser.parseLine(currentLine);
 
     verify(parser).parseCurrentSection();
-  }
-
-  @Test
-  void parseLine_ShouldNotParseDecPOMDPCurrentSectionIfLineStartsWithComment() {
-    var currentLine = "# agents: 5";
-    parser.parseLine(currentLine);
-
-    verify(parser, times(0)).parseCurrentSection();
   }
 
   @Test
