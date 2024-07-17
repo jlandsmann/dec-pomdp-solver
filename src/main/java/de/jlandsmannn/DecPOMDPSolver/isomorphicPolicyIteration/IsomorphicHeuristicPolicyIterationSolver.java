@@ -2,7 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.*;
@@ -27,12 +27,14 @@ public class IsomorphicHeuristicPolicyIterationSolver
 
   protected final IsomorphicHeuristicPolicyIterationConfig config;
   protected final HeuristicPolicyIterationSolver solver;
-  protected final ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater;
+  protected final ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater;
 
   protected DecPOMDPWithStateController representativeDecPOMDP;
 
   @Autowired
-  public IsomorphicHeuristicPolicyIterationSolver(IsomorphicHeuristicPolicyIterationConfig config, HeuristicPolicyIterationSolver solver, ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater) {
+  public IsomorphicHeuristicPolicyIterationSolver(IsomorphicHeuristicPolicyIterationConfig config,
+                                                  HeuristicPolicyIterationSolver solver,
+                                                  ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater) {
     super();
     this.config = config;
     this.solver = solver;
@@ -41,19 +43,16 @@ public class IsomorphicHeuristicPolicyIterationSolver
 
   @Override
   public double solve() {
-    LOG.info("Start solving DecPOMDP with heuristic policy iteration.");
-    if (decPOMDP.getDiscountFactor() == 1) {
-      throw new IllegalStateException("This algorithm does not support discount factor of 1.");
-    }
-
+    LOG.info("Start solving DecPOMDP with isomorphic heuristic policy iteration.");
     createRepresentativeDecPOMDP();
-    solveGroundDecPOMDP();
+    solveRepresentativeDecPOMDP();
     transferController();
     evaluateValueFunction();
     return decPOMDP.getValue();
   }
 
   protected void createRepresentativeDecPOMDP() {
+    LOG.info("Creating representative DecPOMDP from isomorphic DecPOMDP.");
     List<AgentWithStateController> agents = decPOMDP.getAgents().stream().map(AgentWithStateController::new).toList();
     representativeDecPOMDP = new DecPOMDPWithStateController(
       agents,
@@ -67,6 +66,7 @@ public class IsomorphicHeuristicPolicyIterationSolver
   }
 
   protected void transferController() {
+    LOG.info("Transferring local controller from representative DecPOMDP to isomorphic DecPOMDP.");
     IntStream.range(0, decPOMDP.getAgentCount())
       .forEach(idx -> {
         var agent = decPOMDP.getAgents().get(idx);
@@ -75,8 +75,10 @@ public class IsomorphicHeuristicPolicyIterationSolver
       });
   }
 
-  protected void solveGroundDecPOMDP() {
-    solver.setConfig(config.policyIterationConfig())
+  protected void solveRepresentativeDecPOMDP() {
+    LOG.info("Solving representative DecPOMDP.");
+    solver
+      .setConfig(config.policyIterationConfig())
       .setDecPOMDP(representativeDecPOMDP)
       .solve();
   }

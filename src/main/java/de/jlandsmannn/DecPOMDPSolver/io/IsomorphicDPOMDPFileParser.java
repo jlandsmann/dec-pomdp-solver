@@ -27,6 +27,7 @@ import java.util.Optional;
 public class IsomorphicDPOMDPFileParser<BUILDER extends IsomorphicDecPOMDPWithStateControllerBuilder> extends SectionBasedFileParser {
   private static final Logger LOG = LoggerFactory.getLogger(IsomorphicDPOMDPFileParser.class);
 
+  protected BUILDER builder;
   protected IsomorphicDPOMDPSectionParser<BUILDER> sectionParser;
 
   public static Optional<IsomorphicDecPOMDPWithStateControllerBuilder> parseDecPOMDP(String fileName) {
@@ -35,13 +36,14 @@ public class IsomorphicDPOMDPFileParser<BUILDER extends IsomorphicDecPOMDPWithSt
   }
 
   protected IsomorphicDPOMDPFileParser(BUILDER builder) {
-    super(new DPOMDPSectionParser<>(builder));
+    super(new IsomorphicDPOMDPSectionParser<>(builder));
+    this.builder = builder;
   }
 
   public Optional<BUILDER> parse(String fileName) {
     try {
       tryParse(fileName);
-      return Optional.of(sectionParser.builder);
+      return Optional.of(builder);
     } catch (Exception e) {
       LOG.warn("Could not parse .idpomdp file: {}", fileName, e);
       return Optional.empty();

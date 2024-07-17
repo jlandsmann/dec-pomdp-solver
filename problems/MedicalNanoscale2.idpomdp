@@ -1,0 +1,120 @@
+# This is a Dec-POMDP (.dpomdp) file for the Dec-Tiger problem.
+# For more detailed documentation, see example.dpomdp
+
+agents: sensorA botA
+discount: 1
+values: reward
+states: yy yn ny nn
+start:
+uniform
+actions:
+noop output-tile
+noop output-medication
+observations:
+nothing marker
+nothing message
+partitionSizes:
+64000
+64000
+#
+#
+T: noop noop : yy : yy : 0.81
+T: noop noop : yy : yn : 0.09
+T: noop noop : yy : ny : 0.09
+T: noop noop : yy : nn : 0.01
+T: noop noop : yn : yy : 0.0
+T: noop noop : yn : yn : 0.9
+T: noop noop : yn : ny : 0.0
+T: noop noop : yn : nn : 0.1
+T: noop noop : ny : yy : 0.09
+T: noop noop : ny : yn : 0.01
+T: noop noop : ny : ny : 0.81
+T: noop noop : ny : nn : 0.09
+T: noop noop : nn : yy : 0.0
+T: noop noop : nn : yn : 0.1
+T: noop noop : nn : ny : 0.0
+T: noop noop : nn : nn : 0.9
+T: output-tile noop : yy : yy : 0.891
+T: output-tile noop : yy : yn : 0.009
+T: output-tile noop : yy : ny : 0.099
+T: output-tile noop : yy : nn : 0.001
+T: output-tile noop : yn : yy : 0.81
+T: output-tile noop : yn : yn : 0.09
+T: output-tile noop : yn : ny : 0.09
+T: output-tile noop : yn : nn : 0.01
+T: output-tile noop : ny : yy : 0.099
+T: output-tile noop : ny : yn : 0.001
+T: output-tile noop : ny : ny : 0.891
+T: output-tile noop : ny : nn : 0.009
+T: output-tile noop : nn : yy : 0.09
+T: output-tile noop : nn : yn : 0.01
+T: output-tile noop : nn : ny : 0.81
+T: output-tile noop : nn : nn : 0.09
+T: noop output-medication : yy : yy : 0.009
+T: noop output-medication : yy : yn : 0.001
+T: noop output-medication : yy : ny : 0.891
+T: noop output-medication : yy : nn : 0.099
+T: noop output-medication : yn : yy : 0.0
+T: noop output-medication : yn : yn : 0.01
+T: noop output-medication : yn : ny : 0.0
+T: noop output-medication : yn : nn : 0.99
+T: noop output-medication : ny : yy : 0.009
+T: noop output-medication : ny : yn : 0.001
+T: noop output-medication : ny : ny : 0.891
+T: noop output-medication : ny : nn : 0.099
+T: noop output-medication : nn : yy : 0.0
+T: noop output-medication : nn : yn : 0.01
+T: noop output-medication : nn : ny : 0.0
+T: noop output-medication : nn : nn : 0.99
+T: output-tile output-medication : yy : yy : 0.0099
+T: output-tile output-medication : yy : yn : 0.0001
+T: output-tile output-medication : yy : ny : 0.9801
+T: output-tile output-medication : yy : nn : 0.0099
+T: output-tile output-medication : yn : yy : 0.009
+T: output-tile output-medication : yn : yn : 0.001
+T: output-tile output-medication : yn : ny : 0.891
+T: output-tile output-medication : yn : nn : 0.099
+T: output-tile output-medication : ny : yy : 0.0099
+T: output-tile output-medication : ny : yn : 0.0001
+T: output-tile output-medication : ny : ny : 0.9801
+T: output-tile output-medication : ny : nn : 0.0099
+T: output-tile output-medication : nn : yy : 0.009
+T: output-tile output-medication : nn : yn : 0.001
+T: output-tile output-medication : nn : ny : 0.891
+T: output-tile output-medication : nn : nn : 0.099
+#
+#
+O: * * : yy : nothing nothing : 0.04
+O: * * : yy : nothing message : 0.16
+O: * * : yy : marker nothing : 0.16
+O: * * : yy : marker message : 0.64
+O: * * : yn : nothing nothing : 0.198
+O: * * : yn : nothing message : 0.002
+O: * * : yn : marker nothing : 0.792
+O: * * : yn : marker message : 0.008
+O: * * : ny : nothing nothing : 0.198
+O: * * : ny : nothing message : 0.792
+O: * * : ny : marker nothing : 0.002
+O: * * : ny : marker message : 0.008
+O: * * : nn : nothing nothing : 0.9801
+O: * * : nn : nothing message : 0.0099
+O: * * : nn : marker nothing : 0.0099
+O: * * : nn : marker message : 0.0001
+#
+#
+R: noop noop : yy : * : * : -10
+R: noop noop : yn : * : * : -5
+R: noop noop : ny : * : * : -5
+R: noop noop : nn : * : * : 0
+R: noop output-medication : yy : * : * : 5
+R: noop output-medication : yn : * : * : -15
+R: noop output-medication : ny : * : * : 10
+R: noop output-medication : nn : * : * : -10
+R: output-tile noop : yy : * : * : 5
+R: output-tile noop : yn : * : * : 10
+R: output-tile noop : ny : * : * : -15
+R: output-tile noop : nn : * : * : -10
+R: output-tile output-medication : yy : * : * : 20
+R: output-tile output-medication : yn : * : * : 0
+R: output-tile output-medication : ny : * : * : 0
+R: output-tile output-medication : nn : * : * : -20

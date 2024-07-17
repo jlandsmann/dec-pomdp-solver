@@ -27,8 +27,8 @@ public class PartitionSizesSectionParser extends BaseSectionParser {
   public PartitionSizesSectionParser() {
     super(
       IsomorphicDPOMDPSectionKeyword.PARTITION_SIZES,
-      IsomorphicDPOMDPSectionKeyword.PARTITION_SIZES + ": ?" +
-        "(?<partitionSizes>" + LIST_OF(COUNT_PATTERN) + ")");
+      IsomorphicDPOMDPSectionKeyword.PARTITION_SIZES + ": ?\\R" +
+        "(?<partitionSizes>" + ROWS_OF(COUNT_PATTERN) + ")");
   }
 
   public PartitionSizesSectionParser setAgentNames(List<String> agentNames) {
@@ -44,7 +44,7 @@ public class PartitionSizesSectionParser extends BaseSectionParser {
     LOG.debug("Parsing 'partitionSizes' section.");
     var match = getMatchOrThrow(section);
     if (match.hasGroup("partitionSizes")) {
-      var rawPartitionCounts = match.getGroupAsStringArrayOrThrow("partitionSizes", " ");
+      var rawPartitionCounts = match.getGroupAsStringArrayOrThrow("partitionSizes", "\\R");
       if (rawPartitionCounts.length != agentNames.size()) {
         throw new ParsingFailedException("'partitionSizes' does not have same number of partitions as 'agents' section.");
       }

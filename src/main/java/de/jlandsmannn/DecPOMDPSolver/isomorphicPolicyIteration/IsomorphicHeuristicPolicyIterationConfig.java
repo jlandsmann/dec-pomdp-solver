@@ -17,6 +17,7 @@ import java.util.Map;
  */
 @ConfigurationProperties("app.isomorhpic-heuristic-policy-iteration")
 public record IsomorphicHeuristicPolicyIterationConfig(
+  @DefaultValue
   HeuristicPolicyIterationConfig policyIterationConfig){
 
   public static IsomorphicHeuristicPolicyIterationConfig getDefault() {
