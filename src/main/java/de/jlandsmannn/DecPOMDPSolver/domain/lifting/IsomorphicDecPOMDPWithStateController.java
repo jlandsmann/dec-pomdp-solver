@@ -11,7 +11,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class IsomorphicDecPOMDPWithStateController
   extends IsomorphicDecPOMDP<IsomorphicAgentWithStateController>
@@ -85,12 +84,12 @@ public class IsomorphicDecPOMDPWithStateController
     var probability = 1D;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      for (int j = 0; j < agent.getNumberOfAgents(); j++) {
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
         var node = nodes.get(offset + j);
         var action = actions.get(offset + j);
         probability *= agent.getActionSelectionProbability(node, action);
       }
-      offset += agent.getNumberOfAgents();
+      offset += agent.getPartitionSize();
     }
     return probability;
   }
@@ -101,14 +100,14 @@ public class IsomorphicDecPOMDPWithStateController
     var probability = 1D;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      for (int j = 0; j < agent.getNumberOfAgents(); j++) {
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
         var node = nodes.get(offset + j);
         var action = actions.get(offset + j);
         var observation = observations.get(offset + j);
         var newNode = newNodes.get(offset + j);
         probability *= agent.getNodeTransitionProbability(node, action, observation, newNode);
       }
-      offset += agent.getNumberOfAgents();
+      offset += agent.getPartitionSize();
     }
     return probability;
   }
@@ -117,7 +116,7 @@ public class IsomorphicDecPOMDPWithStateController
   public List<Vector<Node>> getNodeCombinations() {
     var combinations = getAgents().stream()
       .flatMap(agent -> IntStream
-        .range(0, agent.getNumberOfAgents())
+        .range(0, agent.getPartitionSize())
         .mapToObj((i) -> agent.getControllerNodes())
       )
       .toList();
@@ -128,7 +127,7 @@ public class IsomorphicDecPOMDPWithStateController
   public List<Vector<Action>> getActionCombinations() {
     var combinations = getAgents().stream()
       .flatMap(agent -> IntStream
-        .range(0, agent.getNumberOfAgents())
+        .range(0, agent.getPartitionSize())
         .mapToObj((i) -> agent.getActions())
       )
       .toList();
@@ -139,7 +138,7 @@ public class IsomorphicDecPOMDPWithStateController
   public List<Vector<Observation>> getObservationCombinations() {
     var combinations = getAgents().stream()
       .flatMap(agent -> IntStream
-        .range(0, agent.getNumberOfAgents())
+        .range(0, agent.getPartitionSize())
         .mapToObj((i) -> agent.getObservations())
       )
       .toList();

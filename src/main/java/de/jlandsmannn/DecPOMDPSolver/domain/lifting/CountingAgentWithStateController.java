@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class CountingAgentWithStateController extends AgentWithStateController implements IAgentWithStateController, ILiftedAgent {
 
-  private final int numberOfAgents;
+  private final int partitionSize;
 
   /**
    * Default constructor with name, actions, observations and controller.
@@ -25,19 +25,19 @@ public class CountingAgentWithStateController extends AgentWithStateController i
    * @param actions        The actions of this agent
    * @param observations   The observations of this agent
    * @param controller     The controller of this agent
-   * @param numberOfAgents The number of agents of this agent
+   * @param partitionSize The number of agents of this agent
    */
   public CountingAgentWithStateController(String name,
                                           List<Action> actions,
                                           List<Observation> observations,
                                           FiniteStateController controller,
-                                          int numberOfAgents) {
+                                          int partitionSize) {
     super(name, actions, observations, controller);
-    this.numberOfAgents = numberOfAgents;
+    this.partitionSize = partitionSize;
   }
 
   @Override
-  public int getNumberOfAgents() {
-    return numberOfAgents;
+  public int getPartitionSize() {
+    return partitionSize;
   }
 }

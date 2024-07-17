@@ -2,7 +2,6 @@ package de.jlandsmannn.DecPOMDPSolver.io;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.ILiftedAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.parsing.IDecPOMDPParser;
 import de.jlandsmannn.DecPOMDPSolver.io.sectionParsers.PartitionSizesSectionParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.IsomorphicDPOMDPSectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionKeyword;
@@ -57,7 +56,7 @@ public class IsomorphicDPOMDPSectionParser<BUILDER extends IsomorphicDecPOMDPWit
         .setName(name)
         .setActions(actions)
         .setObservations(observations)
-        .setNumberOfAgents(partitionSize)
+        .setPartitionSize(partitionSize)
         .createAgent();
       builder.addAgent(agent);
     }

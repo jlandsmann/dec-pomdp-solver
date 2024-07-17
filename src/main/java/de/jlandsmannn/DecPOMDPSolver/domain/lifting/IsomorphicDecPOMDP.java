@@ -29,7 +29,7 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
   }
 
   public int getTotalAgentCount() {
-    return getAgents().stream().mapToInt(ILiftedAgent::getNumberOfAgents).sum();
+    return getAgents().stream().mapToInt(ILiftedAgent::getPartitionSize).sum();
   }
 
   @Override
@@ -77,7 +77,7 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
     var offset = 0;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      var numberOfElements = agent.getNumberOfAgents();
+      var numberOfElements = agent.getPartitionSize();
       var elementsForAgent = combinationAsList.subList(offset, offset + numberOfElements);
       offset += numberOfElements;
       rawCombinations.add(elementsForAgent);

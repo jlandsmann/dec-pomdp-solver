@@ -31,7 +31,7 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   public int getTotalAgentCount() {
-    return getAgents().stream().mapToInt(ILiftedAgent::getNumberOfAgents).sum();
+    return getAgents().stream().mapToInt(ILiftedAgent::getPartitionSize).sum();
   }
 
   @Override
@@ -79,7 +79,7 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   @Override
   public List<Vector<Action>> getActionCombinations() {
     return getAgents().stream()
-      .map(agent -> HistogramBuilder.listOf(agent.getActions(), agent.getNumberOfAgents()))
+      .map(agent -> HistogramBuilder.listOf(agent.getActions(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())
       .map(vector -> vector.stream()
         .flatMap(histogram -> histogram.toList().stream())
@@ -91,7 +91,7 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   @Override
   public List<Vector<Observation>> getObservationCombinations() {
     return getAgents().stream()
-      .map(agent -> HistogramBuilder.listOf(agent.getObservations(), agent.getNumberOfAgents()))
+      .map(agent -> HistogramBuilder.listOf(agent.getObservations(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())
       .map(vector -> vector.stream()
         .flatMap(histogram -> histogram.toList().stream())

@@ -8,11 +8,11 @@ import java.util.List;
 
 public class IsomorphicAgentBuilder<THIS extends IsomorphicAgentBuilder<?>> extends AgentBuilder<IsomorphicAgentWithStateController, THIS> {
 
-  private int numberOfAgents = 1;
+  private int partitionSize = 1;
   protected FiniteStateController stateController;
 
-  public THIS setNumberOfAgents(int numberOfAgents) {
-    this.numberOfAgents = numberOfAgents;
+  public THIS setPartitionSize(int partitionSize) {
+    this.partitionSize = partitionSize;
     return (THIS) this;
   }
 
@@ -24,7 +24,7 @@ public class IsomorphicAgentBuilder<THIS extends IsomorphicAgentBuilder<?>> exte
   @Override
   public IsomorphicAgentWithStateController createAgent() {
     setControllerIfNotSet();
-    return new IsomorphicAgentWithStateController(name, actions, observations, stateController, numberOfAgents);
+    return new IsomorphicAgentWithStateController(name, actions, observations, stateController, partitionSize);
   }
 
   protected void setControllerIfNotSet() {
