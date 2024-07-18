@@ -2,9 +2,11 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.GroundDecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.CombinationCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -69,6 +71,24 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
       .reduce((a, b) -> a * b)
       .orElse(0D)
       ;
+  }
+
+  @Override
+  public List<Vector<Action>> getActionCombinations() {
+    return getAgents().stream()
+      .flatMap(agent -> IntStream.range(0, agent.getPartitionSize()).mapToObj(i -> agent))
+      .map(IAgent::getActions)
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Observation>> getObservationCombinations() {
+    return getAgents().stream()
+      .flatMap(agent -> IntStream.range(0, agent.getPartitionSize()).mapToObj(i -> agent))
+      .map(IAgent::getObservations)
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
   }
 
   protected <U> List<Vector<U>> getGroundings(Vector<U> combination) {

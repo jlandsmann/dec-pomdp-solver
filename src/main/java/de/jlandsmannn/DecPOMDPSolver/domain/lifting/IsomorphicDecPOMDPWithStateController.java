@@ -6,11 +6,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.IntStream;
 
 public class IsomorphicDecPOMDPWithStateController
   extends IsomorphicDecPOMDP<IsomorphicAgentWithStateController>
@@ -114,34 +115,13 @@ public class IsomorphicDecPOMDPWithStateController
 
   @Override
   public List<Vector<Node>> getNodeCombinations() {
-    var combinations = getAgents().stream()
-      .flatMap(agent -> IntStream
-        .range(0, agent.getPartitionSize())
-        .mapToObj((i) -> agent.getControllerNodes())
+    return getAgents().stream()
+      .map(agent -> HistogramBuilder.listOf(agent.getControllerNodes(), agent.getPartitionSize()))
+      .collect(CombinationCollectors.toCombinationVectors())
+      .map(vector -> vector.stream()
+        .flatMap(histogram -> histogram.toList().stream())
+        .collect(CustomCollectors.toVector())
       )
       .toList();
-    return VectorCombinationBuilder.listOf(combinations);
-  }
-
-  @Override
-  public List<Vector<Action>> getActionCombinations() {
-    var combinations = getAgents().stream()
-      .flatMap(agent -> IntStream
-        .range(0, agent.getPartitionSize())
-        .mapToObj((i) -> agent.getActions())
-      )
-      .toList();
-    return VectorCombinationBuilder.listOf(combinations);
-  }
-
-  @Override
-  public List<Vector<Observation>> getObservationCombinations() {
-    var combinations = getAgents().stream()
-      .flatMap(agent -> IntStream
-        .range(0, agent.getPartitionSize())
-        .mapToObj((i) -> agent.getObservations())
-      )
-      .toList();
-    return VectorCombinationBuilder.listOf(combinations);
   }
 }

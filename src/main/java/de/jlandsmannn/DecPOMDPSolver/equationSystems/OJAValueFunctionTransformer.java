@@ -1,7 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
@@ -51,7 +50,7 @@ public class OJAValueFunctionTransformer implements ValueFunctionTransformer<IDe
   @Override
   public MatrixStore<Double> getMatrixFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get matrix");
-    LOG.info("Retrieving transition matrix from DecPOMDP");
+    LOG.info("Retrieving {}x{} transition matrix from DecPOMDP", getNumberOfEquations(), getNumberOfVariables());
     var matrixBuilder = SparseStore.R032.make(
       getNumberOfEquations(),
       getNumberOfVariables()

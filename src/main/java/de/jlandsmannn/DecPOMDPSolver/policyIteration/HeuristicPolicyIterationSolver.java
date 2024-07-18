@@ -1,13 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.slf4j.Logger;
@@ -131,7 +128,7 @@ public class HeuristicPolicyIterationSolver
     var valueChange = Math.abs(controllerState - getValue());
     boolean controllerStateChanged = valueChange >= config.valueChangeThreshold();
     LOG.info("Controller state changed: {}", controllerStateChanged);
-    return true;
+    return controllerStateChanged;
   }
 
   protected boolean isIterationLimitReached() {
