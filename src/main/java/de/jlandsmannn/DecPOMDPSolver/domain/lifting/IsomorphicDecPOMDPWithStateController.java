@@ -81,6 +81,11 @@ public class IsomorphicDecPOMDPWithStateController
 
   @Override
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
+    if (nodes.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of nodes does not match total number of agents");
+    } else if (actions.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of actions does not match total number of agents");
+    }
     var offset = 0;
     var probability = 1D;
     for (int i = 0; i < getAgents().size(); i++) {
@@ -97,6 +102,15 @@ public class IsomorphicDecPOMDPWithStateController
 
   @Override
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
+    if (nodes.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of nodes does not match total number of agents");
+    } else if (actions.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of actions does not match total number of agents");
+    } else if (observations.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of observations does not match total number of agents");
+    } else if (newNodes.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of newNodes does not match total number of agents");
+    }
     var offset = 0;
     var probability = 1D;
     for (int i = 0; i < getAgents().size(); i++) {

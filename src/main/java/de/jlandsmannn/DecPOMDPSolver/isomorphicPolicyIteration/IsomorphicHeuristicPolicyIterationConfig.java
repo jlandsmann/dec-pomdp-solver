@@ -1,14 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
-
-import java.util.Map;
 
 /**
  * This class configures some meta-properties of the {@link IsomorphicHeuristicPolicyIterationSolver}.
@@ -17,16 +11,17 @@ import java.util.Map;
  */
 @ConfigurationProperties("app.isomorhpic-heuristic-policy-iteration")
 public record IsomorphicHeuristicPolicyIterationConfig(
-  @DefaultValue
-  HeuristicPolicyIterationConfig policyIterationConfig){
+  @DefaultValue HeuristicPolicyIterationConfig policyIterationConfig,
+  @DefaultValue("false") boolean representativeObservations){
 
   public static IsomorphicHeuristicPolicyIterationConfig getDefault() {
     return new IsomorphicHeuristicPolicyIterationConfig(
-      HeuristicPolicyIterationConfig.getDefault()
+      HeuristicPolicyIterationConfig.getDefault(),
+      false
     );
   }
 
   public IsomorphicHeuristicPolicyIterationConfig withPolicyIterationConfig(HeuristicPolicyIterationConfig config) {
-    return new IsomorphicHeuristicPolicyIterationConfig(config);
+    return new IsomorphicHeuristicPolicyIterationConfig(config, false);
   }
 }
