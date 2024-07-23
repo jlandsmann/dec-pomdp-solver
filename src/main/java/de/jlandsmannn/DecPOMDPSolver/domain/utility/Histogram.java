@@ -40,7 +40,7 @@ public class Histogram<T> {
   }
 
   public void add(T element, int numberOfElements) {
-    var currentNumberOfElements = buckets.get(element);
+    var currentNumberOfElements = get(element);
     put(element, currentNumberOfElements + numberOfElements);
   }
 
@@ -73,7 +73,8 @@ public class Histogram<T> {
   public List<T> toList() {
     return buckets.keySet()
       .stream()
-      .flatMap(element -> IntStream.of(get(element)).mapToObj(i -> element))
+      .sorted(Comparator.comparing(Objects::toString))
+      .flatMap(element -> IntStream.range(0, get(element)).mapToObj(i -> element))
       .toList();
   }
 

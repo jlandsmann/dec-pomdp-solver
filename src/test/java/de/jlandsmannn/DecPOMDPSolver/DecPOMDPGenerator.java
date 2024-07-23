@@ -9,6 +9,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithSt
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.ILiftedAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
@@ -63,7 +67,13 @@ public class DecPOMDPGenerator {
       .addAgent(createLargeAgent("A1"))
       .addAgent(createLargeAgent("A2"))
     ;
+  }
 
+  private static void initializeLiftedAgents(DecPOMDPBuilder<?, IsomorphicAgentWithStateController, ?> builder) {
+    builder
+      .addAgent(createLiftedAgent("A1"))
+      .addAgent(createLiftedAgent("A2"))
+    ;
   }
 
   private static AgentWithStateController createAgent(String name) {
@@ -71,6 +81,14 @@ public class DecPOMDPGenerator {
     var observations = Observation.listOf("hear-left", "hear-right");
     var controller = FiniteStateControllerBuilder.createArbitraryController(name, correlationNodes, actions, observations);
     return new AgentWithStateController(name, actions, observations, controller);
+  }
+
+  private static IsomorphicAgentWithStateController createLiftedAgent(String name) {
+    var actions = Action.listOf("listen", "open-left", "open-right");
+    var observations = Observation.listOf("hear-left", "hear-right");
+    var controller = FiniteStateControllerBuilder.createArbitraryController(name, correlationNodes, 2, actions, observations);
+    var partitionSize = 2;
+    return new IsomorphicAgentWithStateController(name, actions, observations, controller, partitionSize);
   }
 
   private static AgentWithStateController createLargeAgent(String name) {
@@ -176,5 +194,16 @@ public class DecPOMDPGenerator {
   private static Vector<Action> createActionVector(String... actions) {
     var listOfActions = Action.listOf(actions);
     return new Vector<>(listOfActions);
+  }
+
+  public static IsomorphicDecPOMDPWithStateController getIsomorphicDecPOMDP() {
+    var builder = new IsomorphicDecPOMDPWithStateControllerBuilder();
+    initializeStates(builder);
+    initializeLiftedAgents(builder);
+    initializeTransitions(builder);
+    initializeRewards(builder);
+    initializeObservations(builder);
+    initializeInitialBeliefState(builder);
+    return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
 }

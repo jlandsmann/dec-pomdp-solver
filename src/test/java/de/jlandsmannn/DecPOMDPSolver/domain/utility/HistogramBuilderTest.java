@@ -30,5 +30,4 @@ class HistogramBuilderTest {
     var expectedNumberOfHistograms = 165; // ((numberOfElements / stepSize) + bucketCount - 1) over (bucketCount - 1)
     assertEquals(expectedNumberOfHistograms, histograms.size());
   }
-
 }

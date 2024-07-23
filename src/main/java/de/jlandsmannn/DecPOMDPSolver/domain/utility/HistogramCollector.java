@@ -28,7 +28,7 @@ public class HistogramCollector<T> implements Collector<T, Histogram<T>, Histogr
 
   @Override
   public Function<Histogram<T>, Histogram<T>> finisher() {
-    return null;
+    return (tHistogram -> tHistogram);
   }
 
   @Override
