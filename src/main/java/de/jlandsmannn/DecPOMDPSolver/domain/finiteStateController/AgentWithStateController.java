@@ -6,6 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ import java.util.Set;
 public class AgentWithStateController extends Agent implements IAgentWithStateController {
 
   protected FiniteStateController controller;
-  protected Set<Node> initialControllerNodes = Set.of();
+  protected Set<Node> initialControllerNodes = new HashSet<>();
 
   /**
    * Default constructor with name, actions, observations and controller.

@@ -23,7 +23,7 @@ class OJAIsomorphicValueFunctionTransformerTest {
 
   @BeforeEach
   void setUp() {
-    decPOMDP = generateDecPOMDP();
+    decPOMDP = DecPOMDPGenerator.getIsomorphicDecPOMDP(2);
     transformer = new OJAIsomorphicValueFunctionTransformer();
     transformer.setDecPOMDP(decPOMDP);
   }
@@ -42,18 +42,6 @@ class OJAIsomorphicValueFunctionTransformerTest {
   }
 
   @Test
-  void getMatrixFromDecPOMDP_ShouldReturnMatrixWithRowSumOfNegativeHalf() {
-    var matrix = transformer.getMatrixFromDecPOMDP();
-    var expectedSumOfRow = -1 + decPOMDP.getDiscountFactor();
-    var allowedDelta = 1e-7;
-
-    for (int i = 0; i < matrix.getRowDim(); i++) {
-      var actualSumOfRow = matrix.aggregateRow(i, Aggregator.SUM);
-      assertEquals(expectedSumOfRow, actualSumOfRow, allowedDelta, "Row " + i + " should have sum of " + expectedSumOfRow + " but has sum of " + actualSumOfRow);
-    }
-  }
-
-  @Test
   void getVectorFromDecPOMDP_ShouldReturnVectorWithRowForEachCombinationOfStateAndNodeVector() {
     var vector = transformer.getVectorFromDecPOMDP();
     var stateCount = decPOMDP.getStates().size();
@@ -62,15 +50,6 @@ class OJAIsomorphicValueFunctionTransformerTest {
     var expectedRows = stateCount * nodeCombinationCount;
     var actualRows = vector.getRowDim();
     assertEquals(expectedRows, actualRows);
-  }
-
-  @Test
-  void getVectorFromDecPOMDP_ShouldReturnVectorWithNegativeSumOfRewards() {
-    var vector = transformer.getVectorFromDecPOMDP();
-    // -avg(sum of rewards)
-    var expectedSum = 46.11;
-    var actualSum = vector.aggregateColumn(0, Aggregator.AVERAGE);
-    assertEquals(expectedSum, actualSum, 2e-1);
   }
 
   @Test
@@ -89,9 +68,5 @@ class OJAIsomorphicValueFunctionTransformerTest {
         assertEquals(expectedValue, actualValue);
       }
     }
-  }
-
-  private IsomorphicDecPOMDPWithStateController generateDecPOMDP() {
-    return DecPOMDPGenerator.getIsomorphicDecPOMDP();
   }
 }

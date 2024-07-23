@@ -27,23 +27,31 @@ public class OJAValueFunctionTransformer extends OJABaseValueFunctionTransformer
 
   protected double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var discountFactor = decPOMDP.getDiscountFactor();
-    var coefficientModification = 0;
-    if (state.equals(newState) && nodeVector.equals(newNodeVector)) {
-      coefficientModification = -1;
-    }
+    var isSelfLoop = state.equals(newState) && nodeVector.equals(newNodeVector);
     return decPOMDP.getActionCombinations().stream()
-      .flatMapToDouble(actionVector ->
+      .map(actionVector ->
         decPOMDP.getObservationCombinations().stream()
           .parallel()
-          .mapToDouble(observationVector -> {
-            var actionProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-            var stateTransitionProbability = decPOMDP.getTransitionProbability(state, actionVector, newState);
+          .map(observationVector -> {
             var observationProbability = decPOMDP.getObservationProbability(actionVector, newState, observationVector);
             var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
-            return discountFactor * actionProbability * stateTransitionProbability * observationProbability * nodeTransitionProbability;
+            return observationProbability * nodeTransitionProbability;
           })
+          .reduce(Double::sum)
+          .map(c -> {
+            var actionVectorProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
+            return c * actionVectorProbability;
+          })
+          .map(c -> {
+            var transitionProbability = decPOMDP.getTransitionProbability(state, actionVector, newState);
+            return c * transitionProbability;
+          })
+          .orElse(0D)
       )
-      .reduce(coefficientModification, Double::sum)
+      .reduce(Double::sum)
+      .map(c -> c * discountFactor)
+      .map(c -> isSelfLoop ? c - 1D : c)
+      .orElse(0D)
       ;
   }
 

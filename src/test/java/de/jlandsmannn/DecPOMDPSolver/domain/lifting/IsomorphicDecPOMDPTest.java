@@ -12,7 +12,7 @@ class IsomorphicDecPOMDPTest {
 
   @BeforeEach
   void setUp() {
-    decPOMDP = DecPOMDPGenerator.getIsomorphicDecPOMDP();
+    decPOMDP = DecPOMDPGenerator.getIsomorphicDecPOMDP(3);
   }
 
   @Test

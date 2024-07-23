@@ -66,10 +66,6 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
 
   protected double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var discountFactor = decPOMDP.getDiscountFactor();
-    AtomicDouble sumOfObservationProbabilities = new AtomicDouble(0D);
-    AtomicDouble sumOfActionProbabilities = new AtomicDouble(0D);
-    AtomicDouble sumOfTransitionProbabilities = new AtomicDouble(0D);
-    AtomicDouble sumOfNodeProbabilities = new AtomicDouble(0D);
     return decPOMDP.getActionCombinations().stream()
       .map(actionVector ->
         decPOMDP.getObservationCombinations().stream()
@@ -77,19 +73,15 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
           .map(observationVector -> {
             var observationProbability = decPOMDP.getObservationProbability(actionVector, newState, observationVector);
             var nodeTransitionProbability = decPOMDP.getNodeTransitionProbability(nodeVector, actionVector, observationVector, newNodeVector);
-            sumOfObservationProbabilities.addAndGet(observationProbability);
-            sumOfNodeProbabilities.addAndGet(nodeTransitionProbability);
             return observationProbability * nodeTransitionProbability;
           })
           .reduce(Double::sum)
           .map(c -> {
             var actionVectorProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);
-            sumOfActionProbabilities.addAndGet(actionVectorProbability);
             return c * actionVectorProbability;
           })
           .map(c -> {
             var transitionProbability = decPOMDP.getTransitionProbability(state, actionVector, newState);
-            sumOfTransitionProbabilities.addAndGet(transitionProbability);
             return c * transitionProbability;
           })
           .orElse(0D)

@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class IsomorphicAgentWithStateController extends AgentWithStateController implements IAgentWithStateController, ILiftedAgent {
 
-  private final int partitionSize;
+  private int partitionSize;
 
   /**
    * Default constructor with name, actions, observations and controller.
@@ -39,5 +39,9 @@ public class IsomorphicAgentWithStateController extends AgentWithStateController
   @Override
   public int getPartitionSize() {
     return partitionSize;
+  }
+
+  public void setPartitionSize(int partitionSize) {
+    this.partitionSize = partitionSize;
   }
 }

@@ -3,18 +3,12 @@ package de.jlandsmannn.DecPOMDPSolver.cmd;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicAgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
-import de.jlandsmannn.DecPOMDPSolver.io.IsomorphicDPOMDPFileParser;
+import de.jlandsmannn.DecPOMDPSolver.io.IDPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration.IsomorphicHeuristicPolicyIterationConfig;
 import de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration.IsomorphicHeuristicPolicyIterationSolver;
-import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationConfig;
-import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +110,7 @@ public class IsomorphicHeuristicPolicyIterationAlgorithmCommand {
   ) {
     LOG.info("Command 'load' was called with filename={}.", filename);
     if (!initialized) throw new IllegalStateException("Heuristic policy iteration is not initialized yet.");
-    var optionalBuilder = IsomorphicDPOMDPFileParser.parseDecPOMDP(filename);
+    var optionalBuilder = IDPOMDPFileParser.parseDecPOMDP(filename);
     if (optionalBuilder.isEmpty()) {
       LOG.warn("Parsing failed for file {}", filename);
       return "Could not parse " + filename + ". Make sure the file exists.";

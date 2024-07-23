@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
-public class IsomorphicDPOMDPSectionParser<BUILDER extends IsomorphicDecPOMDPWithStateControllerBuilder> extends DPOMDPSectionParser<BUILDER> implements ISectionParser {
-  private static final Logger LOG = LoggerFactory.getLogger(IsomorphicDPOMDPSectionParser.class);
+public class IDPOMDPSectionParser<BUILDER extends IsomorphicDecPOMDPWithStateControllerBuilder> extends DPOMDPSectionParser<BUILDER> implements ISectionParser {
+  private static final Logger LOG = LoggerFactory.getLogger(IDPOMDPSectionParser.class);
 
   private List<Integer> partitionSizes = List.of();
 
-  public IsomorphicDPOMDPSectionParser(BUILDER builder) {
+  public IDPOMDPSectionParser(BUILDER builder) {
     super(builder);
   }
 

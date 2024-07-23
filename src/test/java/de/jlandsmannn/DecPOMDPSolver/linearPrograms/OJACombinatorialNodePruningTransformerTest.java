@@ -174,15 +174,15 @@ class OJACombinatorialNodePruningTransformerTest {
     @Test
     void getDominatingNodeDistributionFromResult_ShouldReturnNodeDistributionBasedOnResult() {
       var expected = Distribution.of(Map.of(
-        Node.from("A1-Q1"), 0.2,
-        Node.from("A1-Q2"), 0.6,
-        Node.from("A1-Q3"), 0.2
+        Node.from("A0-Q1"), 0.2,
+        Node.from("A0-Q2"), 0.6,
+        Node.from("A0-Q3"), 0.2
       ));
       var result = Map.of(
         "epsilon", 1D,
-        "A1-Q1", 0.2,
-        "A1-Q2", 0.6,
-        "A1-Q3", 0.2
+        "A0-Q1", 0.2,
+        "A0-Q2", 0.6,
+        "A0-Q3", 0.2
       );
       var actual = transformer.getDominatingNodeDistributionFromResult(result);
       assertTrue(actual.isPresent());
