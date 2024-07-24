@@ -27,14 +27,14 @@ public class IsomorphicHeuristicPolicyIterationSolver
 
   protected final IsomorphicHeuristicPolicyIterationConfig config;
   protected final HeuristicPolicyIterationSolver solver;
-  protected final ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater;
+  protected final ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater;
 
   protected DecPOMDPWithStateController representativeDecPOMDP;
 
   @Autowired
   public IsomorphicHeuristicPolicyIterationSolver(IsomorphicHeuristicPolicyIterationConfig config,
                                                   HeuristicPolicyIterationSolver solver,
-                                                  ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater) {
+                                                  ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater) {
     super();
     this.config = config;
     this.solver = solver;
