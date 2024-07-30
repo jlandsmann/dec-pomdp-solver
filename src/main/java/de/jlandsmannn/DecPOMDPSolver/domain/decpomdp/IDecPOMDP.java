@@ -14,6 +14,7 @@ public interface IDecPOMDP<AGENT extends IAgent> {
   List<AGENT> getAgents();
   List<State> getStates();
   double getDiscountFactor();
+  void setDiscountFactor(double discountFactor);
   Distribution<State> getInitialBeliefState();
 
   double getTransitionProbability(Distribution<State> currentBeliefState, Vector<Action> agentActions, State followState);

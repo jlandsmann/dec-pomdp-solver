@@ -13,7 +13,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransfo
  * @param <DECPOMDP> the data type of the DecPOMDP
  * @param <MATRIX>   the data type of the matrices and vectors
  */
-public abstract class ValueFunctionEvaluater<DECPOMDP extends IDecPOMDP<?>, MATRIX> {
+public class ValueFunctionEvaluater<DECPOMDP extends IDecPOMDP<?>, MATRIX> {
 
   private final ValueFunctionTransformer<DECPOMDP, MATRIX> transformer;
   private final EquationSystemSolver<MATRIX> solver;

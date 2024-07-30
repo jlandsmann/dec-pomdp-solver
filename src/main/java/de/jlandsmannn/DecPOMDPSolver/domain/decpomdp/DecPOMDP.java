@@ -19,7 +19,7 @@ import java.util.Objects;
 public abstract class DecPOMDP<AGENT extends IAgent> implements IDecPOMDP<AGENT> {
   protected final List<AGENT> agents;
   protected final List<State> states;
-  protected final double discountFactor;
+  protected double discountFactor;
   protected final Distribution<State> initialBeliefState;
 
   public DecPOMDP(List<AGENT> agents, List<State> states, double discountFactor, Distribution<State> initialBeliefState) {
@@ -44,6 +44,11 @@ public abstract class DecPOMDP<AGENT extends IAgent> implements IDecPOMDP<AGENT>
 
   public double getDiscountFactor() {
     return discountFactor;
+  }
+
+  @Override
+  public void setDiscountFactor(double discountFactor) {
+    this.discountFactor = discountFactor;
   }
 
   public Distribution<State> getInitialBeliefState() {

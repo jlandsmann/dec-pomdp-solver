@@ -3,30 +3,26 @@ package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class RepresentativeDecPOMDPWithStateController
+public class RepresentativeObservationsDecPOMDPWithStateController
   extends IsomorphicDecPOMDPWithStateController {
 
-  private final int groundingConstant;
+  private final long groundingConstant;
 
-  protected RepresentativeDecPOMDPWithStateController(List<IsomorphicAgentWithStateController> agents,
-                                                      List<State> states,
-                                                      double discountFactor,
-                                                      Distribution<State> initialBeliefState,
-                                                      Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
-                                                      Map<State, Map<Vector<Action>, Double>> rewardFunction,
-                                                      Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
+  protected RepresentativeObservationsDecPOMDPWithStateController(List<IsomorphicAgentWithStateController> agents,
+                                                                  List<State> states,
+                                                                  double discountFactor,
+                                                                  Distribution<State> initialBeliefState,
+                                                                  Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction,
+                                                                  Map<State, Map<Vector<Action>, Double>> rewardFunction,
+                                                                  Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
     super(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
-    groundingConstant = agents.stream().mapToInt(ILiftedAgent::getPartitionSize).reduce(Math::multiplyExact).orElse(1);
+    groundingConstant = agents.stream().mapToLong(ILiftedAgent::getPartitionSize).reduce(Math::multiplyExact).orElse(1);
   }
 
   @Override

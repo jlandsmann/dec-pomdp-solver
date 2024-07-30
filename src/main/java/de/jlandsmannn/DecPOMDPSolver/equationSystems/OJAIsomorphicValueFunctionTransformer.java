@@ -57,13 +57,6 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
     return Vector.of(Histogram.from(vector).toList());
   }
 
-  private List<Vector<Node>> getAllNodeCombinations() {
-    return decPOMDP.getAgents().stream()
-      .flatMap(agent -> IntStream.range(0, agent.getPartitionSize()).mapToObj((i) -> agent.getControllerNodes()))
-      .collect(CombinationCollectors.toCombinationVectors())
-      .toList();
-  }
-
   protected double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var discountFactor = decPOMDP.getDiscountFactor();
     return decPOMDP.getActionCombinations().stream()

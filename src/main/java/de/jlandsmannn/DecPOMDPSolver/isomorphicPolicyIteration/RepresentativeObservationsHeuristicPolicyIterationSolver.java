@@ -4,14 +4,16 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithState
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.RepresentativeObservationsDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
-import de.jlandsmannn.DecPOMDPSolver.policyIteration.*;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.ValueFunctionEvaluater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -21,20 +23,20 @@ import java.util.stream.IntStream;
  * and depend on the initialization and on the belief point generation.
  */
 @Service
-public class IsomorphicHeuristicPolicyIterationSolver
-  extends BaseDecPOMDPSolverWithConfig<IsomorphicDecPOMDPWithStateController, IsomorphicHeuristicPolicyIterationConfig, IsomorphicHeuristicPolicyIterationSolver> {
-  private static final Logger LOG = LoggerFactory.getLogger(IsomorphicHeuristicPolicyIterationSolver.class);
+public class RepresentativeObservationsHeuristicPolicyIterationSolver
+  extends BaseDecPOMDPSolverWithConfig<RepresentativeObservationsDecPOMDPWithStateController, IsomorphicHeuristicPolicyIterationConfig, RepresentativeObservationsHeuristicPolicyIterationSolver> {
+  private static final Logger LOG = LoggerFactory.getLogger(RepresentativeObservationsHeuristicPolicyIterationSolver.class);
 
   protected final IsomorphicHeuristicPolicyIterationConfig config;
   protected final HeuristicPolicyIterationSolver solver;
-  protected final ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater;
+  protected final ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater;
 
   protected DecPOMDPWithStateController representativeDecPOMDP;
 
   @Autowired
-  public IsomorphicHeuristicPolicyIterationSolver(IsomorphicHeuristicPolicyIterationConfig config,
-                                                  HeuristicPolicyIterationSolver solver,
-                                                  ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater) {
+  public RepresentativeObservationsHeuristicPolicyIterationSolver(IsomorphicHeuristicPolicyIterationConfig config,
+                                                                  HeuristicPolicyIterationSolver solver,
+                                                                  ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater) {
     super();
     this.config = config;
     this.solver = solver;

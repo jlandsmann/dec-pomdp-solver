@@ -13,4 +13,8 @@ public class IsomorphicDecPOMDPWithStateControllerBuilder extends DecPOMDPBuilde
   public IsomorphicDecPOMDPWithStateController createDecPOMDP() {
     return new IsomorphicDecPOMDPWithStateController(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
   }
+
+  public RepresentativeObservationsDecPOMDPWithStateController createRepresentativeObservationsDecPOMDP() {
+    return new RepresentativeObservationsDecPOMDPWithStateController(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
+  }
 }
