@@ -39,6 +39,13 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
 
   @Override
   public double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
+    if (agentActions.size() != getAgentCount()) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    }
+    return doGetTransitionProbability(currentState, agentActions, followState);
+  }
+
+  protected double doGetTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
     return Optional
       .ofNullable(transitionFunction.get(currentState))
       .map(t -> t.get(agentActions))
@@ -50,6 +57,10 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
     if (agentActions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
+    return doGetReward(currentState, agentActions);
+  }
+
+  protected double doGetReward(State currentState, Vector<Action> agentActions) {
     return Optional
       .ofNullable(rewardFunction.get(currentState))
       .map(t -> t.get(agentActions))
@@ -58,6 +69,15 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
 
   @Override
   public double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
+    if (agentActions.size() != getAgentCount()) {
+      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
+    } else if (agentObservations.size() != getAgentCount()) {
+      throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
+    }
+    return doGetObservationProbability(agentActions, followState, agentObservations);
+  }
+
+  public double doGetObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
     return Optional
       .ofNullable(observationFunction.get(agentActions))
       .map(t -> t.get(followState))

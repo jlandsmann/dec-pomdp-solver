@@ -6,8 +6,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class RepresentativeObservationsDecPOMDPWithStateController
   extends IsomorphicDecPOMDPWithStateController {
@@ -30,13 +32,9 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     if (agentActions.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions)
-      .stream()
-      .findFirst()
-      .map(grounding -> super.getTransitionProbability(currentState, grounding, followState))
-      .map(probability -> Math.pow(probability, groundingConstant))
-      .orElse(0D)
-    ;
+    var actionVector = getAnyGrounding(agentActions);
+    var probability = doGetTransitionProbability(currentState, actionVector, followState);
+    return Math.pow(probability, groundingConstant);
   }
 
   @Override
@@ -44,12 +42,9 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     if (agentActions.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions)
-      .stream()
-      .findFirst()
-      .map(grounding -> super.getReward(currentState, grounding))
-      .map(reward -> reward * groundingConstant)
-      .orElse(0D);
+    var actionVector = getAnyGrounding(agentActions);
+    var reward = doGetReward(currentState, actionVector);
+    return Math.pow(reward, groundingConstant);
   }
 
   @Override
@@ -59,12 +54,10 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     } else if (agentObservations.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions, agentObservations)
-      .stream()
-      .findFirst()
-      .map(groundings -> super.getObservationProbability(groundings.first(), followState, groundings.second()))
-      .map(reward -> reward * groundingConstant)
-      .orElse(0D);
+    var actionVector = getAnyGrounding(agentActions);
+    var observationVector = getAnyGrounding(agentObservations);
+    var probability = doGetObservationProbability(actionVector, followState, observationVector);
+    return Math.pow(probability, groundingConstant);
   }
 
   @Override
@@ -74,15 +67,15 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     } else if (actions.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Number of actions does not match total number of agents");
     }
-    var offset = 0;
     var probability = 1D;
+    var nodeVector = getAnyGrounding(nodes);
+    var actionVector = getAnyGrounding(actions);
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      var node = nodes.get(offset);
-      var action = actions.get(offset);
+      var node = nodeVector.get(i);
+      var action = actionVector.get(i);
       var selectionProbability = agent.getActionSelectionProbability(node, action);
       probability *= Math.pow(selectionProbability, agent.getPartitionSize());
-      offset += agent.getPartitionSize();
     }
     return probability;
   }
@@ -147,5 +140,20 @@ public class RepresentativeObservationsDecPOMDPWithStateController
         .collect(CustomCollectors.toVector())
       )
       .toList();
+  }
+
+  public <U> Vector<U> getAnyGrounding(Vector<U> input) {
+    if (input.size() != getTotalAgentCount()) {
+      throw new IllegalArgumentException("Number of elements in input vector does not match total number of agents");
+    }
+    var output = new ArrayList<U>();
+    var offset = 0;
+    for (int i = 0; output.size() < getAgents().size();) {
+      var agent = getAgents().get(i);
+      var element = input.get(offset);
+      output.add(element);
+      offset += agent.getPartitionSize();
+    }
+    return Vector.of(output);
   }
 }

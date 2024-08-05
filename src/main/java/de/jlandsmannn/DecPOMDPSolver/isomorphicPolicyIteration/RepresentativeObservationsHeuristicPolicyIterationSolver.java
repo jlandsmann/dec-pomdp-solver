@@ -27,7 +27,6 @@ public class RepresentativeObservationsHeuristicPolicyIterationSolver
   extends BaseDecPOMDPSolverWithConfig<RepresentativeObservationsDecPOMDPWithStateController, IsomorphicHeuristicPolicyIterationConfig, RepresentativeObservationsHeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(RepresentativeObservationsHeuristicPolicyIterationSolver.class);
 
-  protected final IsomorphicHeuristicPolicyIterationConfig config;
   protected final HeuristicPolicyIterationSolver solver;
   protected final ValueFunctionEvaluater<IDecPOMDPWithStateController<?>, ?> valueFunctionEvaluater;
 

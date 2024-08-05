@@ -205,7 +205,7 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
   }
 
   public List<Vector<Node>> getNodeCombinations() {
-    var readonlyRawCombinations = getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
+    var readonlyRawCombinations = getAgents().stream().map(IAgentWithStateController::getControllerNodes).toList();
     var rawCombinations = new ArrayList<>(readonlyRawCombinations);
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
