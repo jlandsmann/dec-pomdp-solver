@@ -116,7 +116,6 @@ public class BeliefPointGenerator {
   protected void randomizePoliciesAndBeliefState() {
     LOG.info("Generating further belief points to increase diversity.");
     policies = generateRandomPolicies();
-    currentBeliefState = Distribution.createRandomDistribution(decPOMDP.getStates(), random);
   }
 
   protected Map<IAgent, Map<State, Distribution<Action>>> generateRandomPolicies() {
