@@ -1,10 +1,12 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +19,7 @@ import java.util.stream.Stream;
  * @param <C> the data type of the combination
  * @param <T> the data type of the items within the combinations
  */
-public abstract class CombinationBuilder<C, T> {
+public abstract class CombinationBuilder<C, T> implements Collector<List<T>, List<List<T>>, Stream<C>> {
 
   /**
    * This method creates a list of all combinations from the given list of lists.
@@ -94,4 +96,32 @@ public abstract class CombinationBuilder<C, T> {
    * @return the combination as the specified data type
    */
   protected abstract C transformListToCombination(List<T> combinationAsList);
+
+  @Override
+  public Supplier<List<List<T>>> supplier() {
+    return ArrayList::new;
+  }
+
+  @Override
+  public BiConsumer<List<List<T>>, List<T>> accumulator() {
+    return List::add;
+  }
+
+  @Override
+  public BinaryOperator<List<List<T>>> combiner() {
+    return (listA, listB) -> {
+      listA.addAll(listB);
+      return listA;
+    };
+  }
+
+  @Override
+  public Function<List<List<T>>, Stream<C>> finisher() {
+    return this::getStreamForEachCombination;
+  }
+
+  @Override
+  public Set<Characteristics> characteristics() {
+    return Set.of();
+  }
 }

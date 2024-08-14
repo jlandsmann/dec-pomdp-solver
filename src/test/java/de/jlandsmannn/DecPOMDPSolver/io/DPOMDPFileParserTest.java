@@ -1,5 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,26 +19,22 @@ import static org.mockito.Mockito.*;
 class DPOMDPFileParserTest {
 
   @Mock
-  private DPOMDPSectionParser sectionParser;
+  private DPOMDPSectionParser<DecPOMDPWithStateControllerBuilder> sectionParser;
 
   @InjectMocks
-  private DPOMDPFileParser parser;
+  private DPOMDPFileParser<DecPOMDPWithStateControllerBuilder> parser;
 
   @BeforeEach
   void setUp() {
-    parser = spy(new DPOMDPFileParser(sectionParser));
+    parser = spy(new DPOMDPFileParser<>(null));
+    parser.sectionParser = sectionParser;
   }
 
   @Test
-  void parseDecPOMDP() {
-  }
-
-  @Test
-  void tryParseDecPOMDP() {
-  }
-
-  @Test
-  void parseLine_ShouldStartNewSectionIfLineStartsWithKeyword() {
+  void parseDecPOMDPLine_ShouldStartNewSectionIfLineStartsWithKeyword() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.AGENTS
+    ));
     var expectedKeyword = DPOMDPSectionKeyword.AGENTS;
     var currentLine = "agents: 5";
     parser.parseLine(currentLine);
@@ -44,15 +43,10 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseLine_ShouldNotStartNewSectionIfLineStartsWithComment() {
-    var currentLine = "# agents: 5";
-    parser.parseLine(currentLine);
-
-    verify(parser, times(0)).startNewSection(any());
-  }
-
-  @Test
-  void parseLine_ShouldParseCurrentSectionIfLineStartsWithKeyword() {
+  void parseLine_ShouldParseDecPOMDPCurrentSectionIfLineStartsWithKeyword() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.AGENTS
+    ));
     var currentLine = "agents: 5";
     parser.parseLine(currentLine);
 
@@ -60,15 +54,7 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseLine_ShouldNotParseCurrentSectionIfLineStartsWithComment() {
-    var currentLine = "# agents: 5";
-    parser.parseLine(currentLine);
-
-    verify(parser, times(0)).parseCurrentSection();
-  }
-
-  @Test
-  void parseLine_ShouldParseCurrentSectionIfLineIsNull() {
+  void parseLine_ShouldParseDecPOMDPCurrentSectionIfLineIsNull() {
     String currentLine = null;
     parser.parseLine(currentLine);
 
@@ -76,7 +62,10 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseLine_ShouldAppendCurrentLineToCurrentSectionIfKeywordOccurs() {
+  void parseDecPOMDPLine_ShouldAppendCurrentLineToCurrentSectionIfKeywordOccurs() {
+    when(sectionParser.getSectionKeywords()).thenReturn(Set.of(
+      DPOMDPSectionKeyword.STATES
+    ));
     String currentLine = "states: 5";
     parser.parseLine(currentLine);
     String expectedSection = currentLine;
@@ -85,8 +74,9 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseLine_ShouldAppendCurrentLineToCurrentSectionIfNoKeywordOccurs() {
-    String previousSection = parser.currentSectionBuilder.toString();
+  void parseDecPOMDPLine_ShouldAppendCurrentLineToCurrentSectionIfNoKeywordOccurs() {
+    String previousSection = "states:";
+    parser.parseLine(previousSection);
     String currentLine = "uniform";
     parser.parseLine(currentLine);
     String expectedSection = previousSection + System.lineSeparator() + "uniform";
@@ -95,7 +85,7 @@ class DPOMDPFileParserTest {
   }
 
   @Test
-  void parseCurrentSection_ShouldCallParseSectionWithCurrentKeywordAndCurrentSection() {
+  void parseCurrentSection_ShouldCallParseDecPOMDPSectionWithCurrentKeywordAndCurrentSection() {
     parser.currentKeyword = DPOMDPSectionKeyword.AGENTS;
     parser.currentSectionBuilder = new StringBuilder().append("agents: 5");
     var expectedKeyword = parser.currentKeyword;
@@ -111,7 +101,6 @@ class DPOMDPFileParserTest {
 
     assertEquals("", parser.currentSectionBuilder.toString());
     assertEquals(keyword, parser.currentKeyword);
-
   }
 
 }

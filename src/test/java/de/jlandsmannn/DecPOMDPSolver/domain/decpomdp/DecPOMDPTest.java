@@ -97,20 +97,21 @@ class DecPOMDPTest {
   }
 
   @Test
-  void getTransition_ShouldReturnBeliefStatePutIn() {
+  void getTransitionProbability_ShouldReturnBeliefStatePutIn() {
     var currentState = State.from("S1");
     var actionVector = Vector.of(Action.listOf("A1-A1", "A2-A1"));
-    var expected = Distribution.createSingleEntryDistribution(State.from("S2"));
-    var actual = decPOMDP.getTransition(currentState, actionVector);
+    var expected = 1D;
+    var actual = decPOMDP.getTransitionProbability(currentState, actionVector, State.from("S2"));
     assertEquals(expected, actual);
+
     actionVector = Vector.of(Action.listOf("A1-A1", "A2-A2"));
-    expected = Distribution.createSingleEntryDistribution(State.from("S1"));
-    actual = decPOMDP.getTransition(currentState, actionVector);
+    expected = 1D;
+    actual = decPOMDP.getTransitionProbability(currentState, actionVector, State.from("S1"));
     assertEquals(expected, actual);
   }
 
   @Test
-  void getTransition_ShouldReturnWeightedBeliefStateForBeliefState() {
+  void getTransitionProbability_ShouldReturnWeightedBeliefStateForBeliefState() {
     var beliefState = Distribution.of(Map.of(
       State.from("S1"), 0.3,
       State.from("S2"), 0.7
@@ -118,9 +119,10 @@ class DecPOMDPTest {
     var actionVector = Vector.of(Action.listOf("A1-A1", "A2-A1"));
     var expectedS1 = 0.7;
     var expectedS2 = 0.3;
-    var actual = decPOMDP.getTransition(beliefState, actionVector);
-    assertEquals(expectedS1, actual.getProbability(State.from("S1")));
-    assertEquals(expectedS2, actual.getProbability(State.from("S2")));
+    var actualS1 = decPOMDP.getTransitionProbability(beliefState, actionVector, State.from("S1"));
+    var actualS2 = decPOMDP.getTransitionProbability(beliefState, actionVector, State.from("S2"));
+    assertEquals(expectedS1, actualS1);
+    assertEquals(expectedS2, actualS2);
   }
 
   @Test
@@ -145,25 +147,28 @@ class DecPOMDPTest {
   }
 
   @Test
-  void getObservations_ShouldReturnObservationDistributionPutIn() {
+  void getObservationProbability_ShouldReturnObservationDistributionPutIn() {
     var actionVector = Vector.of(Action.listOf("A1-A2", "A2-A2"));
     var followState = State.from("S2");
-    var expected = Distribution.createSingleEntryDistribution(Vector.of(Observation.listOf("A1-O2", "A2-O2")));
-    var actual = decPOMDP.getObservations(actionVector, followState);
+    var observationVector = Vector.of(Observation.listOf("A1-O2", "A2-O2"));
+    var expected = 1D;
+    var actual = decPOMDP.getObservationProbability(actionVector, followState, observationVector);
     assertEquals(expected, actual);
   }
 
   @Test
-  void getObservation_ShouldReturnWeightedObservationForBeliefState() {
+  void getObservationProbability_ShouldReturnWeightedObservationForBeliefState() {
     var actionVector = Vector.of(Action.listOf("A1-A2", "A2-A1"));
     var nextBeliefState = Distribution.of(Map.of(
       State.from("S1"), 0.6,
       State.from("S2"), 0.4
     ));
     var observation1 = Vector.of(Observation.listOf("A1-O1", "A2-O1"));
+    var actual1 = decPOMDP.getObservationProbability(actionVector, nextBeliefState, observation1);
+
     var observation2 = Vector.of(Observation.listOf("A1-O2", "A2-O2"));
-    var actual = decPOMDP.getObservations(actionVector, nextBeliefState);
-    assertEquals(0.6, actual.getProbability(observation1));
-    assertEquals(0.4, actual.getProbability(observation2));
+    var actual2 = decPOMDP.getObservationProbability(actionVector, nextBeliefState, observation2);
+    assertEquals(0.6, actual1);
+    assertEquals(0.4, actual2);
   }
 }

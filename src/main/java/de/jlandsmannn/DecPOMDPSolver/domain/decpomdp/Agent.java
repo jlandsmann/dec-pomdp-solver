@@ -11,7 +11,7 @@ import java.util.Objects;
  * This base version just handles the abilities of an agent,
  * but has apart from that no further business logic.
  */
-public class Agent {
+public class Agent implements IAgent {
   protected final String name;
   protected final List<Action> actions;
   protected final List<Observation> observations;

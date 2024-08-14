@@ -13,7 +13,7 @@ import java.util.*;
  * It does no business logic validation.
  * This is done by the DecPOMDP itself on creation.
  */
-public abstract class DecPOMDPBuilder<DECPOMDP extends DecPOMDP<AGENT>, AGENT extends Agent, THIS extends DecPOMDPBuilder<DECPOMDP, AGENT, ?>> {
+public abstract class DecPOMDPBuilder<DECPOMDP extends IDecPOMDP<AGENT>, AGENT extends IAgent, THIS extends DecPOMDPBuilder<DECPOMDP, AGENT, ?>> {
   protected final List<AGENT> agents = new ArrayList<>();
   protected final List<State> states = new ArrayList<>();
   protected final Map<State, Map<Vector<Action>, Distribution<State>>> transitionFunction = new HashMap<>();
@@ -26,13 +26,12 @@ public abstract class DecPOMDPBuilder<DECPOMDP extends DecPOMDP<AGENT>, AGENT ex
 
   public abstract AgentBuilder<AGENT, ?> getAgentBuilder();
 
-  public THIS addAgents(Collection<AGENT> agents) {
-    this.agents.removeAll(agents);
-    this.agents.addAll(agents);
+  public THIS addAgents(Collection<? extends IAgent> agents) {
+    agents.forEach(this::addAgent);
     return (THIS) this;
   }
 
-  public THIS addAgent(Agent agent) {
+  public THIS addAgent(IAgent agent) {
     this.agents.remove((AGENT) agent);
     this.agents.add((AGENT) agent);
     return (THIS) this;

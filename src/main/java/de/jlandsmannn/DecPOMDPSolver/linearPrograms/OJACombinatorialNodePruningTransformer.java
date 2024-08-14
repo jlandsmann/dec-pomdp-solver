@@ -1,8 +1,11 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -24,20 +27,20 @@ import java.util.*;
  * as a {@link Distribution} from the results of the linear program.
  */
 @Service
-public class OJACombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<ExpressionsBasedModel, Map<String, Double>> {
+public class OJACombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJACombinatorialNodePruningTransformer.class);
 
-  private DecPOMDPWithStateController decPOMDP;
-  private AgentWithStateController agent;
+  private IDecPOMDPWithStateController<?> decPOMDP;
+  private IAgentWithStateController agent;
   private Collection<Distribution<State>> beliefPoints;
 
   @Override
-  public void setDecPOMDP(DecPOMDPWithStateController decPOMDP) {
+  public void setDecPOMDP(IDecPOMDPWithStateController<?> decPOMDP) {
     this.decPOMDP = decPOMDP;
   }
 
   @Override
-  public void setAgent(AgentWithStateController agent) {
+  public void setAgent(IAgentWithStateController agent) {
     if (decPOMDP == null) {
       throw new IllegalStateException("DecPOMDP must be set to select agent");
     } else if (!decPOMDP.getAgents().contains(agent)) {
@@ -72,7 +75,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
 
     var rawNodeCombinations = decPOMDP.getAgents().stream()
       .filter(a -> !a.equals(agent))
-      .map(AgentWithStateController::getInitialControllerNodes)
+      .map(IAgentWithStateController::getInitialControllerNodes)
       .map(List::copyOf)
       .toList();
     var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);

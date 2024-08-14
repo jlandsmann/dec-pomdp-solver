@@ -1,7 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.GroundDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * which use {@link FiniteStateController} to represent their policies.
  * It inherits from {@link DecPOMDP}.
  */
-public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateController> {
+public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateController> implements IDecPOMDPWithStateController<AgentWithStateController> {
   private static final int INITIAL_VALUE_FUNCTION_SIZE_PER_STATE = 200_000;
   private static final float VALUE_FUNCTION_LOAD_FACTOR = 0.9F;
 
@@ -47,6 +47,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @param beliefState the belief state to check the value for
    * @return the expected sum of rewards
    */
+  @Override
   public double getValue(Distribution<State> beliefState) {
     return getNodeCombinations()
       .stream()
@@ -62,6 +63,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @param beliefState the belief state to check the value for
    * @return the vector of nodes to start from, that maximizes the expected sum of rewards
    */
+  @Override
   public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
     return getNodeCombinations()
       .stream()
@@ -106,7 +108,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public double getValue(State state, Vector<Node> nodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     var preCalculatedValuesForState = preCalculatedValueFunction.getOrDefault(state, Map.of());
@@ -122,7 +124,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public boolean hasValue(State state, Vector<Node> nodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     return preCalculatedValueFunction.getOrDefault(state, Map.of()).containsKey(nodes);
@@ -137,7 +139,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
    */
   public void setValue(State state, Vector<Node> nodes, double value) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
     }
     preCalculatedValueFunction.putIfAbsent(state, new ConcurrentHashMap<>(INITIAL_VALUE_FUNCTION_SIZE_PER_STATE, VALUE_FUNCTION_LOAD_FACTOR));
@@ -145,8 +147,7 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   /**
-   * Returns the probability to choose actions
-   * when the agents are in the nodes defined by nodes.
+   * Returns the probability to choose actions when the agents are in the nodes defined by nodes.
    *
    * @param nodes   the vector of nodes to start from
    * @param actions the vector of actions to check for
@@ -154,9 +155,9 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @throws IllegalArgumentException if the vector of nodes or the vector of actions has different size as the DecPOMDP has agents
    */
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
-    } else if (actions.size() != agents.size()) {
+    } else if (actions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
     var probability = 1D;
@@ -164,16 +165,14 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
       var agent = agents.get(i);
       var node = nodes.get(i);
       var action = actions.get(i);
-      probability *= agent.getActionSelection(node).getProbability(action);
+      probability *= agent.getActionSelectionProbability(node, action);
     }
     return probability;
   }
 
   /**
-   * Returns the probability to transit
-   * starting from the given nodes,
-   * choosing the given actions,
-   * observing the given observations
+   * Returns the probability to transit starting from the given nodes,
+   * choosing the given actions, observing the given observations
    * and ending in the given new nodes.
    *
    * @param nodes        the vector of nodes to start from
@@ -184,13 +183,13 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
    * @throws IllegalArgumentException if one of the vectors has different size as the DecPOMDP has agents
    */
   public double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes) {
-    if (nodes.size() != agents.size()) {
+    if (nodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
-    } else if (actions.size() != agents.size()) {
+    } else if (actions.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    } else if (observations.size() != agents.size()) {
+    } else if (observations.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
-    } else if (newNodes.size() != agents.size()) {
+    } else if (newNodes.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of newNodes vector doesn't match agent count.");
     }
     var probability = 1D;
@@ -206,18 +205,8 @@ public class DecPOMDPWithStateController extends DecPOMDP<AgentWithStateControll
   }
 
   public List<Vector<Node>> getNodeCombinations() {
-    var readonlyRawCombinations = getAgents().stream().map(AgentWithStateController::getControllerNodes).toList();
+    var readonlyRawCombinations = getAgents().stream().map(IAgentWithStateController::getControllerNodes).toList();
     var rawCombinations = new ArrayList<>(readonlyRawCombinations);
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
-
-  public List<Vector<Action>> getActionCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getActions).toList();
-    return VectorCombinationBuilder.listOf(rawCombinations);
-  }
-
-  public List<Vector<Observation>> getObservationCombinations() {
-    var rawCombinations = agents.stream().map(Agent::getObservations).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 

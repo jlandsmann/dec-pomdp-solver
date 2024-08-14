@@ -1,0 +1,81 @@
+package de.jlandsmannn.DecPOMDPSolver.cmd;
+
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import de.jlandsmannn.DecPOMDPSolver.io.IDPOMDPFileParser;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
+import de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration.IsomorphicHeuristicPolicyIterationConfig;
+import de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration.IsomorphicHeuristicPolicyIterationSolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.shell.command.annotation.Option;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.shell.command.CommandRegistration.OptionArity;
+
+/**
+ * This command class contains all commands regarding the heuristic policy iteration algorithm.
+ * There are three main commands: init, load and solve.
+ * For more detailed information, have a look at the commands themselves.
+ */
+@Command(command = "isomorphic", group = "Isomorphic Heuristic Policy Iteration", alias = "i")
+@Component
+public class IsomorphicHeuristicPolicyIterationAlgorithmCommand extends BaseHeuristicPolicyIterationAlgorithmCommand<IsomorphicDecPOMDPWithStateController> {
+  private final static Logger LOG = LoggerFactory.getLogger(IsomorphicHeuristicPolicyIterationAlgorithmCommand.class);
+
+  private final IsomorphicHeuristicPolicyIterationSolver solver;
+  private final IsomorphicHeuristicPolicyIterationConfig myDefaultConfig;
+
+  @Autowired
+  public IsomorphicHeuristicPolicyIterationAlgorithmCommand(IsomorphicHeuristicPolicyIterationSolver solver, IsomorphicHeuristicPolicyIterationConfig defaultConfig) {
+    super(defaultConfig.policyIterationConfig());
+    this.solver = solver;
+    this.myDefaultConfig = defaultConfig;
+  }
+
+  /**
+   * The help command prints some information about the used algorithm.
+   */
+  @Command(command = "", alias = {"h"}, description = "Prints information about this algorithm.")
+  public String help() {
+    LOG.info("help command called.");
+    return new StringBuilder()
+      .append("This algorithm is based on the algorithm presented in")
+      .append(System.lineSeparator())
+      .append("'Policy Iteration for Decentralized Control of Markov Decision Processes'")
+      .append(System.lineSeparator())
+      .append("by Bernstein et.al. from 2009.")
+      .append(System.lineSeparator())
+      .append("Stochastic finite state controller are used to represent the agents policies. ")
+      .append("Furthermore exhaustive backups are performed for exploration.")
+      .append(System.lineSeparator())
+      .append("It utilizes more or less random generated so called belief points to direct the pruning of explored policies.")
+      .toString();
+  }
+
+  @Override
+  protected Optional<IsomorphicDecPOMDPWithStateController> loadDecPOMDP(String filename) {
+    return IDPOMDPFileParser.parseDecPOMDP(filename).map(IsomorphicDecPOMDPWithStateControllerBuilder::createDecPOMDP);
+  }
+
+  @Override
+  protected double doSolve(IsomorphicDecPOMDPWithStateController decPOMDP) {
+    return solver
+      .setDecPOMDP(decPOMDP)
+      .setConfig(myDefaultConfig.withPolicyIterationConfig(config))
+      .solve();
+  }
+
+
+}

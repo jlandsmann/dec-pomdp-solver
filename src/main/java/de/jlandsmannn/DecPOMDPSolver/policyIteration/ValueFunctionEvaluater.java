@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDP;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
 
@@ -12,7 +13,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransfo
  * @param <DECPOMDP> the data type of the DecPOMDP
  * @param <MATRIX>   the data type of the matrices and vectors
  */
-public abstract class ValueFunctionEvaluater<DECPOMDP extends DecPOMDP<?>, MATRIX> {
+public class ValueFunctionEvaluater<DECPOMDP extends IDecPOMDP<?>, MATRIX> {
 
   private final ValueFunctionTransformer<DECPOMDP, MATRIX> transformer;
   private final EquationSystemSolver<MATRIX> solver;

@@ -59,28 +59,36 @@ public class FiniteStateController {
   }
 
   /**
-   * Returns the distribution nodes based on the given node.
+   * Returns the probability selecting the given action in the given node.
    *
-   * @param node the node check for
-   * @return the distribution of actions
+   * @param node the node to check for
+   * @param action the action to check for
+   * @return the probability of selecting the action in the given node
    */
-  public Distribution<Action> getActionSelection(Node node) {
-    return actionFunction.get(node);
+  public double getActionSelectionProbability(Node node, Action action) {
+    return Optional
+      .ofNullable(actionFunction.get(node))
+      .map(t -> t.getProbability(action))
+      .orElse(0D);
   }
 
   /**
-   * Return
+   * Returns the probability of transitioning into a given node,
+   * based on the given current node, selected action and sensed observation.
    *
-   * @param node
-   * @param action
-   * @param observation
-   * @return
+   * @param node the node to start from
+   * @param action the action selected
+   * @param observation the observation made
+   * @param followNode the node to transition to
+   * @return the probability of the transition
    */
-  public Distribution<Node> getTransition(Node node, Action action, Observation observation) {
-    return transitionFunction
-      .getOrDefault(node, Map.of())
-      .getOrDefault(action, Map.of())
-      .get(observation);
+  public double getTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
+    return Optional
+      .ofNullable(transitionFunction.get(node))
+      .map(t -> t.get(action))
+      .map(t -> t.get(observation))
+      .map(t -> t.getProbability(followNode))
+      .orElse(0D);
   }
 
   public void addNode(Node node, Action action) {

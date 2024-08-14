@@ -7,7 +7,7 @@ import java.util.Set;
  * from the .dpomdp file format and
  * provides some utility to check for those.
  */
-public enum DPOMDPSectionKeyword {
+public enum DPOMDPSectionKeyword implements SectionKeyword {
   COMMENT("#"),
   AGENTS("agents"),
   DISCOUNT("discount"),

@@ -6,8 +6,8 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,10 +15,10 @@ import java.util.Set;
  * which uses {@link FiniteStateController} to represent its own policy.
  * This agent is used by {@link DecPOMDPWithStateController}.
  */
-public class AgentWithStateController extends Agent {
+public class AgentWithStateController extends Agent implements IAgentWithStateController {
 
-  protected final FiniteStateController controller;
-  protected Set<Node> initialControllerNodes = Set.of();
+  protected FiniteStateController controller;
+  protected Set<Node> initialControllerNodes = new HashSet<>();
 
   /**
    * Default constructor with name, actions, observations and controller.
@@ -31,6 +31,19 @@ public class AgentWithStateController extends Agent {
   public AgentWithStateController(String name, List<Action> actions, List<Observation> observations, FiniteStateController controller) {
     super(name, actions, observations);
     this.controller = controller;
+  }
+
+  public <U extends AgentWithStateController> AgentWithStateController(U agent) {
+    this(agent.name, agent.actions, agent.observations, agent.controller);
+  }
+
+  public void setController(FiniteStateController controller) {
+    this.controller = controller;
+    initialControllerNodes.retainAll(controller.getNodes());
+  }
+
+  public FiniteStateController getController() {
+    return controller;
   }
 
   /**
@@ -66,15 +79,13 @@ public class AgentWithStateController extends Agent {
     return controller.getNodes();
   }
 
-  /**
-   * {@link FiniteStateController#getActionSelection(Node)}
-   */
-  public Distribution<Action> getActionSelection(Node node) {
-    return controller.getActionSelection(node);
+  @Override
+  public double getActionSelectionProbability(Node node, Action action) {
+    return controller.getActionSelectionProbability(node, action);
   }
 
   /**
-   * {@link FiniteStateController#getTransition(Node, Action, Observation)}
+   * {@link FiniteStateController#getTransitionProbability(Node, Action, Observation, Node)}
    *
    * @param node        the node from where the transition starts
    * @param action      the action to be taken when in node
@@ -83,21 +94,7 @@ public class AgentWithStateController extends Agent {
    * @return the probability of the described transition
    */
   public double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
-    return getNodeTransition(node, action, observation)
-      .map(transition -> transition.getProbability(followNode))
-      .orElse(0D);
-  }
-
-  /**
-   * {@link FiniteStateController#getTransition(Node, Action, Observation)}
-   *
-   * @param node        the node from where the transition starts
-   * @param action      the action to be taken when in node
-   * @param observation the observation observed after taking action
-   * @return the distribution of nodes to land in
-   */
-  public Optional<Distribution<Node>> getNodeTransition(Node node, Action action, Observation observation) {
-    return Optional.ofNullable(controller.getTransition(node, action, observation));
+    return controller.getTransitionProbability(node, action, observation, followNode);
   }
 
   /**

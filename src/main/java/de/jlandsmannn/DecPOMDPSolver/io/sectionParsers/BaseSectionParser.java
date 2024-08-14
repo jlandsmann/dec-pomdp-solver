@@ -2,6 +2,7 @@ package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionMatchResult;
 
 import java.util.Optional;
@@ -15,14 +16,14 @@ import java.util.regex.Pattern;
  * to their respective needs.
  */
 public abstract class BaseSectionParser {
-  protected final DPOMDPSectionKeyword keyword;
+  protected final SectionKeyword keyword;
   protected final Pattern pattern;
 
-  protected BaseSectionParser(DPOMDPSectionKeyword keyword, String pattern) {
+  protected BaseSectionParser(SectionKeyword keyword, String pattern) {
     this(keyword, Pattern.compile(pattern));
   }
 
-  protected BaseSectionParser(DPOMDPSectionKeyword keyword, Pattern pattern) {
+  protected BaseSectionParser(SectionKeyword keyword, Pattern pattern) {
     this.keyword = keyword;
     this.pattern = pattern;
   }

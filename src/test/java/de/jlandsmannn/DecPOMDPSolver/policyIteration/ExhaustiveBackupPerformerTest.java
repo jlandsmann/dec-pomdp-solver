@@ -1,7 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.DecPOMDPGenerator;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
@@ -26,7 +26,7 @@ class ExhaustiveBackupPerformerTest {
 
   private DecPOMDPWithStateController decPOMDP;
   private ExhaustiveBackupPerformer exhaustiveBackupPerformer;
-  private Map<Agent, Set<Distribution<State>>> beliefPoints;
+  private Map<IAgent, Set<Distribution<State>>> beliefPoints;
 
   @BeforeEach
   void setUp() {

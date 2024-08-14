@@ -1,8 +1,8 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
@@ -19,11 +19,11 @@ import java.util.Optional;
  * @param <LP>     the linear program itself
  * @param <RESULT> the LP's result data type
  */
-public interface CombinatorialNodePruningTransformer<LP, RESULT> {
+public interface CombinatorialNodePruningTransformer<DECPOMDP extends IDecPOMDPWithStateController<?>, LP, RESULT> {
 
-  void setDecPOMDP(DecPOMDPWithStateController decPOMDP);
+  void setDecPOMDP(DECPOMDP decPOMDP);
 
-  void setAgent(AgentWithStateController agent);
+  void setAgent(IAgentWithStateController agent);
 
   void setBeliefPoints(Collection<Distribution<State>> beliefPoints);
 

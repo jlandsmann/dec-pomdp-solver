@@ -9,7 +9,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import java.util.List;
 import java.util.Map;
 
-public class TestDecPOMDP extends DecPOMDP<TestAgent> {
+public class TestDecPOMDP extends GroundDecPOMDP<TestAgent> {
 
   public TestDecPOMDP(List<TestAgent> testAgents,
                       List<State> states,

@@ -1,24 +1,24 @@
 package de.jlandsmannn.DecPOMDPSolver.io;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.Agent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.DecPOMDPBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import de.jlandsmannn.DecPOMDPSolver.io.sectionParsers.*;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPRewardType;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
+import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class serves as a delegator for the various section parsers in
@@ -30,7 +30,7 @@ import static de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword.*;
  * When all mandatory sections were parsed, and
  * sufficient information about the DecPOMDP was given, it can be built.
  */
-public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
+public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> implements ISectionParser {
   private static final Logger LOG = LoggerFactory.getLogger(DPOMDPFileParser.class);
 
   protected BUILDER builder;
@@ -47,44 +47,29 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
     this.builder = builder;
   }
 
-  public void parseSection(DPOMDPSectionKeyword keyword, String section) {
-    switch (keyword) {
-      case AGENTS:
-        parseAgents(section);
-        break;
-      case DISCOUNT:
-        parseDiscount(section);
-        break;
-      case REWARD_TYPE:
-        parseRewardType(section);
-        break;
-      case STATES:
-        parseStates(section);
-        break;
-      case START:
-        parseStart(section);
-        break;
-      case ACTIONS:
-        parseActions(section);
-        break;
-      case OBSERVATIONS:
-        parseObservations(section);
-        break;
-      case TRANSITION_ENTRY:
-        parseTransitionEntry(section);
-        break;
-      case REWARD_ENTRY:
-        parseRewardEntry(section);
-        break;
-      case OBSERVATION_ENTRY:
-        parseObservationEntry(section);
-        break;
+  @Override
+  public Set<SectionKeyword> getSectionKeywords() {
+    return DPOMDPSectionKeyword.ALL.stream().map(k -> (SectionKeyword) k).collect(Collectors.toSet());
+  }
+
+  public void parseSection(SectionKeyword keyword, String section) {
+    if (!(keyword instanceof DPOMDPSectionKeyword)) return;
+    switch ((DPOMDPSectionKeyword) keyword) {
+      case AGENTS -> parseAgents(section);
+      case DISCOUNT -> parseDiscount(section);
+      case REWARD_TYPE -> parseRewardType(section);
+      case STATES -> parseStates(section);
+      case START -> parseStart(section);
+      case ACTIONS -> parseActions(section);
+      case OBSERVATIONS -> parseObservations(section);
+      case TRANSITION_ENTRY -> parseTransitionEntry(section);
+      case REWARD_ENTRY -> parseRewardEntry(section);
+      case OBSERVATION_ENTRY -> parseObservationEntry(section);
     }
   }
 
-  public DPOMDPSectionParser<BUILDER> gatherData() {
+  public void gatherData() {
     gatherDataAndAddToBuilder();
-    return this;
   }
 
   public BUILDER getBuilder() {
@@ -192,12 +177,12 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
     gatherRewardsAndAddToBuilder();
   }
 
-  private void gatherAgentsAndAddToBuilder() {
+  protected void gatherAgentsAndAddToBuilder() {
     for (int i = 0; i < agentNames.size(); i++) {
       var name = agentNames.get(i);
       var actions = agentActions.get(i);
       var observations = agentObservations.get(i);
-      var agent = builder.getAgentBuilder()
+      IAgent agent = builder.getAgentBuilder()
         .setName(name)
         .setActions(actions)
         .setObservations(observations)
@@ -206,7 +191,7 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
     }
   }
 
-  private void gatherTransitionsAndAddToBuilder() {
+  protected void gatherTransitionsAndAddToBuilder() {
     var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
     for (var state : builder.getStates()) {
       var actionMap = transitions.get(state);
@@ -221,7 +206,7 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
     }
   }
 
-  private void gatherObservationsAndAddToBuilder() {
+  protected void gatherObservationsAndAddToBuilder() {
     var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
 
     for (var actionVector : actionCombinations) {
@@ -237,7 +222,7 @@ public class DPOMDPSectionParser<BUILDER extends DecPOMDPBuilder<?, ?, ?>> {
     }
   }
 
-  private void gatherRewardsAndAddToBuilder() {
+  protected void gatherRewardsAndAddToBuilder() {
     var actionCombinations = VectorCombinationBuilder.listOf(agentActions);
     var observationCombination = VectorCombinationBuilder.listOf(agentObservations);
 
