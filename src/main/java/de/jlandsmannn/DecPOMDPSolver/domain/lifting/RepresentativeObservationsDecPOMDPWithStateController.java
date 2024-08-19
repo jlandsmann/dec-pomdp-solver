@@ -148,7 +148,7 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     }
     var output = new ArrayList<U>();
     var offset = 0;
-    for (int i = 0; output.size() < getAgents().size();) {
+    for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
       var element = input.get(offset);
       output.add(element);
