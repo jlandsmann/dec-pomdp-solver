@@ -40,12 +40,13 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
   }
 
   private Optional<Map<String, Double>> transformResultIntoMap(Optimisation.Result result) {
-    if (!result.getState().isOptimal()) {
+    if (!result.getState().isOptimal() && !result.getState().isFeasible()) {
       LOG.debug("Minimising linear program was not successful: {}", result.getState());
       return Optional.empty();
     }
     LOG.debug("Minimising linear program has feasible solution: {}", result);
     var mappedResults = createMapOfVariables();
+    mappedResults.put("objective", result.getValue());
     return Optional.of(mappedResults);
   }
 

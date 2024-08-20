@@ -62,9 +62,10 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     validateDependencies(nodeToCheck);
     var linearProgram = new ExpressionsBasedModel();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
-    var epsilon = linearProgram.newVariable("epsilon").lower(0).weight(1);
+    var epsilon = linearProgram.newVariable("epsilon").lower(0);
     var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
+    linearProgram.objective().set(epsilon, 1);
 
     var nodeVariables = new HashMap<Node, Variable>();
     for (var node : agent.getInitialControllerNodes()) {
