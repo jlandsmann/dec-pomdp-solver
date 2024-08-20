@@ -5,6 +5,7 @@ import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * This class implements the {@link LinearOptimizationSolver}
  * by using the OJAlgo library's optimization package.
  */
+@Qualifier("OJA")
 @Service
 public class OJALinearProgramSolver implements LinearOptimizationSolver<ExpressionsBasedModel, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(OJALinearProgramSolver.class);
