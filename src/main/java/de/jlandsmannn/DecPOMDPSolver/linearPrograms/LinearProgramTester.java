@@ -49,9 +49,9 @@ public class LinearProgramTester {
       lpB.objective().set(varB, objectiveCoefficient);
     }
 
-    var numberOfConstraints = Math.floor(numberOfVariables / 10D);
+    var numberOfConstraints = numberOfVariables * 2;
     for (int i = 0; i < numberOfConstraints; i++) {
-      var numberOfVars = random.nextInt(2, 10);
+      var numberOfVars = random.nextInt(2, 20);
       var lowerBound = random.nextDouble(-100, 0);
       var upperBound = random.nextDouble(lowerBound, 100);
 
@@ -69,29 +69,24 @@ public class LinearProgramTester {
   }
 
   public void maximize() {
-    System.out.println("OR: Solving LP with " + lpA.numVariables() + " variables and " + lpA.numConstraints() + " constraints");
+    System.out.println("Solving LP with " + lpA.numVariables() + " variables and " + lpA.numConstraints() + " constraints");
     var startTimeA = System.currentTimeMillis();
     solverA.setLinearProgram(lpA);
     var resultA = solverA.maximise();
     var timeUsedA = System.currentTimeMillis() - startTimeA;
-    System.out.println("OR result: " + resultA.isPresent());
-    System.out.println("OR time: " + (timeUsedA) + " ms");
+    System.out.print("OR: " + timeUsedA + " ms ");
 
-    System.out.println("OJA: Solving LP with " + lpB.countVariables() + " variables and " + lpB.countExpressions() + " constraints");
     var startTimeB = System.currentTimeMillis();
     solverB.setLinearProgram(lpB);
     var resultB = solverB.maximise();
     var timeUsedB = System.currentTimeMillis() - startTimeB;
-    System.out.println("OJA result: " + resultB.isPresent());
-    System.out.println("OJA time: " + (timeUsedB) + " ms");
+    System.out.print("OJA: " + timeUsedB + " ms ");
 
-    System.out.println("ACM: Solving LP with " + lpB.countVariables() + " variables and " + lpB.countExpressions() + " constraints");
     var startTimeC = System.currentTimeMillis();
     solverC.setLinearProgram(lpB);
     var resultC = solverC.maximise();
     var timeUsedC = System.currentTimeMillis() - startTimeC;
-    System.out.println("ACM result: " + resultC.isPresent());
-    System.out.println("ACM time: " + (timeUsedC) + " ms");
+    System.out.print("ACM: " + timeUsedC + " ms " + System.lineSeparator());
   }
 
 }
