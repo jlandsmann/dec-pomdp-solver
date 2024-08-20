@@ -1,7 +1,9 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
 import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.modelbuilder.LinearExpr;
+import com.google.ortools.modelbuilder.ModelBuilder;
+import com.google.ortools.modelbuilder.Variable;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
@@ -11,8 +13,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNode
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
-import org.ojalgo.optimisation.ExpressionsBasedModel;
-import org.ojalgo.optimisation.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.*;
  * as a {@link Distribution} from the results of the linear program.
  */
 @Service
-public class ORCombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, MPSolver, Map<String, Double>> {
+public class ORCombinatorialNodePruningTransformer implements CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, ModelBuilder, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(ORCombinatorialNodePruningTransformer.class);
 
   private IDecPOMDPWithStateController<?> decPOMDP;
@@ -58,17 +58,18 @@ public class ORCombinatorialNodePruningTransformer implements CombinatorialNodeP
   }
 
   @Override
-  public MPSolver getLinearProgramForNode(Node nodeToCheck) {
+  public ModelBuilder getLinearProgramForNode(Node nodeToCheck) {
     validateDependencies(nodeToCheck);
-    var linearProgram = MPSolver.createSolver("GLOP");
+    var linearProgram = new ModelBuilder();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
-    var epsilon = linearProgram.makeNumVar(0, MPSolver.infinity(), "epsilon");
-    var constant = linearProgram.makeNumVar(1, 1,"constant=1");
-    var nodeDistribution = linearProgram.makeConstraint(1,1, "x(q)");
+    var epsilon = linearProgram.newNumVar(0, Double.POSITIVE_INFINITY, "epsilon");
+    var constant = linearProgram.newConstant(1);
+    var nodeDistribution = linearProgram.addEquality(LinearExpr.newBuilder(), 1).withName("x(q)");
+    epsilon.setObjectiveCoefficient(1);
 
-    var nodeVariables = new HashMap<Node, MPVariable>();
+    var nodeVariables = new HashMap<Node, Variable>();
     for (var node : agent.getInitialControllerNodes()) {
-      var nodeVariable = linearProgram.makeNumVar(0, 1, node.name());
+      var nodeVariable = linearProgram.newNumVar(0, 1, node.name());
       nodeDistribution.setCoefficient(nodeVariable, 1);
       nodeVariables.put(node, nodeVariable);
     }
@@ -85,8 +86,7 @@ public class ORCombinatorialNodePruningTransformer implements CombinatorialNodeP
     for (var beliefState : beliefPoints) {
       var nodeVectorIndex = 0;
       for (var nodeVector : nodeCombinations) {
-        var expression = linearProgram.makeConstraint(0, MPSolver.infinity(), "b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex);
-        expression.setCoefficient(epsilon, -1);
+        var expression = linearProgram.addGreaterOrEqual(LinearExpr.newBuilder(), epsilon).withName("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex);
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
         expression.setCoefficient(constant, -nodeToCheckValue);
@@ -101,7 +101,6 @@ public class ORCombinatorialNodePruningTransformer implements CombinatorialNodeP
       }
       beliefStateIndex++;
     }
-    linearProgram.objective().setCoefficient(epsilon, 1);
     LOG.debug("Created linear program with {} variables and {} constraints.", linearProgram.numVariables(), linearProgram.numConstraints());
     return linearProgram;
   }

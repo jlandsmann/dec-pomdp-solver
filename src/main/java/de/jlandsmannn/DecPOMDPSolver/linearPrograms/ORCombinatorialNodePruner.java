@@ -1,11 +1,10 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
-import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.modelbuilder.ModelBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.CombinatorialNodePruner;
-import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +23,12 @@ import java.util.Map;
 @Primary
 @Qualifier("ORTools")
 @Service
-public class ORCombinatorialNodePruner extends CombinatorialNodePruner<IDecPOMDPWithStateController<?>, MPSolver, Map<String, Double>> {
+public class ORCombinatorialNodePruner extends CombinatorialNodePruner<IDecPOMDPWithStateController<?>, ModelBuilder, Map<String, Double>> {
   private static final Logger LOG = LoggerFactory.getLogger(ORCombinatorialNodePruner.class);
 
   @Autowired
-  public ORCombinatorialNodePruner(CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, MPSolver, Map<String, Double>> transformer,
-                                   LinearOptimizationSolver<MPSolver, Map<String, Double>> solver) {
+  public ORCombinatorialNodePruner(CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, ModelBuilder, Map<String, Double>> transformer,
+                                   LinearOptimizationSolver<ModelBuilder, Map<String, Double>> solver) {
     super(transformer, solver);
   }
 }
