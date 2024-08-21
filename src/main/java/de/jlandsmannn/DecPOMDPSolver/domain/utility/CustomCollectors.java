@@ -16,4 +16,12 @@ public class CustomCollectors {
   public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMap() {
     return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
   }
+
+  public static <K> Collector<Map.Entry<K, Double>, ?, Distribution<K>> toDistribution() {
+    return new DistributionCollector<>();
+  }
+
+  public static <K> Collector<Map.Entry<K, Double>, ?, Distribution<K>> toNormalizedDistribution() {
+    return new DistributionCollector<>(true);
+  }
 }

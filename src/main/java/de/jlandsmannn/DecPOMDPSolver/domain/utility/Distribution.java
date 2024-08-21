@@ -154,6 +154,17 @@ public class Distribution<T> implements Iterable<T> {
     return new Distribution<>(distribution);
   }
 
+  public static <K> Distribution<K> normalizeOf(Map<K, Double> map) {
+    return of(normalize(map));
+  }
+
+  private static <K> Map<K, Double> normalize(Map<K, Double> map) {
+    var sumOfProbabilities = map.values().stream().reduce(Double::sum).orElse(1D);
+    return map.entrySet().stream()
+      .peek(entry -> entry.setValue(entry.getValue() / sumOfProbabilities))
+      .collect(CustomCollectors.toMap());
+  }
+
   /**
    * This method returns the number of elements
    * that have probability which is larger than 0.

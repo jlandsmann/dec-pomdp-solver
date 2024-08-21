@@ -28,11 +28,11 @@ public class HistogramCollector<T> implements Collector<T, Histogram<T>, Histogr
 
   @Override
   public Function<Histogram<T>, Histogram<T>> finisher() {
-    return (tHistogram -> tHistogram);
+    return Function.identity();
   }
 
   @Override
   public Set<Characteristics> characteristics() {
-    return Set.of(Characteristics.UNORDERED);
+    return Set.of(Characteristics.UNORDERED, Characteristics.IDENTITY_FINISH);
   }
 }
