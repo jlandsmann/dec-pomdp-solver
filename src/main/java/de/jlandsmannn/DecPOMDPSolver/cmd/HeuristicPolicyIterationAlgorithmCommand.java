@@ -67,6 +67,9 @@ public class HeuristicPolicyIterationAlgorithmCommand extends BaseHeuristicPolic
 
   @Override
   protected Optional<IDecPOMDPWithStateController<?>> loadDecPOMDP(String filename) {
+    if (filename.endsWith(".idpomdp")) {
+      return IDPOMDPFileParser.parseDecPOMDP(filename).map(IsomorphicDecPOMDPWithStateControllerBuilder::createGroundDecPOMDP);
+    }
     return DPOMDPFileParser.parseDecPOMDP(filename).map(DecPOMDPWithStateControllerBuilder::createDecPOMDP);
   }
 

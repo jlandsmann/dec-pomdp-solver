@@ -64,8 +64,8 @@ public class IsomorphicToGroundDecPOMDPTransformer {
   
   private Stream<IAgentWithStateController> transformIsomorphicAgentToGroundAgents(IsomorphicAgentWithStateController agent) {
     var agents = new ArrayList<IAgentWithStateController>();
-    var agentBuilder = new AgentWithStateControllerBuilder();
     for (int i = 0; i < agent.getPartitionSize(); i++) {
+      var agentBuilder = new AgentWithStateControllerBuilder();
       var groundAgent = agentBuilder
         .setName(agent.getName() + "#" + i)
         .setActions(agent.getActions())

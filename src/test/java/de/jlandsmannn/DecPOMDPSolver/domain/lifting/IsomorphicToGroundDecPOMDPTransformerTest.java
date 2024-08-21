@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 class IsomorphicToGroundDecPOMDPTransformerTest {
 
@@ -47,5 +48,29 @@ class IsomorphicToGroundDecPOMDPTransformerTest {
     var expected = isomorphicDecPOMDPWithStateController.getTotalAgentCount();
     var actual = decPOMDPWithStateController.getAgentCount();
     assertEquals(expected, actual);
+  }
+
+  @Test
+  void transformDecPOMDP_ShouldCreateIndividualAgents() {
+    var agents = decPOMDPWithStateController.getAgents();
+
+    for (int i = 0; i < agents.size(); i++) {
+      for (int j = 0; j < agents.size(); j++) {
+        if (i == j) continue;
+        assertNotSame(agents.get(i), agents.get(j));
+      }
+    }
+  }
+
+  @Test
+  void transformDecPOMDP_ShouldCreateIndividualControllerForAgents() {
+    var agents = decPOMDPWithStateController.getAgents();
+
+    for (int i = 0; i < agents.size(); i++) {
+      for (int j = 0; j < agents.size(); j++) {
+        if (i == j) continue;
+        assertNotSame(agents.get(i).getController(), agents.get(j).getController());
+      }
+    }
   }
 }
