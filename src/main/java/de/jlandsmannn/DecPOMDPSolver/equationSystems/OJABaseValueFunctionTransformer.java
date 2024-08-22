@@ -10,6 +10,9 @@ import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 
@@ -94,14 +97,19 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   }
 
   protected void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
-    LongStream.range(0, getNumberOfVariables())
-      .parallel()
-      .forEach(columnIndex -> {
-        var newState = getStateByIndex(columnIndex);
-        var newNodeVector = getNodeVectorByIndex(columnIndex);
+    decPOMDP.getStates().stream().parallel().forEach(newState -> {
+      decPOMDP.getNodeCombinations().stream().parallel().forEach(newNodeVector -> {
+        var columnIndex = indexOfStateAndNodeVector(newState, newNodeVector);
         var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
         matrixBuilder.set(rowIndex, columnIndex, coefficient);
       });
+    });
+  }
+
+  protected long indexOfStateAndNodeVector(State state, Vector<Node> nodeVector) {
+    var stateIndex = decPOMDP.getStates().indexOf(state);
+    var nodeVectorIndex = decPOMDP.getNodeCombinations().indexOf(nodeVector);
+    return (stateIndex * nodeCombinationCount) + nodeVectorIndex;
   }
 
   protected State getStateByIndex(long index) {

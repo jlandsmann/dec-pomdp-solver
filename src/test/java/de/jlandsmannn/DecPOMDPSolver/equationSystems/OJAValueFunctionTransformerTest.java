@@ -12,6 +12,8 @@ import org.ojalgo.random.Uniform;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -96,7 +98,44 @@ class OJAValueFunctionTransformerTest {
     }
   }
 
+  @Test
+  void indexOfStateAndNodeVector_ShouldReturnIndexOfStateAndNodeVector() {
+    LongStream.range(0, transformer.getNumberOfVariables()).forEach(idx -> {
+      var state = transformer.getStateByIndex(idx);
+      var nodeVector = transformer.getNodeVectorByIndex(idx);
+      var actualIndex = transformer.indexOfStateAndNodeVector(state, nodeVector);
+      assertEquals(idx, actualIndex);
+    });
+  }
+
+  @Test
+  void getStateByIndex_ShouldReturnFirstStateForAllNodeVectorBeforeReturningNextState() {
+    var nodeCombinationCount = decPOMDP.getNodeCombinations().size();
+    var firstState = decPOMDP.getStates().get(0);
+    var secondState = decPOMDP.getStates().get(1);
+
+    IntStream.range(0, nodeCombinationCount).forEach(idx -> {
+      var actual = transformer.getStateByIndex(idx);
+      assertEquals(firstState, actual);
+    });
+    IntStream.range(nodeCombinationCount, 2*nodeCombinationCount).forEach(idx -> {
+      var actual = transformer.getStateByIndex(idx);
+      assertEquals(secondState, actual);
+    });
+  }
+
+  @Test
+  void getNodeVectorByIndex_ShouldIterateOverNodeCombinations() {
+    var nodeCombinations = decPOMDP.getNodeCombinations();
+
+    IntStream.range(0, 2 * nodeCombinations.size()).forEach(idx -> {
+      var expected = nodeCombinations.get(idx % nodeCombinations.size());
+      var actual = transformer.getNodeVectorByIndex(idx);
+      assertEquals(expected, actual);
+    });
+  }
+
   private DecPOMDPWithStateController generateDecPOMDP() {
-    return DecPOMDPGenerator.getDecTigerPOMDP();
+    return DecPOMDPGenerator.getDecTigerPOMDPWithLargeFSC();
   }
 }
