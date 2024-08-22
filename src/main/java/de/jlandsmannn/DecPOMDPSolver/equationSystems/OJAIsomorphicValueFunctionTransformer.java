@@ -34,15 +34,13 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
 
   @Override
   protected void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
+    matrixBuilder.add(rowIndex, rowIndex, -1);
     decPOMDP.getStates().stream().parallel().forEach(newState -> {
-      decPOMDP.getNodeCombinations().stream().parallel().forEach(newNodeVector -> {
+      decPOMDP.getNodeCombinations(nodeVector).stream().parallel().forEach(newNodeVector -> {
         var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
         var normalizedNewNodeVector = normalizeVector(newNodeVector);
         var columnIndex = indexOfStateAndNodeVector(newState, normalizedNewNodeVector);
         matrixBuilder.add(rowIndex, columnIndex, coefficient);
-        if (columnIndex == rowIndex) {
-          matrixBuilder.add(rowIndex, columnIndex, -1);
-        }
       });
     });
   }
@@ -59,7 +57,7 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
 
   protected double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var discountFactor = decPOMDP.getDiscountFactor();
-    return decPOMDP.getActionCombinations().stream()
+    return decPOMDP.getActionCombinations(nodeVector).stream()
       .map(actionVector ->
         decPOMDP.getObservationCombinations().stream()
           .parallel()

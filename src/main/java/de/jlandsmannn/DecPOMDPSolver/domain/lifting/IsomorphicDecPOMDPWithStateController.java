@@ -10,6 +10,8 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class IsomorphicDecPOMDPWithStateController
   extends IsomorphicDecPOMDP<IsomorphicAgentWithStateController>
@@ -134,6 +136,44 @@ public class IsomorphicDecPOMDPWithStateController
         .flatMap(h -> h.toList().stream())
         .collect(CustomCollectors.toVector())
       )
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector) {
+    var rawNodeCombinations = new ArrayList<List<Node>>();
+    var offset = 0;
+    for (int i = 0; i < getAgents().size(); i++) {
+      var agent = getAgents().get(i);
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
+        var node = nodeVector.get(offset + j);
+        var actions = agent.getFollowNodes(node);
+        rawNodeCombinations.add(actions);
+      }
+      offset += agent.getPartitionSize();
+    }
+    return rawNodeCombinations
+      .stream()
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
+    var rawActionCombinations = new ArrayList<List<Action>>();
+    var offset = 0;
+    for (int i = 0; i < getAgents().size(); i++) {
+      var agent = getAgents().get(i);
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
+        var node = nodeVector.get(offset + j);
+        var actions = agent.getActionSelection(node).keySet();
+        rawActionCombinations.add(List.copyOf(actions));
+      }
+      offset += agent.getPartitionSize();
+    }
+    return rawActionCombinations
+      .stream()
+      .collect(CombinationCollectors.toCombinationVectors())
       .toList();
   }
 }

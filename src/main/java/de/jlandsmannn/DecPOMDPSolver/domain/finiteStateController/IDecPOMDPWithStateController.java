@@ -82,4 +82,6 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
   double getNodeTransitionProbability(Vector<Node> nodes, Vector<Action> actions, Vector<Observation> observations, Vector<Node> newNodes);
 
   List<Vector<Node>> getNodeCombinations();
+  List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector);
+  List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector);
 }

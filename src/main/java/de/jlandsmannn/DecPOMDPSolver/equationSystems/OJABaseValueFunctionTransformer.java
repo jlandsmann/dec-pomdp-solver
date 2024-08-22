@@ -97,11 +97,12 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   }
 
   protected void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
+    matrixBuilder.add(rowIndex, rowIndex, -1);
     decPOMDP.getStates().stream().parallel().forEach(newState -> {
-      decPOMDP.getNodeCombinations().stream().parallel().forEach(newNodeVector -> {
+      decPOMDP.getNodeCombinations(nodeVector).stream().parallel().forEach(newNodeVector -> {
         var columnIndex = indexOfStateAndNodeVector(newState, newNodeVector);
         var coefficient = getCoefficient(state, nodeVector, newState, newNodeVector);
-        matrixBuilder.set(rowIndex, columnIndex, coefficient);
+        matrixBuilder.add(rowIndex, columnIndex, coefficient);
       });
     });
   }

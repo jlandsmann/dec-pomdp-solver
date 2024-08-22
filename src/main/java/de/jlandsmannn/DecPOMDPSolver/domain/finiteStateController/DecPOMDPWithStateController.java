@@ -6,15 +6,15 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This DecPOMDP class utilizes {@link AgentWithStateController} as agents
@@ -205,9 +205,35 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
   }
 
   public List<Vector<Node>> getNodeCombinations() {
-    var readonlyRawCombinations = getAgents().stream().map(IAgentWithStateController::getControllerNodes).toList();
-    var rawCombinations = new ArrayList<>(readonlyRawCombinations);
-    return VectorCombinationBuilder.listOf(rawCombinations);
+    return getAgents().stream()
+      .map(IAgentWithStateController::getControllerNodes)
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  public List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector) {
+    return IntStream.range(0, getAgents().size())
+      .mapToObj(idx -> {
+        var agent = getAgents().get(idx);
+        var node = nodeVector.get(idx);
+        return agent.getFollowNodes(node);
+      })
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
+    return IntStream.range(0, getAgents().size())
+      .mapToObj(idx -> {
+        var agent = getAgents().get(idx);
+        var node = nodeVector.get(idx);
+        return agent.getActionSelection(node);
+      })
+      .map(Distribution::keySet)
+      .map(List::copyOf)
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
   }
 
   @Override

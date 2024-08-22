@@ -27,8 +27,7 @@ public class OJAValueFunctionTransformer extends OJABaseValueFunctionTransformer
 
   protected double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector) {
     var discountFactor = decPOMDP.getDiscountFactor();
-    var isSelfLoop = state.equals(newState) && nodeVector.equals(newNodeVector);
-    return decPOMDP.getActionCombinations().stream()
+    return decPOMDP.getActionCombinations(nodeVector).stream()
       .map(actionVector ->
         decPOMDP.getObservationCombinations().stream()
           .parallel()
@@ -50,13 +49,12 @@ public class OJAValueFunctionTransformer extends OJABaseValueFunctionTransformer
       )
       .reduce(Double::sum)
       .map(c -> c * discountFactor)
-      .map(c -> isSelfLoop ? c - 1D : c)
       .orElse(0D)
       ;
   }
 
   protected double calculateAllRewardsForStateAndNodes(State state, Vector<Node> nodeVector) {
-    return decPOMDP.getActionCombinations().stream()
+    return decPOMDP.getActionCombinations(nodeVector).stream()
       .map(actionVector -> calculateRewardForStateAndNodesAndActions(state, nodeVector, actionVector))
       .reduce(Double::sum)
       .orElse(0D);

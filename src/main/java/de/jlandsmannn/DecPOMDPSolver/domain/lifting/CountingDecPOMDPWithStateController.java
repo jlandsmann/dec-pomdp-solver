@@ -108,4 +108,30 @@ public class CountingDecPOMDPWithStateController extends CountingDecPOMDP<Counti
       .collect(CombinationCollectors.toCombinationVectors())
       .toList();
   }
+
+  @Override
+  public List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector) {
+    return IntStream.range(0, getAgents().size())
+      .mapToObj(idx -> {
+        var agent = getAgents().get(idx);
+        var node = nodeVector.get(idx);
+        return agent.getFollowNodes(node);
+      })
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
+    return IntStream.range(0, getAgents().size())
+      .mapToObj(idx -> {
+        var agent = getAgents().get(idx);
+        var node = nodeVector.get(idx);
+        return agent.getActionSelection(node);
+      })
+      .map(Distribution::keySet)
+      .map(List::copyOf)
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
 }
