@@ -80,6 +80,16 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
   }
 
   @Override
+  public List<Node> getFollowNodes(Node node) {
+    return controller.getFollowNodes(node);
+  }
+
+  @Override
+  public Distribution<Action> getActionSelection(Node node) {
+    return controller.actionFunction.get(node);
+  }
+
+  @Override
   public double getActionSelectionProbability(Node node, Action action) {
     return controller.getActionSelectionProbability(node, action);
   }

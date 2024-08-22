@@ -7,6 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,6 +58,68 @@ class FiniteStateControllerTest {
     var actual = finiteStateController.getNodes();
     assertTrue(nodes.containsAll(actual));
     assertTrue(actual.containsAll(nodes));
+  }
+
+  @Test
+  void getFollowNodes_ShouldReturnFollowNodes() {
+    var node = Node.from("N1");
+    var expected = List.copyOf(nodes);
+    var actual = finiteStateController.getFollowNodes(node);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  void getFollowNodes_ShouldThrowIfNodeDoesNotExist() {
+    var nonExistingNode = Node.from("sdkjsahdkj");
+    assertThrows(IllegalArgumentException.class, () -> finiteStateController.getFollowNodes(nonExistingNode));
+  }
+
+  @Test
+  void getFollowNodes_ShouldReturnEmptyListIfNodeHasNoTransitions() {
+    var newlyAddedNode = Node.from("sdkjsahdkj");
+    var actionSelection = Distribution.createSingleEntryDistribution(Action.from("A1"));
+    finiteStateController.addNode(newlyAddedNode, actionSelection);
+    assertThrows(IllegalStateException.class, () -> finiteStateController.getFollowNodes(newlyAddedNode));
+  }
+
+  @Test
+  void getFollowNodes_ShouldUpdateFollowNodesAfterTransitionAdded() {
+    var node = Node.from("N6");
+    var action = Action.from("A1");
+    finiteStateController.addNode(node, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
+    var expected = Node.listOf("F1");
+    var actual = finiteStateController.getFollowNodes(node);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  void getFollowNodes_ShouldOutputEachNodeOnce() {
+    var node = Node.from("N6");
+    var action = Action.from("A1");
+    finiteStateController.addNode(node, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
+    finiteStateController.addTransition(node, action, Observation.from("O2"), Node.from("F1"));
+    var expected = Node.listOf("F1");
+    var actual = finiteStateController.getFollowNodes(node);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  void getFollowNodes_ShouldNotOutputPrunedNodes() {
+    var node = Node.from("N6");
+    var action = Action.from("A1");
+    finiteStateController.addNode(node, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
+
+    finiteStateController.pruneNode(Node.from("F1"), Node.from("R1"));
+    var expected = Node.listOf("R1");
+    var actual = finiteStateController.getFollowNodes(node);
+
+    assertEquals(expected, actual);
   }
 
   @Test
@@ -233,10 +296,6 @@ class FiniteStateControllerTest {
         }
       }
     }
-  }
-
-  @Test
-  void pruneNodes() {
   }
 
 }

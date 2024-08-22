@@ -23,6 +23,7 @@ public class FiniteStateController {
   protected final List<Node> nodes;
   protected final Map<Node, Distribution<Action>> actionFunction;
   protected final Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction;
+  protected final Map<Node, Map<Node, Integer>> followNodes;
   protected AtomicLong nodeIndex;
 
   /**
@@ -37,6 +38,9 @@ public class FiniteStateController {
     this.nodeIndex = new AtomicLong(nodes.size());
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;
+    this.followNodes = new ConcurrentHashMap<>();
+
+    initFollowNodes(transitionFunction);
   }
 
   /**
@@ -46,6 +50,15 @@ public class FiniteStateController {
    */
   public List<Node> getNodes() {
     return nodes;
+  }
+
+  public List<Node> getFollowNodes(Node node) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist in controller");
+    } else if (!followNodes.containsKey(node)) {
+      throw new IllegalStateException("Node " + node + " does not have transitions defined");
+    }
+    return List.copyOf(Set.copyOf(followNodes.get(node).keySet()));
   }
 
   /**
@@ -114,6 +127,11 @@ public class FiniteStateController {
     transitionFunction.putIfAbsent(node, new ConcurrentHashMap<>());
     transitionFunction.get(node).putIfAbsent(a, new ConcurrentHashMap<>());
     transitionFunction.get(node).get(a).put(o, transition);
+
+    followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
+    for (var followNode : transition.keySet()) {
+      followNodes.get(node).merge(followNode, 1, Integer::sum);
+    }
   }
 
   public void pruneNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
@@ -151,6 +169,7 @@ public class FiniteStateController {
     nodes.remove(node);
     actionFunction.remove(node);
     transitionFunction.remove(node);
+    followNodes.remove(node);
   }
 
   private void replaceIncomingConnections(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
@@ -158,11 +177,35 @@ public class FiniteStateController {
       for (var action : transitionFunction.get(node).keySet()) {
         for (var distribution : transitionFunction.get(node).get(action).values()) {
           for (var nodeToPrune : nodesToPrune) {
+            if (distribution.getProbability(nodeToPrune) <= 0) continue;
+            var newFollower = new ArrayList<>(nodesToReplaceWith.keySet());
+            newFollower.removeAll(distribution.keySet());
             distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
+            if (followNodes.get(node).getOrDefault(nodeToPrune, 0) <= 1) {
+              followNodes.get(node).remove(nodeToPrune);
+            } else {
+              followNodes.get(node).merge(nodeToPrune, -1, Integer::sum);
+            }
+            for (var followNode : newFollower) {
+              followNodes.get(node).merge(followNode, 1, Integer::sum);
+            }
           }
         }
       }
     }
   }
 
+  private void initFollowNodes(Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
+    for (Node node : transitionFunction.keySet()) {
+      followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
+      for (Action action : transitionFunction.get(node).keySet()) {
+        for (Observation observation : transitionFunction.get(node).get(action).keySet()) {
+          var follower = transitionFunction.get(node).get(action).get(observation).keySet();
+          for (var followNode : follower) {
+            followNodes.get(node).merge(followNode, 1, Integer::sum);
+          }
+        }
+      }
+    }
+  }
 }

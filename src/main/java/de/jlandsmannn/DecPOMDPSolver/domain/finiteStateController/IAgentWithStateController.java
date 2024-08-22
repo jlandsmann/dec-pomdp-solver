@@ -16,7 +16,9 @@ public interface IAgentWithStateController extends IAgent {
 
   long getControllerNodeIndex();
   List<Node> getControllerNodes();
+  List<Node> getFollowNodes(Node node);
 
+  Distribution<Action> getActionSelection(Node node);
   double getActionSelectionProbability(Node node, Action action);
   double getNodeTransitionProbability(Node node, Action action, Observation observation, Node followNode);
 
