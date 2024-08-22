@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-@Primary
 @Qualifier("ACM")
 @Service
 public class ACMLinearProgramSolver extends OJALinearProgramSolver {

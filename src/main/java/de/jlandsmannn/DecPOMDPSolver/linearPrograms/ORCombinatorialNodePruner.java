@@ -20,7 +20,6 @@ import java.util.Map;
  * It connects {@link ORCombinatorialNodePruningTransformer} and {@link ORLinearProgramSolver}.
  */
 
-@Primary
 @Qualifier("ORTools")
 @Service
 public class ORCombinatorialNodePruner extends CombinatorialNodePruner<IDecPOMDPWithStateController<?>, ModelBuilder, Map<String, Double>> {
