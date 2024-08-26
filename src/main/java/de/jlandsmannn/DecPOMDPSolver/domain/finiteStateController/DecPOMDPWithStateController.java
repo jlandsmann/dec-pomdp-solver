@@ -8,12 +8,10 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -228,10 +226,8 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
       .mapToObj(idx -> {
         var agent = getAgents().get(idx);
         var node = nodeVector.get(idx);
-        return agent.getActionSelection(node);
+        return agent.getSelectableActions(node);
       })
-      .map(Distribution::keySet)
-      .map(List::copyOf)
       .collect(CombinationCollectors.toCombinationVectors())
       .toList();
   }

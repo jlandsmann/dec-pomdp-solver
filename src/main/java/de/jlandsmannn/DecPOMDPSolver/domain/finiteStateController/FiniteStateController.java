@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * For each node a distribution of actions is given,
  * and for each node and action a distribution of followup nodes is defined,
  * which depends on the observation made after taking the action.
- *
  * This state controller is used by {@link AgentWithStateController}
  * to represent the policy of the agent and to encode
  * the history of the agent space-efficient.
@@ -59,6 +58,16 @@ public class FiniteStateController {
       throw new IllegalStateException("Node " + node + " does not have transitions defined");
     }
     return List.copyOf(Set.copyOf(followNodes.get(node).keySet()));
+  }
+
+  public List<Action> getSelectableActions(Node node) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist in controller");
+    } else if (!actionFunction.containsKey(node)) {
+      throw new IllegalStateException("Node " + node + " does not have action selection defined");
+    }
+    var actions = actionFunction.get(node).keySet();
+    return List.copyOf(actions);
   }
 
   /**
@@ -126,17 +135,17 @@ public class FiniteStateController {
     }
     transitionFunction.putIfAbsent(node, new ConcurrentHashMap<>());
     transitionFunction.get(node).putIfAbsent(a, new ConcurrentHashMap<>());
-    transitionFunction.get(node).get(a).put(o, transition);
-
-    followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
-    for (var followNode : transition.keySet()) {
-      followNodes.get(node).merge(followNode, 1, Integer::sum);
+    if (transitionFunction.get(node).get(a).containsKey(o)) {
+      var oldTransition = transitionFunction.get(node).get(a).get(o);
+      removeNodeAsFollower(node, oldTransition.keySet());
     }
+    transitionFunction.get(node).get(a).put(o, transition);
+    addNodeAsFollower(node, transition.keySet());
   }
 
   public void pruneNodes(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {
-    removeOutgoingConnections(nodesToPrune);
     replaceIncomingConnections(nodesToPrune, nodesToReplaceWith);
+    removeOutgoingConnections(nodesToPrune);
   }
 
   public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
@@ -181,14 +190,8 @@ public class FiniteStateController {
             var newFollower = new ArrayList<>(nodesToReplaceWith.keySet());
             newFollower.removeAll(distribution.keySet());
             distribution.replaceEntryWithDistribution(nodeToPrune, nodesToReplaceWith);
-            if (followNodes.get(node).getOrDefault(nodeToPrune, 0) <= 1) {
-              followNodes.get(node).remove(nodeToPrune);
-            } else {
-              followNodes.get(node).merge(nodeToPrune, -1, Integer::sum);
-            }
-            for (var followNode : newFollower) {
-              followNodes.get(node).merge(followNode, 1, Integer::sum);
-            }
+            removeNodeAsFollower(node, nodeToPrune);
+            addNodeAsFollower(node, newFollower);
           }
         }
       }
@@ -197,15 +200,47 @@ public class FiniteStateController {
 
   private void initFollowNodes(Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
     for (Node node : transitionFunction.keySet()) {
-      followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
       for (Action action : transitionFunction.get(node).keySet()) {
         for (Observation observation : transitionFunction.get(node).get(action).keySet()) {
           var follower = transitionFunction.get(node).get(action).get(observation).keySet();
-          for (var followNode : follower) {
-            followNodes.get(node).merge(followNode, 1, Integer::sum);
-          }
+          addNodeAsFollower(node, follower);
         }
       }
     }
+  }
+
+  private void addNodeAsFollower(Node node, Collection<Node> followNodes) {
+    followNodes.forEach(followNode -> addNodeAsFollower(node, followNode));
+  }
+
+  private void addNodeAsFollower(Node node, Node followNode) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist");
+    } else if (!nodes.contains(followNode)) {
+      throw new IllegalArgumentException("Node " + followNode + " does not exist");
+    }
+
+    followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
+    followNodes.get(node).merge(followNode, 1, Integer::sum);
+  }
+
+  private void removeNodeAsFollower(Node node, Collection<Node> followNodes) {
+    followNodes.forEach(followNode -> removeNodeAsFollower(node, followNode));
+  }
+
+  private void removeNodeAsFollower(Node node, Node followNode) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist");
+    } else if (!nodes.contains(followNode)) {
+      throw new IllegalArgumentException("Node " + followNode + " does not exist");
+    }
+
+    followNodes.putIfAbsent(node, new ConcurrentHashMap<>());
+    if (followNodes.get(node).getOrDefault(followNode, 0) <= 1) {
+      followNodes.get(node).remove(followNode);
+    } else {
+      followNodes.get(node).merge(followNode, -1, Integer::sum);
+    }
+
   }
 }

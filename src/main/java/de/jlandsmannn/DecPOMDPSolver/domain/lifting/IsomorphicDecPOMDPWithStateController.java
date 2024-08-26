@@ -10,8 +10,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class IsomorphicDecPOMDPWithStateController
   extends IsomorphicDecPOMDP<IsomorphicAgentWithStateController>
@@ -166,8 +164,8 @@ public class IsomorphicDecPOMDPWithStateController
       var agent = getAgents().get(i);
       for (int j = 0; j < agent.getPartitionSize(); j++) {
         var node = nodeVector.get(offset + j);
-        var actions = agent.getActionSelection(node).keySet();
-        rawActionCombinations.add(List.copyOf(actions));
+        var actions = agent.getSelectableActions(node);
+        rawActionCombinations.add(actions);
       }
       offset += agent.getPartitionSize();
     }

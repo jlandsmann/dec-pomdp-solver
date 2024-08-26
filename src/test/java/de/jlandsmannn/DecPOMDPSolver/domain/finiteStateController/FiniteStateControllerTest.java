@@ -86,9 +86,11 @@ class FiniteStateControllerTest {
   @Test
   void getFollowNodes_ShouldUpdateFollowNodesAfterTransitionAdded() {
     var node = Node.from("N6");
+    var follower = Node.from("F1");
     var action = Action.from("A1");
     finiteStateController.addNode(node, action);
-    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
+    finiteStateController.addNode(follower, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), follower);
     var expected = Node.listOf("F1");
     var actual = finiteStateController.getFollowNodes(node);
 
@@ -98,11 +100,13 @@ class FiniteStateControllerTest {
   @Test
   void getFollowNodes_ShouldOutputEachNodeOnce() {
     var node = Node.from("N6");
+    var followNode = Node.from("F1");
     var action = Action.from("A1");
     finiteStateController.addNode(node, action);
-    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
-    finiteStateController.addTransition(node, action, Observation.from("O2"), Node.from("F1"));
-    var expected = Node.listOf("F1");
+    finiteStateController.addNode(followNode, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), followNode);
+    finiteStateController.addTransition(node, action, Observation.from("O2"), followNode);
+    var expected = List.of(followNode);
     var actual = finiteStateController.getFollowNodes(node);
 
     assertEquals(expected, actual);
@@ -111,12 +115,14 @@ class FiniteStateControllerTest {
   @Test
   void getFollowNodes_ShouldNotOutputPrunedNodes() {
     var node = Node.from("N6");
+    var followNode = Node.from("F1");
     var action = Action.from("A1");
     finiteStateController.addNode(node, action);
-    finiteStateController.addTransition(node, action, Observation.from("O1"), Node.from("F1"));
+    finiteStateController.addNode(followNode, action);
+    finiteStateController.addTransition(node, action, Observation.from("O1"), followNode);
 
-    finiteStateController.pruneNode(Node.from("F1"), Node.from("R1"));
-    var expected = Node.listOf("R1");
+    finiteStateController.pruneNode(followNode, Node.from("N1"));
+    var expected = Node.listOf("N1");
     var actual = finiteStateController.getFollowNodes(node);
 
     assertEquals(expected, actual);
@@ -243,7 +249,7 @@ class FiniteStateControllerTest {
 
   @Test
   void pruneNode_ShouldRemoveNodeFromTransitionFunction() {
-    var nodeToPrune = new Node("N1");
+    var nodeToPrune = nodes.stream().findFirst().orElseThrow();
     var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
     finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
 

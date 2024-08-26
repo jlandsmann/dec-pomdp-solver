@@ -127,10 +127,8 @@ public class CountingDecPOMDPWithStateController extends CountingDecPOMDP<Counti
       .mapToObj(idx -> {
         var agent = getAgents().get(idx);
         var node = nodeVector.get(idx);
-        return agent.getActionSelection(node);
+        return agent.getSelectableActions(node);
       })
-      .map(Distribution::keySet)
-      .map(List::copyOf)
       .collect(CombinationCollectors.toCombinationVectors())
       .toList();
   }

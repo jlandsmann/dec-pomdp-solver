@@ -85,8 +85,8 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
   }
 
   @Override
-  public Distribution<Action> getActionSelection(Node node) {
-    return controller.actionFunction.get(node);
+  public List<Action> getSelectableActions(Node node) {
+    return controller.getSelectableActions(node);
   }
 
   @Override
