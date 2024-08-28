@@ -1,52 +1,60 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
-import com.google.ortools.modelbuilder.LinearExpr;
-import com.google.ortools.modelbuilder.ModelBuilder;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.stream.Stream;
 
 public class LinearProgramTester {
 
   Random random = new Random();
+  StringBuilder output = new StringBuilder();
 
   ORLinearProgramSolver solverA = new ORLinearProgramSolver();
   OJALinearProgramSolver solverB = new OJALinearProgramSolver();
   OJALinearProgramSolver solverC = new ACMLinearProgramSolver();
 
   public static void main(String[] args) {
-    Stream.of(10, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 20000, 50000, 100_000).forEach(n -> {
-      var tester = new LinearProgramTester();
-      tester.createRandomLP(n);
-      tester.maximize();
-    });
+    var directory = "./mps/";
+    var fileArray = new File(directory).listFiles();
+    assert fileArray != null;
+    Stream.of(fileArray)
+      .filter(file -> !file.isDirectory())
+      .map(File::getName)
+      .sorted()
+      .map(fileName -> directory + fileName)
+      .forEach(LinearProgramTester::solveLPFromFile);
   }
 
-  ModelBuilder lpA;
-  ExpressionsBasedModel lpB;
+  private static void solveLPFromFile(String fileName) {
+    try {
+      var tester = new LinearProgramTester();
+      tester.createLPFromFile(fileName);
+      tester.optimize();
+    } catch (Throwable t) {
+      System.out.println(fixedLength(fileName, 20) + " : " + "failed");
+    }
+  }
 
+  ExpressionsBasedModel linearProgram;
 
   public void createLPFromFile(String filename) {
-    lpA = new ModelBuilder();
-    var successA = lpA.importFromMpsFile(filename);
+    output.append(fixedLength(filename, 20)).append(" : ");
     var file = new File(filename);
-    lpB = ExpressionsBasedModel.parse(file);
+    linearProgram = ExpressionsBasedModel.parse(file);
   }
 
   public void createRandomLP(int numberOfVariables) {
-    lpA = new ModelBuilder();
-    lpB = new ExpressionsBasedModel();
+    linearProgram = new ExpressionsBasedModel();
 
     for (int i = 0; i < numberOfVariables; i++) {
       var lowerBound = random.nextDouble(-100, 0);
       var upperBound = random.nextDouble(lowerBound, 100);
       var objectiveCoefficient = random.nextDouble(0, 1);
-      var varA = lpA.newNumVar(lowerBound, upperBound, "V" + i);
-      varA.setObjectiveCoefficient(objectiveCoefficient);
-      var varB = lpB.addVariable("V" + i).lower(lowerBound).upper(upperBound);
-      lpB.objective().set(varB, objectiveCoefficient);
+      var varB = linearProgram.addVariable("V" + i).lower(lowerBound).upper(upperBound);
+      linearProgram.objective().set(varB, objectiveCoefficient);
     }
 
     var numberOfConstraints = numberOfVariables * 2;
@@ -55,38 +63,59 @@ public class LinearProgramTester {
       var lowerBound = random.nextDouble(-100, 0);
       var upperBound = random.nextDouble(lowerBound, 100);
 
-      var conA = lpA.addLinearConstraint(LinearExpr.newBuilder(), lowerBound, upperBound).withName("C" + i);
-      var conB = lpB.addExpression("C" + i).lower(lowerBound).upper(upperBound);
+      var conB = linearProgram.addExpression("C" + i).lower(lowerBound).upper(upperBound);
       for (int j = 0; j < numberOfVars; j++) {
         var index = random.nextInt(0, numberOfVariables);
         var coefficient = random.nextDouble(0, 1);
-        var varA = lpA.varFromIndex(index);
-        var varB = lpB.getVariable(index);
-        conA.setCoefficient(varA, coefficient);
+        var varB = linearProgram.getVariable(index);
         conB.set(varB, coefficient);
       }
     }
   }
 
-  public void maximize() {
-    System.out.println("Solving LP with " + lpA.numVariables() + " variables and " + lpA.numConstraints() + " constraints");
-    var startTimeA = System.currentTimeMillis();
-    solverA.setLinearProgram(lpA);
-    var resultA = solverA.maximise();
-    var timeUsedA = System.currentTimeMillis() - startTimeA;
-    System.out.print("OR: " + timeUsedA + " ms ");
-
-    var startTimeB = System.currentTimeMillis();
-    solverB.setLinearProgram(lpB);
-    var resultB = solverB.maximise();
-    var timeUsedB = System.currentTimeMillis() - startTimeB;
-    System.out.print("OJA: " + timeUsedB + " ms ");
-
-    var startTimeC = System.currentTimeMillis();
-    solverC.setLinearProgram(lpB);
-    var resultC = solverC.maximise();
-    var timeUsedC = System.currentTimeMillis() - startTimeC;
-    System.out.print("ACM: " + timeUsedC + " ms " + System.lineSeparator());
+  public void optimize() {
+    output
+      .append(fixedLength(formatInteger(linearProgram.countVariables()), 7))
+      .append(" : ")
+      .append(fixedLength(formatInteger(linearProgram.countExpressions()), 7))
+      .append(" : ");
+    solveLinearProgram(solverA, "OR");
+    output.append(" : ");
+    solveLinearProgram(solverB, "OJA");
+    output.append(" : ");
+    solveLinearProgram(solverC, "ACM");
+    System.out.println(output.toString());
   }
 
+  private void solveLinearProgram(OJALinearProgramSolver solver, String name) {
+    var startTime = System.currentTimeMillis();
+    solver.setLinearProgram(linearProgram.copy());
+    // the problems given by NETLIB are to be minimized
+    var result = solver.minimise();
+    var objectiveValue = result
+      .map(x -> x.get("objective"))
+      .map(o -> String.format("%.1E", o))
+      .orElse("-");
+    var timeUsed = System.currentTimeMillis() - startTime;
+    output
+      .append(name)
+      .append(" : ")
+      .append(fixedLength(formatInteger(timeUsed), 7))
+      .append("ms")
+      .append(" : ")
+      .append(fixedLength(objectiveValue, 8));
+  }
+
+  private static String formatInteger(Number input) {
+    var format = new DecimalFormat("###,###,###");
+    return format.format(input);
+  }
+
+  private static String fixedLength(String input, int length) {
+    var fill = "";
+    if (input.length() < length) {
+      fill = " ".repeat(length - input.length());
+    }
+    return fill + input;
+  }
 }

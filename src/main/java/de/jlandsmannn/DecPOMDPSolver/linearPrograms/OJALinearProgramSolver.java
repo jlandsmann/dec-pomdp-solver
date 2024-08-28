@@ -33,14 +33,31 @@ public class OJALinearProgramSolver implements LinearOptimizationSolver<Expressi
 
   @Override
   public Optional<Map<String, Double>> maximise() {
-    var result = linearProgram.maximise();
-    return transformResultIntoMap(result);
+    try {
+      var result = linearProgram.maximise();
+      return transformResultIntoMap(result);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 
   @Override
   public Optional<Map<String, Double>> minimise() {
-    var result = linearProgram.minimise();
-    return transformResultIntoMap(result);
+    try {
+      var result = linearProgram.minimise();
+      return transformResultIntoMap(result);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<Map<String, Double>> optimize() {
+    var sense = linearProgram.getOptimisationSense();
+    if (sense == Optimisation.Sense.MAX) {
+      return maximise();
+    } else {
+      return minimise();
+    }
   }
 
   private Optional<Map<String, Double>> transformResultIntoMap(Optimisation.Result result) {
