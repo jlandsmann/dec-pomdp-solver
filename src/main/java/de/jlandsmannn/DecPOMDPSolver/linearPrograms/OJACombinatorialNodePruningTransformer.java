@@ -63,7 +63,6 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     var linearProgram = new ExpressionsBasedModel();
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
     var epsilon = linearProgram.newVariable("epsilon").lower(0).weight(1);
-    var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
     var nodeVariables = new HashMap<Node, Variable>();
 
@@ -85,11 +84,11 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     for (var beliefState : beliefPoints) {
       var nodeVectorIndex = 0;
       for (var nodeVector : nodeCombinations) {
-        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).lower(0);
-        expression.set(epsilon, -1);
+        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).weight(-1);
+        expression.add(epsilon, -1);
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
-        expression.add(constant, -nodeToCheckValue);
+        expression.lower(nodeToCheckValue);
 
         for (var node : agent.getInitialControllerNodes()) {
           var nodeVariable = nodeVariables.get(node);
