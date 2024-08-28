@@ -82,6 +82,11 @@ public class CountingDecPOMDPWithStateController extends CountingDecPOMDP<Counti
   }
 
   @Override
+  public void clearValueFunction() {
+    preCalculatedValueFunction.clear();
+  }
+
+  @Override
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
     return IntStream.range(0, nodes.size())
       .mapToObj(idx -> Tuples.of(agents.get(idx), nodes.get(idx), actions.get(idx)))

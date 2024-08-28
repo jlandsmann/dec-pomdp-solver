@@ -78,6 +78,11 @@ public class IsomorphicDecPOMDPWithStateController
   }
 
   @Override
+  public void clearValueFunction() {
+    preCalculatedValueFunction.clear();
+  }
+
+  @Override
   public double getActionVectorProbability(Vector<Node> nodes, Vector<Action> actions) {
     if (nodes.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Number of nodes does not match total number of agents");

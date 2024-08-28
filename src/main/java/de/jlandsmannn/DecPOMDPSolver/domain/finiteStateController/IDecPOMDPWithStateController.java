@@ -84,4 +84,6 @@ public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateContr
   List<Vector<Node>> getNodeCombinations();
   List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector);
   List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector);
+
+  void clearValueFunction();
 }

@@ -86,6 +86,7 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to apply values");
     LOG.info("Applying values to DecPOMDP");
 
+    decPOMDP.clearValueFunction();
     AtomicLong index = new AtomicLong();
     for (var state : decPOMDP.getStates()) {
       for (var nodeVector : decPOMDP.getNodeCombinations()) {

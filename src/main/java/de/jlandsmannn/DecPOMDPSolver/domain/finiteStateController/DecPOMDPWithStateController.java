@@ -233,6 +233,11 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
   }
 
   @Override
+  public void clearValueFunction() {
+    preCalculatedValueFunction.clear();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof DecPOMDPWithStateController that)) return false;
