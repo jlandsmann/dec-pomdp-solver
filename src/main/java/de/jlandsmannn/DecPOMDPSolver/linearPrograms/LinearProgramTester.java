@@ -34,14 +34,17 @@ public class LinearProgramTester {
       tester.createLPFromFile(fileName);
       tester.optimize();
     } catch (Throwable t) {
-      System.out.println(fixedLength(fileName, 20) + " : " + "failed");
+      System.out.print("failed");
+    } finally {
+      System.out.println();
     }
   }
 
   ExpressionsBasedModel linearProgram;
 
   public void createLPFromFile(String filename) {
-    output.append(fixedLength(filename, 20)).append(" : ");
+    System.out.print(fixedLength(filename, 20));
+    System.out.print(" : ");
     var file = new File(filename);
     linearProgram = ExpressionsBasedModel.parse(file);
   }
@@ -74,20 +77,20 @@ public class LinearProgramTester {
   }
 
   public void optimize() {
-    output
-      .append(fixedLength(formatInteger(linearProgram.countVariables()), 7))
-      .append(" : ")
-      .append(fixedLength(formatInteger(linearProgram.countExpressions()), 7))
-      .append(" : ");
+    System.out.print(fixedLength(formatInteger(linearProgram.countVariables()), 7));
+    System.out.print(" : ");
+    System.out.print(fixedLength(formatInteger(linearProgram.countExpressions()), 7));
+    System.out.print(" : ");
     solveLinearProgram(solverA, "OR");
-    output.append(" : ");
+    System.out.print(" : ");
     solveLinearProgram(solverB, "OJA");
-    output.append(" : ");
+    System.out.print(" : ");
     solveLinearProgram(solverC, "ACM");
-    System.out.println(output.toString());
   }
 
   private void solveLinearProgram(OJALinearProgramSolver solver, String name) {
+    System.out.print(name);
+    System.out.print(" : ");
     var startTime = System.currentTimeMillis();
     solver.setLinearProgram(linearProgram.copy());
     // the problems given by NETLIB are to be minimized
@@ -97,13 +100,7 @@ public class LinearProgramTester {
       .map(o -> String.format("%.1E", o))
       .orElse("-");
     var timeUsed = System.currentTimeMillis() - startTime;
-    output
-      .append(name)
-      .append(" : ")
-      .append(fixedLength(formatInteger(timeUsed), 7))
-      .append("ms")
-      .append(" : ")
-      .append(fixedLength(objectiveValue, 8));
+    System.out.print(fixedLength(formatInteger(timeUsed), 7));
   }
 
   private static String formatInteger(Number input) {
