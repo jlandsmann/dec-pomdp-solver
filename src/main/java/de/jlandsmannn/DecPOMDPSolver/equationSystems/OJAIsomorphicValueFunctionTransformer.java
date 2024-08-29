@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.equationSystems;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;
@@ -9,7 +8,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Nod
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.ILiftedAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuples;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
@@ -19,9 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 /**
  * This class implements the {@link ValueFunctionTransformer}

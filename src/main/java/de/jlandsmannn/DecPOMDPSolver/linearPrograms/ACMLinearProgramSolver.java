@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 public class ACMLinearProgramSolver extends OJALinearProgramSolver {
 
   ACMLinearProgramSolver() {
+    super();
     ExpressionsBasedModel.addIntegration(SolverACM.INTEGRATION);
   }
 

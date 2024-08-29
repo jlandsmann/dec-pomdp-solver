@@ -30,7 +30,10 @@ public class OJACombinatorialNodePruner extends CombinatorialNodePruner<IDecPOMD
 
   @Autowired
   public OJACombinatorialNodePruner(CombinatorialNodePruningTransformer<IDecPOMDPWithStateController<?>, ExpressionsBasedModel, Map<String, Double>> transformer,
+                                    @Qualifier("ACM")
                                     LinearOptimizationSolver<ExpressionsBasedModel, Map<String, Double>> solver) {
     super(transformer, solver);
+    LOG.info("Using {} as transformer", transformer.getClass().getSimpleName());
+    LOG.info("Using {} as solver", solver.getClass().getSimpleName());
   }
 }

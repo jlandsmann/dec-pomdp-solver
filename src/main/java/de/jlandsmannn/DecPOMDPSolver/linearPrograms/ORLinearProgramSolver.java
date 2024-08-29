@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class ORLinearProgramSolver extends OJALinearProgramSolver {
 
   ORLinearProgramSolver() {
+    super();
     ExpressionsBasedModel.addIntegration(SolverORTools.INTEGRATION);
   }
 

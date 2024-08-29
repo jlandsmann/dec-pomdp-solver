@@ -1,8 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
