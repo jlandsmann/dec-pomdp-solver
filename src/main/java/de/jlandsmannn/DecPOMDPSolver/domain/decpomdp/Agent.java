@@ -22,14 +22,17 @@ public class Agent implements IAgent {
     this.observations = observations;
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public List<Action> getActions() {
     return actions;
   }
 
+  @Override
   public List<Observation> getObservations() {
     return observations;
   }

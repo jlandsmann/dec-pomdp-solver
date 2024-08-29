@@ -22,60 +22,125 @@ public abstract class DecPOMDPBuilder<DECPOMDP extends IDecPOMDP<AGENT>, AGENT e
   protected double discountFactor;
   protected Distribution<State> initialBeliefState;
 
+  /**
+   * This creates the desired DecPOMDP, if all required information were given.
+   * @return the created DecPOMDP
+   */
   public abstract DECPOMDP createDecPOMDP();
 
+  /**
+   * This returns an instance of a builder for the kind of agent for this kind of DecPOMDP.
+   * @return an agent builder
+   */
   public abstract AgentBuilder<AGENT, ?> getAgentBuilder();
 
+  /**
+   * This adds multiple agents to the DecPOMDP
+   * @param agents a collection of agents to add
+   * @return the current instance
+   */
   public THIS addAgents(Collection<? extends IAgent> agents) {
     agents.forEach(this::addAgent);
     return (THIS) this;
   }
 
+  /**
+   * This adds a single agent to the DecPOMDP
+   * @param agent an agent to add
+   * @return the current instance
+   */
   public THIS addAgent(IAgent agent) {
     this.agents.remove((AGENT) agent);
     this.agents.add((AGENT) agent);
     return (THIS) this;
   }
 
+  /**
+   * This adds a states to the DecPOMDP, identified by name
+   * @param stateString the name of the state to add
+   * @return the current instance
+   */
   public THIS addState(String stateString) {
     this.addState(State.from(stateString));
     return (THIS) this;
   }
 
+  /**
+   * This adds a states to the DecPOMDP
+   * @param state the state to add
+   * @return the current instance
+   */
   public THIS addState(State state) {
     this.states.remove(state);
     this.states.add(state);
     return (THIS) this;
   }
 
+  /**
+   * This adds multiple states to the DecPOMDP
+   * @param states the states to add
+   * @return the current instance
+   */
   public THIS addStates(Collection<State> states) {
     states.forEach(this::addState);
     return (THIS) this;
   }
 
+  /**
+   * This adds a transition rule to the DecPOMDP
+   * @param state the state the transition starts in
+   * @param actions the action vector required for transition
+   * @param targetState the state the transition ends in
+   * @return the current instance
+   */
   public THIS addTransition(State state, Vector<Action> actions, State targetState) {
     var beliefState = Distribution.createSingleEntryDistribution(targetState);
     return addTransition(state, actions, beliefState);
   }
 
+  /**
+   * This adds a transition rule to the DecPOMDP
+   * @param state the state the transition starts in
+   * @param actions the action vector required for transition
+   * @param beliefState the belief state the transition ends in
+   * @return the current instance
+   */
   public THIS addTransition(State state, Vector<Action> actions, Distribution<State> beliefState) {
     this.transitionFunction.putIfAbsent(state, new HashMap<>());
     this.transitionFunction.get(state).put(actions, beliefState);
     return (THIS) this;
   }
 
+  /**
+   * This adds a reward rule to the DecPOMDP
+   * @param state the state the reward is earned in
+   * @param actions the action vector required for reward
+   * @return the current instance
+   */
   public THIS addReward(State state, Vector<Action> actions, double reward) {
     this.rewardFunction.putIfAbsent(state, new HashMap<>());
     this.rewardFunction.get(state).put(actions, reward);
     return (THIS) this;
   }
 
+  /**
+   * This adds an observation rule to the DecPOMDP
+   * @param actions the action vector performed
+   * @param targetState the state the transition ends in
+   * @param observations the distributions of observations made
+   * @return the current instance
+   */
   public THIS addObservation(Vector<Action> actions, State targetState, Distribution<Vector<Observation>> observations) {
     this.observationFunction.putIfAbsent(actions, new HashMap<>());
     this.observationFunction.get(actions).put(targetState, observations);
     return (THIS) this;
   }
 
+  /**
+   * This defines the initial belief state for the DecPOMDP.
+   * @param initialBeliefState the initial state distribution
+   * @return the current instance
+   */
   public THIS setInitialBeliefState(Distribution<State> initialBeliefState) {
     this.initialBeliefState = initialBeliefState;
     return (THIS) this;

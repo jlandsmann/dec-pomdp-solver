@@ -35,11 +35,11 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
   }
 
   @Override
-  public double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getTransitionProbability(State currentState, Vector<Action> actionVector, State followState) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions)
+    return getGroundings(actionVector)
       .stream()
       .mapToDouble(grounding -> super.getTransitionProbability(currentState, grounding, followState))
       .reduce((a, b) -> a * b)
@@ -48,24 +48,24 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
   }
 
   @Override
-  public double getReward(State currentState, Vector<Action> agentActions) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getReward(State currentState, Vector<Action> actionVector) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions)
+    return getGroundings(actionVector)
       .stream()
       .mapToDouble(grounding -> super.getReward(currentState, grounding))
       .sum();
   }
 
   @Override
-  public double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
-    } else if (agentObservations.size() != getTotalAgentCount()) {
+    } else if (observationVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match total agent count.");
     }
-    return getGroundings(agentActions, agentObservations)
+    return getGroundings(actionVector, observationVector)
       .stream()
       .mapToDouble(groundings -> super.getObservationProbability(groundings.first(), followState, groundings.second()))
       .reduce((a, b) -> a * b)
@@ -74,7 +74,7 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
   }
 
   @Override
-  public List<Vector<Action>> getActionCombinations() {
+  public List<Vector<Action>> getActionVectors() {
     return getAgents().stream()
       .flatMap(agent -> IntStream.range(0, agent.getPartitionSize()).mapToObj(i -> agent))
       .map(IAgent::getActions)
@@ -83,7 +83,7 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
   }
 
   @Override
-  public List<Vector<Observation>> getObservationCombinations() {
+  public List<Vector<Observation>> getObservationVectors() {
     return getAgents().stream()
       .flatMap(agent -> IntStream.range(0, agent.getPartitionSize()).mapToObj(i -> agent))
       .map(IAgent::getObservations)

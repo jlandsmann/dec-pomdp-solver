@@ -20,6 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * This is an abstract base class for various commands that cover some kind of heuristic policy iteration algorithm.
+ * It provides basic sub-commands as help, initialization, loading, set initial policies and solving.
+ * @param <DECPOMDP> The type of DecPOMDP this command is used for
+ */
 public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP extends IDecPOMDP<?>> {
   private static Logger LOG = LoggerFactory.getLogger(BaseHeuristicPolicyIterationAlgorithmCommand.class);
 
@@ -93,8 +98,20 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
     return "Successfully loaded DecPOMDP";
   }
 
+  /**
+   * This function actually loads the DecPOMDP from the given file.
+   * @param filename The file from where the DecPOMDP should be loaded.
+   * @return An optional DecPOMDP, which is empty if an error occurred
+   */
   protected abstract Optional<DECPOMDP> loadDecPOMDP(String filename);
 
+  /**
+   * Since the algorithm is an infinite horizon algorithm,
+   * it can not work with a discount factor of 1.
+   * Therefore, we need to ensure that 0 <= discountFactor < 1.
+   * @param decpomdp The parsed DecPOMDP
+   * @param discountFactor The discountFactor to use
+   */
   protected void applyDiscountFactor(DECPOMDP decpomdp, double discountFactor) {
     if (discountFactor >= 0) {
       LOG.info("Custom discountFactor={} set, applying to DecPOMDP.", discountFactor);
@@ -173,6 +190,12 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
     return "Heuristic policy iteration finished. Result: " + result;
   }
 
+  /**
+   * This actually solves the DecPOMDP.
+   * This way the command logic and the solving logic are separated.
+   * @param decPOMDP The DecPOMDP to solve.
+   * @return The expected reward for the initial belief state (value) of the given DecPOMDP
+   */
   protected abstract double doSolve(DECPOMDP decPOMDP);
 
 }

@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This is the abstract base class representing a DecPOMDP.
+ * This abstract base class represents a DecPOMDP
+ * and is a partial implementation of the {@link IDecPOMDP} interface.
  * It needs to be abstract because the determination of the value,
  * given a specific belief state, depends on the policy of the agent.
  * Furthermore, this class does not instantiate the transition-,
@@ -29,19 +30,18 @@ public abstract class DecPOMDP<AGENT extends IAgent> implements IDecPOMDP<AGENT>
     this.initialBeliefState = initialBeliefState;
     validateDiscountFactor();
   }
-  
-  public int getAgentCount() {
-    return agents.size();
-  }
 
+  @Override
   public List<AGENT> getAgents() {
     return agents;
   }
 
+  @Override
   public List<State> getStates() {
     return states;
   }
 
+  @Override
   public double getDiscountFactor() {
     return discountFactor;
   }
@@ -51,65 +51,28 @@ public abstract class DecPOMDP<AGENT extends IAgent> implements IDecPOMDP<AGENT>
     this.discountFactor = discountFactor;
   }
 
+  @Override
   public Distribution<State> getInitialBeliefState() {
     return initialBeliefState;
   }
 
   @Override
-  public double getTransitionProbability(Distribution<State> currentBeliefState, Vector<Action> agentActions, State followState) {
-    return currentBeliefState.keySet()
-      .stream()
-      .mapToDouble(state -> {
-        double stateProbability = currentBeliefState.getProbability(state);
-        double transitionProbability = getTransitionProbability(state, agentActions, followState);
-        return stateProbability * transitionProbability;
-      })
-      .sum();
-  }
+  public abstract double getTransitionProbability(State currentState, Vector<Action> actionVector, State followState);
 
   @Override
-  public abstract double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState);
-
-  public double getReward(Distribution<State> currentBeliefState, Vector<Action> agentActions) {
-    if (agentActions.size() != getAgentCount()) {
-      throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    }
-    return currentBeliefState.entrySet().stream()
-      .map(entry -> {
-        var state = entry.getKey();
-        var probability = entry.getValue();
-        var reward = getReward(state, agentActions);
-        return probability * reward;
-      })
-      .reduce(Double::sum)
-      .orElse(0D);
-  }
-
-  public abstract double getReward(State currentState, Vector<Action> agentActions);
-
-  public double getObservationProbability(Vector<Action> agentActions, Distribution<State> followBeliefState, Vector<Observation> agentObservations) {
-    return followBeliefState.keySet()
-      .stream()
-      .mapToDouble(followState -> {
-        double stateProbability = followBeliefState.getProbability(followState);
-        double observationProbability = getObservationProbability(agentActions, followState, agentObservations);
-        return stateProbability * observationProbability;
-      })
-      .sum();
-  }
+  public abstract double getReward(State currentState, Vector<Action> actionVector);
 
   @Override
-  public abstract double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations);
+  public abstract double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector);
 
-  public double getValue() {
-    return getValue(initialBeliefState);
-  }
-
+  @Override
   public abstract double getValue(Distribution<State> beliefSate);
 
-  public abstract List<Vector<Action>> getActionCombinations();
+  @Override
+  public abstract List<Vector<Action>> getActionVectors();
 
-  public abstract List<Vector<Observation>> getObservationCombinations();
+  @Override
+  public abstract List<Vector<Observation>> getObservationVectors();
 
   @Override
   public boolean equals(Object o) {

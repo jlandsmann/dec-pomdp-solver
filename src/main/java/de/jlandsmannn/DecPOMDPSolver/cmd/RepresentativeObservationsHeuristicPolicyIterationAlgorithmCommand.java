@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 import static org.springframework.shell.command.CommandRegistration.OptionArity;
 
 /**
- * This command class contains all commands regarding the heuristic policy iteration algorithm.
+ * This command class contains all commands regarding the heuristic policy iteration algorithm
+ * for isomorphic DecPOMDPs with representative observations.
  * There are three main commands: init, load and solve.
  * For more detailed information, have a look at the commands themselves.
  */
@@ -47,11 +48,33 @@ public class RepresentativeObservationsHeuristicPolicyIterationAlgorithmCommand 
     this.myDefaultConfig = defaultConfig;
   }
 
+  /**
+   * The help command prints some information about the used algorithm.
+   */
   @Override
   public String help() {
-    return "";
+    LOG.info("help command called.");
+    return new StringBuilder()
+      .append("This algorithm is based on the algorithm presented in")
+      .append(System.lineSeparator())
+      .append("'Policy Iteration for Decentralized Control of Markov Decision Processes'")
+      .append(System.lineSeparator())
+      .append("by Bernstein et.al. from 2009.")
+      .append(System.lineSeparator())
+      .append("Stochastic finite state controller are used to represent the agents policies. ")
+      .append("Furthermore exhaustive backups are performed for exploration.")
+      .append(System.lineSeparator())
+      .append("It utilizes more or less random generated so called belief points to direct the pruning of explored policies.")
+      .toString();
   }
 
+  /**
+   * This function actually loads the isomorphic DecPOMDP from the given file.
+   * It expects the file to be in the .idpomdp file format.
+   * It parses the DecPOMDP as isomorphic DecPOMDP with representative observations.
+   * @param filename The file from where the DecPOMDP should be loaded.
+   * @return An optional containing the successfully parsed DecPOMDP or nothing otherwise
+   */
   @Override
   protected Optional<RepresentativeObservationsDecPOMDPWithStateController> loadDecPOMDP(String filename) {
     return IDPOMDPFileParser
@@ -59,6 +82,11 @@ public class RepresentativeObservationsHeuristicPolicyIterationAlgorithmCommand 
       .map(IsomorphicDecPOMDPWithStateControllerBuilder::createRepresentativeObservationsDecPOMDP);
   }
 
+  /**
+   * Performs the adjusted heuristic policy iteration algorithm on the given DecPOMDP.
+   * @param decPOMDP The DecPOMDP to solve.
+   * @return The expected reward for the initial belief state of the DecPOMDP.
+   */
   @Override
   protected double doSolve(RepresentativeObservationsDecPOMDPWithStateController decPOMDP) {
     return solver

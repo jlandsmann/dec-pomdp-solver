@@ -31,5 +31,9 @@ public abstract class AgentBuilder<AGENT extends IAgent, THIS extends AgentBuild
     return (THIS) this;
   }
 
+  /**
+   * Creates the agent.
+   * @return the agent
+   */
   public abstract AGENT createAgent();
 }

@@ -17,7 +17,7 @@ class IsomorphicDecPOMDPTest {
 
   @Test
   void getGroundings_ShouldReturnAnyCombinationOfElementsInVector() {
-    var actionVector = decPOMDP.getActionCombinations().get(0);
+    var actionVector = decPOMDP.getActionVectors().get(0);
     var groundings = decPOMDP.getGroundings(actionVector);
     var expectedNumberOfGroundings =  decPOMDP.getAgents().stream()
       .map(IsomorphicAgentWithStateController::getPartitionSize)

@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 import static org.springframework.shell.command.CommandRegistration.OptionArity;
 
 /**
- * This command class contains all commands regarding the heuristic policy iteration algorithm.
+ * This command class contains all commands regarding the heuristic policy iteration algorithm
+ * for ground DecPOMDPs.
  * There are three main commands: init, load and solve.
  * For more detailed information, have a look at the commands themselves.
  */
@@ -65,6 +66,13 @@ public class HeuristicPolicyIterationAlgorithmCommand extends BaseHeuristicPolic
       .toString();
   }
 
+  /**
+   * This function parses a ground DecPOMDP from the given file.
+   * If the given file describes an isomorphic DecPOMDP,
+   * it transforms the isomorphic DecPOMDP to an equivalent ground DecPOMDP.
+   * @param filename The file from where the DecPOMDP should be loaded.
+   * @return A ground DecPOMDP
+   */
   @Override
   protected Optional<IDecPOMDPWithStateController<?>> loadDecPOMDP(String filename) {
     if (filename.endsWith(".idpomdp")) {
@@ -73,6 +81,11 @@ public class HeuristicPolicyIterationAlgorithmCommand extends BaseHeuristicPolic
     return DPOMDPFileParser.parseDecPOMDP(filename).map(DecPOMDPWithStateControllerBuilder::createDecPOMDP);
   }
 
+  /**
+   * Initializes the heuristic policy iteration algorithm and order it to solve the given DecPOMDP.
+   * @param decPOMDP The DecPOMDP to solve.
+   * @return The expected reward for the initial belief state of the DecPOMDP
+   */
   @Override
   protected double doSolve(IDecPOMDPWithStateController<?> decPOMDP) {
     return solver.setDecPOMDP(decPOMDP).setConfig(config).solve();

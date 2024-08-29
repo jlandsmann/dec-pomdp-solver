@@ -155,20 +155,4 @@ class DecPOMDPTest {
     var actual = decPOMDP.getObservationProbability(actionVector, followState, observationVector);
     assertEquals(expected, actual);
   }
-
-  @Test
-  void getObservationProbability_ShouldReturnWeightedObservationForBeliefState() {
-    var actionVector = Vector.of(Action.listOf("A1-A2", "A2-A1"));
-    var nextBeliefState = Distribution.of(Map.of(
-      State.from("S1"), 0.6,
-      State.from("S2"), 0.4
-    ));
-    var observation1 = Vector.of(Observation.listOf("A1-O1", "A2-O1"));
-    var actual1 = decPOMDP.getObservationProbability(actionVector, nextBeliefState, observation1);
-
-    var observation2 = Vector.of(Observation.listOf("A1-O2", "A2-O2"));
-    var actual2 = decPOMDP.getObservationProbability(actionVector, nextBeliefState, observation2);
-    assertEquals(0.6, actual1);
-    assertEquals(0.4, actual2);
-  }
 }

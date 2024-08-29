@@ -38,11 +38,11 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
   }
 
   @Override
-  public double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
-    if (agentActions.size() != getAgentCount()) {
+  public double getTransitionProbability(State currentState, Vector<Action> actionVector, State followState) {
+    if (actionVector.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
-    return doGetTransitionProbability(currentState, agentActions, followState);
+    return doGetTransitionProbability(currentState, actionVector, followState);
   }
 
   protected double doGetTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
@@ -53,11 +53,11 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
       .orElse(0D);
   }
 
-  public double getReward(State currentState, Vector<Action> agentActions) {
-    if (agentActions.size() != getAgentCount()) {
+  public double getReward(State currentState, Vector<Action> actionVector) {
+    if (actionVector.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
     }
-    return doGetReward(currentState, agentActions);
+    return doGetReward(currentState, actionVector);
   }
 
   protected double doGetReward(State currentState, Vector<Action> agentActions) {
@@ -68,13 +68,13 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
   }
 
   @Override
-  public double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
-    if (agentActions.size() != getAgentCount()) {
+  public double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
+    if (actionVector.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match agent count.");
-    } else if (agentObservations.size() != getAgentCount()) {
+    } else if (observationVector.size() != getAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match agent count.");
     }
-    return doGetObservationProbability(agentActions, followState, agentObservations);
+    return doGetObservationProbability(actionVector, followState, observationVector);
   }
 
   public double doGetObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
@@ -85,12 +85,12 @@ public abstract class GroundDecPOMDP<AGENT extends IAgent> extends DecPOMDP<AGEN
       .orElse(0D);
   }
 
-  public List<Vector<Action>> getActionCombinations() {
+  public List<Vector<Action>> getActionVectors() {
     var rawCombinations = agents.stream().map(IAgent::getActions).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }
 
-  public List<Vector<Observation>> getObservationCombinations() {
+  public List<Vector<Observation>> getObservationVectors() {
     var rawCombinations = agents.stream().map(IAgent::getObservations).toList();
     return VectorCombinationBuilder.listOf(rawCombinations);
   }

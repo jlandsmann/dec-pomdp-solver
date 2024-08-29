@@ -35,11 +35,11 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   @Override
-  public double getTransitionProbability(State currentState, Vector<Action> agentActions, State followState) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getTransitionProbability(State currentState, Vector<Action> actionVector, State followState) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    var actionHistogram = Histogram.from(agentActions);
+    var actionHistogram = Histogram.from(actionVector);
     return Optional
       .ofNullable(transitionFunction.get(currentState))
       .map(t -> t.get(actionHistogram))
@@ -48,11 +48,11 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   @Override
-  public double getReward(State currentState, Vector<Action> agentActions) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getReward(State currentState, Vector<Action> actionVector) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
     }
-    var actionHistogram = Histogram.from(agentActions);
+    var actionHistogram = Histogram.from(actionVector);
     return Optional
       .ofNullable(rewardFunction.get(currentState))
       .map(t -> t.get(actionHistogram))
@@ -60,15 +60,15 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   @Override
-  public double getObservationProbability(Vector<Action> agentActions, State followState, Vector<Observation> agentObservations) {
-    if (agentActions.size() != getTotalAgentCount()) {
+  public double getObservationProbability(Vector<Action> actionVector, State followState, Vector<Observation> observationVector) {
+    if (actionVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of action vector doesn't match total agent count.");
-    } else if (agentObservations.size() != getTotalAgentCount()) {
+    } else if (observationVector.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Length of observation vector doesn't match total agent count.");
     }
 
-    var actionHistogram = Histogram.from(agentActions);
-    var observationHistogram = Histogram.from(agentObservations);
+    var actionHistogram = Histogram.from(actionVector);
+    var observationHistogram = Histogram.from(observationVector);
     return Optional
       .ofNullable(observationFunction.get(actionHistogram))
       .map(t -> t.get(followState))
@@ -77,7 +77,7 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   @Override
-  public List<Vector<Action>> getActionCombinations() {
+  public List<Vector<Action>> getActionVectors() {
     return getAgents().stream()
       .map(agent -> HistogramBuilder.listOf(agent.getActions(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())
@@ -89,7 +89,7 @@ public abstract class CountingDecPOMDP<AGENT extends ILiftedAgent> extends DecPO
   }
 
   @Override
-  public List<Vector<Observation>> getObservationCombinations() {
+  public List<Vector<Observation>> getObservationVectors() {
     return getAgents().stream()
       .map(agent -> HistogramBuilder.listOf(agent.getObservations(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())

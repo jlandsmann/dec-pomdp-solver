@@ -59,7 +59,7 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
     var discountFactor = decPOMDP.getDiscountFactor();
     return decPOMDP.getActionCombinations(nodeVector).stream()
       .map(actionVector ->
-        decPOMDP.getObservationCombinations().stream()
+        decPOMDP.getObservationVectors().stream()
           .parallel()
           .map(observationVector -> {
             var observationProbability = decPOMDP.getObservationProbability(actionVector, newState, observationVector);

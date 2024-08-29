@@ -34,7 +34,7 @@ public class IsomorphicToGroundDecPOMDPTransformer {
     ;
 
     for (var state : model.getStates()) {
-      for (var actionVector : model.getActionCombinations()) {
+      for (var actionVector : model.getActionVectors()) {
         var reward = model.getReward(state, actionVector);
         builder.addReward(state, actionVector, reward);
 
@@ -56,7 +56,7 @@ public class IsomorphicToGroundDecPOMDPTransformer {
   }
 
   private Distribution<Vector<Observation>> calculateObservation(IDecPOMDP<?> model, Vector<Action> actionVector, State followState) {
-    return model.getObservationCombinations().stream().map(observation -> {
+    return model.getObservationVectors().stream().map(observation -> {
       var probability = model.getObservationProbability(actionVector, followState, observation);
       return Map.entry(observation, probability);
     }).collect(CustomCollectors.toNormalizedDistribution());

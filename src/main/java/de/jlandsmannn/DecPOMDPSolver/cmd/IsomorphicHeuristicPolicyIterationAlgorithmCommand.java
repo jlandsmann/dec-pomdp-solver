@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 import static org.springframework.shell.command.CommandRegistration.OptionArity;
 
 /**
- * This command class contains all commands regarding the heuristic policy iteration algorithm.
+ * This command class contains all commands regarding the heuristic policy iteration algorithm
+ * for isomorphic DecPOMDPs.
  * There are three main commands: init, load and solve.
  * For more detailed information, have a look at the commands themselves.
  */
@@ -64,11 +65,22 @@ public class IsomorphicHeuristicPolicyIterationAlgorithmCommand extends BaseHeur
       .toString();
   }
 
+  /**
+   * This function actually loads the isomorphic DecPOMDP from the given file.
+   * It expects the file to be in the .idpomdp file format.
+   * @param filename The file from where the DecPOMDP should be loaded.
+   * @return An optional containing the successfully parsed DecPOMDP or nothing otherwise
+   */
   @Override
   protected Optional<IsomorphicDecPOMDPWithStateController> loadDecPOMDP(String filename) {
     return IDPOMDPFileParser.parseDecPOMDP(filename).map(IsomorphicDecPOMDPWithStateControllerBuilder::createDecPOMDP);
   }
 
+  /**
+   * Performs the adjusted heuristic policy iteration algorithm on the given DecPOMDP.
+   * @param decPOMDP The DecPOMDP to solve.
+   * @return The expected reward for the initial belief state of the DecPOMDP.
+   */
   @Override
   protected double doSolve(IsomorphicDecPOMDPWithStateController decPOMDP) {
     return solver

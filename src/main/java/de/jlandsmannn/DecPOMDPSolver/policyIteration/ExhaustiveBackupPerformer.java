@@ -121,7 +121,7 @@ public class ExhaustiveBackupPerformer {
     LOG.debug("Calculating missing value of value function for {} and {}", state, nodeVector);
     var value = 0D;
     var discount = decPOMDP.getDiscountFactor();
-    var observationsCombinations = decPOMDP.getObservationCombinations();
+    var observationsCombinations = decPOMDP.getObservationVectors();
     var followNodeCombinations = decPOMDP.getNodeCombinations(nodeVector);
     for (var actionVector : decPOMDP.getActionCombinations(nodeVector)) {
       var actionVectorProbability = decPOMDP.getActionVectorProbability(nodeVector, actionVector);

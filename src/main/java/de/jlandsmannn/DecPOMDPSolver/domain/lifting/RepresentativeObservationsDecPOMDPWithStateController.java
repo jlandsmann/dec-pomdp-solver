@@ -119,7 +119,7 @@ public class RepresentativeObservationsDecPOMDPWithStateController
   }
 
   @Override
-  public List<Vector<Action>> getActionCombinations() {
+  public List<Vector<Action>> getActionVectors() {
     return getAgents().stream()
       .map(agent -> HistogramBuilder.listOfPeakShaped(agent.getActions(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())
@@ -131,7 +131,7 @@ public class RepresentativeObservationsDecPOMDPWithStateController
   }
 
   @Override
-  public List<Vector<Observation>> getObservationCombinations() {
+  public List<Vector<Observation>> getObservationVectors() {
     return getAgents().stream()
       .map(agent -> HistogramBuilder.listOfPeakShaped(agent.getObservations(), agent.getPartitionSize()))
       .collect(CombinationCollectors.toCombinationVectors())
