@@ -55,23 +55,6 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
   }
 
   /**
-   * It returns those nodes, that maximize the value, the expected sum of rewards,
-   * based on the current policies and the given belief state.
-   *
-   * @param beliefState the belief state to check the value for
-   * @return the vector of nodes to start from, that maximizes the expected sum of rewards
-   */
-  @Override
-  public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
-    return getNodeCombinations()
-      .stream()
-      .map(nodes -> Map.entry(nodes, getValue(beliefState, nodes)))
-      .max(Map.Entry.comparingByValue(Double::compareTo))
-      .map(Map.Entry::getKey)
-      .orElseThrow(IllegalStateException::new);
-  }
-
-  /**
    * It returns the precalculated value, the expected sum of rewards,
    * based on the current policies and the given belief state and the given nodes.
    * If the value was not set previously, it returns 0.

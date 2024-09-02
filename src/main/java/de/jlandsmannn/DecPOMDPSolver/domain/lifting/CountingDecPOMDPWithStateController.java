@@ -42,13 +42,6 @@ public class CountingDecPOMDPWithStateController extends CountingDecPOMDP<Counti
   }
 
   @Override
-  public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
-    return getNodeCombinations().stream()
-      .max(Comparator.comparingDouble(nodes -> getValue(beliefState, nodes)))
-      .orElseThrow();
-  }
-
-  @Override
   public double getValue(Distribution<State> beliefState, Vector<Node> nodes) {
     return beliefState.keySet().stream()
       .mapToDouble(state -> {

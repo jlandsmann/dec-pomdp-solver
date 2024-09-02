@@ -7,11 +7,33 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuple2;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuples;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateController> extends IDecPOMDP<AGENT> {
-  Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState);
+
+  /**
+   * It returns those nodes, that maximize the value, the expected sum of rewards,
+   * based on the current policies and the given belief state.
+   *
+   * @param beliefState the belief state to check the value for
+   * @return the vector of nodes to start from, that maximizes the expected sum of rewards
+   */
+  default Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
+    return getNodeCombinations().stream()
+      .map(n -> Tuples.of(n, getValue(beliefState, n)))
+      .max(Comparator.comparing(Tuple2::second))
+      .map(Tuple2::first)
+      .orElseThrow()
+    ;
+  }
 
   /**
    * It returns the precalculated value, the expected sum of rewards,

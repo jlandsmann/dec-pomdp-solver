@@ -88,6 +88,9 @@ public class FiniteStateController {
    * @return the probability of selecting the action in the given node
    */
   public double getActionSelectionProbability(Node node, Action action) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist in controller");
+    }
     return Optional
       .ofNullable(actionFunction.get(node))
       .map(t -> t.getProbability(action))
@@ -105,6 +108,11 @@ public class FiniteStateController {
    * @return the probability of the transition
    */
   public double getTransitionProbability(Node node, Action action, Observation observation, Node followNode) {
+    if (!nodes.contains(node)) {
+      throw new IllegalArgumentException("Node " + node + " does not exist in controller");
+    } else if (!nodes.contains(followNode)) {
+      throw new IllegalArgumentException("Node " + followNode + " does not exist in controller");
+    }
     return Optional
       .ofNullable(transitionFunction.get(node))
       .map(t -> t.get(action))

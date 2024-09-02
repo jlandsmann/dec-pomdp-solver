@@ -30,13 +30,6 @@ public class IsomorphicDecPOMDPWithStateController
   }
 
   @Override
-  public Vector<Node> getBestNodeCombinationFor(Distribution<State> beliefState) {
-    return getNodeCombinations().stream()
-      .max(Comparator.comparingDouble(nodeCombination -> getValue(beliefState, nodeCombination)))
-      .orElseThrow();
-  }
-
-  @Override
   public double getValue(Distribution<State> beliefState) {
     return getNodeCombinations().stream()
       .mapToDouble(nodeCombination -> getValue(beliefState, nodeCombination))
