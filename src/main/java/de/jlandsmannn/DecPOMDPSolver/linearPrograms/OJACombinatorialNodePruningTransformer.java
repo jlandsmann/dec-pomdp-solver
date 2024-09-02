@@ -84,7 +84,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     for (var beliefState : beliefPoints) {
       var nodeVectorIndex = 0;
       for (var nodeVector : nodeCombinations) {
-        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).weight(-1);
+        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).weight(1);
         expression.add(epsilon, -1);
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
@@ -107,8 +107,8 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
 
   @Override
   public Optional<Distribution<Node>> getDominatingNodeDistributionFromResult(Map<String, Double> result) {
-    if (result.get("epsilon") <= 0) {
-      LOG.debug("Epsilon is not positive, no dominating combination exists.");
+    if (result.get("epsilon") < 0) {
+      LOG.debug("Epsilon is negative, no dominating combination exists.");
       return Optional.empty();
     }
     Map<Node, Double> mappedResults = new HashMap<>();
