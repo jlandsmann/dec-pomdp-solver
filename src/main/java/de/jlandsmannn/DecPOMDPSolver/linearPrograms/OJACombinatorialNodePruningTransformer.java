@@ -8,6 +8,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStat
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.CombinationCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -64,6 +65,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
     var epsilon = linearProgram.newVariable("epsilon").lower(0).weight(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
+    var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeVariables = new HashMap<Node, Variable>();
 
     for (var node : agent.getInitialControllerNodes()) {
@@ -72,23 +74,25 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
       nodeVariables.put(node, nodeVariable);
     }
 
-    var rawNodeCombinations = decPOMDP.getAgents().stream()
+    var nodeCombinations = decPOMDP.getAgents()
+      .stream()
       .filter(a -> !a.equals(agent))
       .map(IAgentWithStateController::getInitialControllerNodes)
       .map(List::copyOf)
+      .collect(CombinationCollectors.toCombinationVectors())
       .toList();
-    var nodeCombinations = VectorCombinationBuilder.listOf(rawNodeCombinations);
 
 
     var beliefStateIndex = 0;
     for (var beliefState : beliefPoints) {
       var nodeVectorIndex = 0;
       for (var nodeVector : nodeCombinations) {
-        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).weight(1);
-        expression.add(epsilon, -1);
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
-        expression.lower(nodeToCheckValue);
+
+        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).lower(0);
+        expression.add(epsilon, -1);
+        expression.add(constant, -nodeToCheckValue);
 
         for (var node : agent.getInitialControllerNodes()) {
           var nodeVariable = nodeVariables.get(node);
@@ -102,7 +106,7 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
       beliefStateIndex++;
     }
     LOG.debug("Created linear program with {} variables and {} expressions.", linearProgram.countVariables(), linearProgram.countExpressions());
-    return linearProgram.simplify();
+    return linearProgram;
   }
 
   @Override
