@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -75,10 +76,9 @@ public class BeliefPointGenerator {
   public Map<IAgent, Set<Distribution<State>>> generateBeliefPoints() {
     assertAllDependenciesAreSet();
     var beliefPoints = new ConcurrentHashMap<IAgent, Set<Distribution<State>>>(decPOMDP.getAgents().size());
-    decPOMDP.getAgents().stream().parallel().forEach(agent -> {
-      var newBeliefPoints = generateBeliefPointsForAgent(agent);
-      beliefPoints.put(agent, newBeliefPoints);
-    });
+    var agent = decPOMDP.getAgents().stream().parallel().findAny().orElseThrow();
+    var newBeliefPoints = generateBeliefPointsForAgent(agent);
+    decPOMDP.getAgents().forEach(a -> beliefPoints.put(a, newBeliefPoints));
     return beliefPoints;
   }
 
@@ -169,23 +169,20 @@ public class BeliefPointGenerator {
   protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState) {
     LOG.debug("Calculating follow-up belief state for {} starting from {}.", agent, beliefState);
     Map<State, Double> beliefStateMap = new HashMap<>();
-    var sumOfProbabilities = 0D;
+    AtomicReference<Double> sumOfProbabilities = new AtomicReference<>(0D);
 
-    for (var followState : decPOMDP.getStates()) {
+    decPOMDP.getStates().stream().parallel().forEach(followState -> {
       var probability = 0D;
       for (var action : agent.getActions()) {
         for (var observation : agent.getObservations()) {
           probability += getProbabilityForAgentTransition(agent, beliefState, action, observation, followState);
         }
       }
-      sumOfProbabilities += probability;
+      final var probability2 = probability;
+      sumOfProbabilities.updateAndGet(v -> v + probability2);
       beliefStateMap.put(followState, probability);
-    }
-
-    for (var state : beliefStateMap.keySet()) {
-      beliefStateMap.put(state, beliefStateMap.get(state) / sumOfProbabilities);
-    }
-
+    });
+    beliefStateMap.replaceAll((s, v) -> v / sumOfProbabilities.get());
     return Distribution.of(beliefStateMap);
   }
 

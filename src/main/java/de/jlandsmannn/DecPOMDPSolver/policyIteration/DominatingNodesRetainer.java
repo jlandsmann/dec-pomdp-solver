@@ -6,6 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStat
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import org.jline.utils.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,7 @@ public class DominatingNodesRetainer {
     }
     LOG.info("Found {} dominating nodes for {}", nodesToRetain.size(), agent);
     agent.setInitialControllerNodes(nodesToRetain);
+    LOG.debug("{}: Dominating Nodes: {}", agent, nodesToRetain);
   }
 
   private void validateBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {
