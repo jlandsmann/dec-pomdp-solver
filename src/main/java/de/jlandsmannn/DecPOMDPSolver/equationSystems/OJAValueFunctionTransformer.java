@@ -50,7 +50,8 @@ public class OJAValueFunctionTransformer extends OJABaseValueFunctionTransformer
   }
 
   protected double calculateAllRewardsForStateAndNodes(State state, Vector<Node> nodeVector) {
-    return decPOMDP.getActionCombinations(nodeVector).stream()
+    return decPOMDP.getActionCombinations(nodeVector)
+      .stream()
       .map(actionVector -> calculateRewardForStateAndNodesAndActions(state, nodeVector, actionVector))
       .reduce(Double::sum)
       .orElse(0D);

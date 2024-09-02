@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @ConfigurationProperties("app.heuristic-policy-iteration")
 public record HeuristicPolicyIterationConfig(
-  long beliefPointGenerationSeed,
+  @DefaultValue("0") long beliefPointGenerationSeed,
   @DefaultValue("10") int beliefPointDesiredNumber,
   @DefaultValue("100") int beliefPointGenerationMaxRuns,
   @DefaultValue("2e-2") double beliefPointDistanceThreshold,
@@ -29,7 +29,7 @@ public record HeuristicPolicyIterationConfig(
 
   public static HeuristicPolicyIterationConfig getDefault() {
     return new HeuristicPolicyIterationConfig(
-      12345,
+      0,
       10,
       100,
       2e-3,

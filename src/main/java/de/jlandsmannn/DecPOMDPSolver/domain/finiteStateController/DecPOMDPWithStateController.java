@@ -104,10 +104,11 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
    * @param nodes the vector of nodes to check the value for
    * @return the expected sum of rewards
    * @throws IllegalArgumentException if the vector of nodes has different size as the DecPOMDP has agents
+   * @throws IllegalArgumentException if the state and vector have no entry in value function
    */
   public double getValue(State state, Vector<Node> nodes) {
-    if (nodes.size() != getAgentCount()) {
-      throw new IllegalArgumentException("Length of node vector doesn't match agent count.");
+    if (!hasValue(state, nodes)) {
+      throw new IllegalArgumentException("There exists no entry in value function for " + state + " and " + nodes);
     }
     var preCalculatedValuesForState = preCalculatedValueFunction.getOrDefault(state, Map.of());
     return preCalculatedValuesForState.getOrDefault(nodes, 0D);
