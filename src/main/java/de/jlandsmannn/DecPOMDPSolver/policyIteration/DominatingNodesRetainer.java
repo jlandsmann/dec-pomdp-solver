@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class finds the vectors of dominating nodes for all belief points,
@@ -61,8 +58,12 @@ public class DominatingNodesRetainer {
       nodesToRetain.add(nodeToRetain);
     }
     LOG.info("Found {} dominating nodes for {}", nodesToRetain.size(), agent);
-    agent.setInitialControllerNodes(nodesToRetain);
     LOG.debug("{}: Dominating Nodes: {}", agent, nodesToRetain);
+    var originalNodeCount = agent.getControllerNodes().size();
+    agent.setInitialControllerNodes(nodesToRetain);
+    agent.retainNodesAndFollower(nodesToRetain);
+    var newNodesCount = agent.getControllerNodes().size();
+    LOG.info("Pruned {} nodes for {} simultaneously", originalNodeCount - newNodesCount, agent);
   }
 
   private void validateBeliefPoints(Map<IAgent, Set<Distribution<State>>> beliefPoints) {

@@ -4,10 +4,12 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import org.jline.utils.Log;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * A finite state controller is a graph consisting of nodes.
@@ -250,5 +252,35 @@ public class FiniteStateController {
       followNodes.get(node).merge(followNode, -1, Integer::sum);
     }
 
+  }
+
+  public void retainNodesAndFollower(Collection<Node> initialNodes) {
+    if (initialNodes.isEmpty()) return;
+    var nodesToRemove = new ArrayList<>(nodes);
+    var nodesToRetain = initialNodes;
+    while (!nodesToRetain.isEmpty() && !nodesToRemove.isEmpty()) {
+      nodesToRemove.removeAll(nodesToRetain);
+      nodesToRetain = nodesToRetain.stream()
+        .map(this::getFollowNodes)
+        .flatMap(Collection::stream)
+        .filter(nodesToRemove::contains)
+        .collect(Collectors.toSet());
+    }
+
+    if (nodesToRemove.isEmpty()) return;
+    removeOutgoingConnections(nodesToRemove);
+    assertNoIngoingConnections(nodesToRemove);
+  }
+
+  private void assertNoIngoingConnections(Collection<Node> nodesToRemove) {
+    for (var node : transitionFunction.keySet()) {
+      for (var action : transitionFunction.get(node).keySet()) {
+        for (var distribution : transitionFunction.get(node).get(action).values()) {
+          for (var nodeToPrune : nodesToRemove) {
+            assert distribution.getProbability(nodeToPrune) <= 0;
+          }
+        }
+      }
+    }
   }
 }

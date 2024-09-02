@@ -6,9 +6,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is an extension of the base agent,
@@ -125,6 +123,12 @@ public class AgentWithStateController extends Agent implements IAgentWithStateCo
    * {@link FiniteStateController#pruneNode(Node, Distribution<Node>)}
    */
   public void pruneNode(Node nodeToPrune, Distribution<Node> nodesToReplaceWith) {
+    initialControllerNodes.remove(nodeToPrune);
     controller.pruneNode(nodeToPrune, nodesToReplaceWith);
+  }
+
+  @Override
+  public void retainNodesAndFollower(Collection<Node> nodesToRetain) {
+    controller.retainNodesAndFollower(nodesToRetain);
   }
 }
