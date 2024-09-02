@@ -65,10 +65,10 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
     var agentIndex = decPOMDP.getAgents().indexOf(agent);
     var epsilon = linearProgram.newVariable("epsilon").lower(0).weight(1);
     var nodeDistribution = linearProgram.newExpression("x(q)").level(1);
-    var constant = linearProgram.newVariable("constant=1").level(1);
     var nodeVariables = new HashMap<Node, Variable>();
 
-    for (var node : agent.getInitialControllerNodes()) {
+    for (var node : agent.getControllerNodes()) {
+      if (node.equals(nodeToCheck)) continue;
       var nodeVariable = linearProgram.newVariable(node.name()).lower(0).upper(1);
       nodeDistribution.add(nodeVariable, 1);
       nodeVariables.put(node, nodeVariable);
@@ -90,11 +90,11 @@ public class OJACombinatorialNodePruningTransformer implements CombinatorialNode
         var nodeToCheckVector = Vector.addEntry(nodeVector, agentIndex, nodeToCheck);
         var nodeToCheckValue = decPOMDP.getValue(beliefState, nodeToCheckVector);
 
-        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).lower(0);
+        var expression = linearProgram.newExpression("b: " + beliefStateIndex + ", q-i: " + nodeVectorIndex).lower(nodeToCheckValue);
         expression.add(epsilon, -1);
-        expression.add(constant, -nodeToCheckValue);
 
-        for (var node : agent.getInitialControllerNodes()) {
+        for (var node : agent.getControllerNodes()) {
+          if (node.equals(nodeToCheck)) continue;
           var nodeVariable = nodeVariables.get(node);
           var vector = Vector.addEntry(nodeVector, agentIndex, node);
           var value = decPOMDP.getValue(beliefState, vector);

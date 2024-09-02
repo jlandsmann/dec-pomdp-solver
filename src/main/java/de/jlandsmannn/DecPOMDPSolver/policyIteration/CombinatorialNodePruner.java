@@ -60,10 +60,8 @@ public abstract class CombinatorialNodePruner<DECPOMDP extends IDecPOMDPWithStat
       return;
     }
     var originalNodeCount = agent.getControllerNodes().size();
-    var nodesToPrune = new ArrayList<>(agent.getControllerNodes());
-    nodesToPrune.removeAll(agent.getInitialControllerNodes());
-    LOG.info("Iterating over all {} non-initial nodes of {} for combinatorial pruning", nodesToPrune.size(), agent);
-    for (var node : nodesToPrune) {
+    LOG.info("Iterating over all initial nodes of {} for combinatorial pruning", agent);
+    for (var node : agent.getInitialControllerNodes()) {
       pruneNodeIfCombinatorialDominated(node);
     }
     var newNodeCount = agent.getControllerNodes().size();

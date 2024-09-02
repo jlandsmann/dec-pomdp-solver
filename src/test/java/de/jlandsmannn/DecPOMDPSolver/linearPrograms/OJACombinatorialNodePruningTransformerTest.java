@@ -137,7 +137,8 @@ class OJACombinatorialNodePruningTransformerTest {
     @Test
     void getLinearProgramForNode_ShouldCreateVariablesForEpsilonAndOtherNodes() {
       var lp = transformer.getLinearProgramForNode(node);
-      var expected = 2 + agent.getInitialControllerNodes().size();
+      // epsilon + all controller nodes except the node to prune
+      var expected = 1 + agent.getControllerNodes().size() - 1;
       var actual = lp.countVariables();
       assertEquals(expected, actual);
     }
