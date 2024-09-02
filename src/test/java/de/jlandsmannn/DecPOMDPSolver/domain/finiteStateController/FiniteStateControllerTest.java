@@ -242,8 +242,9 @@ class FiniteStateControllerTest {
     finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
 
     for (var action : actions) {
-      var actual = finiteStateController.getActionSelectionProbability(nodeToPrune, action);
-      assertEquals(0D, actual);
+      assertThrows(IllegalArgumentException.class, () ->
+        finiteStateController.getActionSelectionProbability(nodeToPrune, action)
+      );
     }
   }
 
@@ -256,11 +257,12 @@ class FiniteStateControllerTest {
     for (var node : finiteStateController.getNodes()) {
       for (var action : actions) {
         for (var observation : observations) {
-          var actualProbability = finiteStateController.getTransitionProbability(nodeToPrune, action, observation, nodeToPrune);
-          assertEquals(0D, actualProbability);
-
-          var actualProbability2 = finiteStateController.getTransitionProbability(nodeToPrune, action, observation, node);
-          assertEquals(0D, actualProbability2);
+          assertThrows(IllegalArgumentException.class, () ->
+            finiteStateController.getTransitionProbability(node, action, observation, nodeToPrune)
+          );
+          assertThrows(IllegalArgumentException.class, () ->
+            finiteStateController.getTransitionProbability(nodeToPrune, action, observation, node)
+          );
         }
       }
     }

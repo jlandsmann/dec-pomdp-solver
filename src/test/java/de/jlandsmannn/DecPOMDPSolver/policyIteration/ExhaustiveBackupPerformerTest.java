@@ -152,7 +152,9 @@ class ExhaustiveBackupPerformerTest {
       for (var action : agent.getSelectableActions(addedNode)) {
         for (var observation : agent.getObservations()) {
           var expectedNumberOfFollowNodes = 1;
-          var actualNumberOfFollowNodes = agent.getFollowNodes(addedNode).stream().filter(followNode -> agent.getNodeTransitionProbability(addedNode, action, observation, followNode) > 0).count();
+          var actualNumberOfFollowNodes = agent.getFollowNodes(addedNode).stream()
+            .filter(followNode -> agent.getNodeTransitionProbability(addedNode, action, observation, followNode) > 0)
+            .count();
 
           assertEquals(expectedNumberOfFollowNodes, actualNumberOfFollowNodes);
         }
@@ -189,7 +191,7 @@ class ExhaustiveBackupPerformerTest {
       .setDecPOMDP(decPOMDP)
       .setBeliefPoints(beliefPoints)
       .performExhaustiveBackupForAgent(agent);
-    var addedNodes = agent.getControllerNodes();
+    var addedNodes = new ArrayList<>(agent.getControllerNodes());
     addedNodes.removeAll(originalNodes);
 
     return addedNodes;
