@@ -22,7 +22,7 @@ public abstract class AgentBuilder<AGENT extends IAgent, THIS extends AgentBuild
   }
 
   public THIS setActions(Collection<Action> actions) {
-    this.actions = List.copyOf(Set.copyOf(actions));
+    this.actions = actions.stream().distinct().toList();
     return (THIS) this;
   }
 
