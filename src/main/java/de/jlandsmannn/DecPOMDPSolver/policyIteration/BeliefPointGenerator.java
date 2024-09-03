@@ -93,15 +93,17 @@ public class BeliefPointGenerator {
     beliefPointsToVisit.add(currentBeliefState);
     generatedBeliefPoints.add(currentBeliefState);
 
+    var actionSelection = Distribution.createRandomDistribution(agent.getActions());
+    var observationSelection = Distribution.createRandomDistribution(agent.getObservations());
+
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
+      var action = actionSelection.getRandom();
+      var observation = observationSelection.getRandom();
 
-      for (var action : agent.getActions()) {
-        if (generatedBeliefPoints.size() >= numberOfBeliefPoints) break;
-        var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action);
-        var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
-        if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
-      }
+      var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
+      var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
+      if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
 
       if (beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints && generationRuns < maxGenerationRuns) {
         setPolicies(generateRandomPolicies());
@@ -145,20 +147,20 @@ public class BeliefPointGenerator {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState, Action action) {
+  protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState, Action action, Observation observation) {
     LOG.debug("Calculating follow-up belief state for {} with {} starting from {}.", agent, action, beliefState);
     return decPOMDP.getStates().stream()
       .parallel()
       .map(followState -> {
-        var probability = getProbabilityForAgentTransition(agent, beliefState, action, followState);
+        var probability = getProbabilityForAgentTransition(agent, beliefState, action, observation, followState);
         return Map.entry(followState, probability);
       })
       .collect(CustomCollectors.toNormalizedDistribution());
   }
 
-  private double getProbabilityForAgentTransition(IAgent agent, Distribution<State> beliefState, Action action, State followState) {
+  private double getProbabilityForAgentTransition(IAgent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
-    var observationCombinations = getAllObservationCombinations();
+    var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
 
     var probability = 0D;
     for (var state : beliefState.keySet()) {

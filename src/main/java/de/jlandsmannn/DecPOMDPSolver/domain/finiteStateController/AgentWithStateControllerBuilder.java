@@ -8,10 +8,14 @@ public class AgentWithStateControllerBuilder extends AgentBuilder<AgentWithState
 
   protected FiniteStateController stateController;
 
+  public AgentWithStateControllerBuilder withFirstActionInitialPolicy() {
+    var policy = Distribution.createSingleEntryDistribution(actions.get(0));
+    return withInitialPolicy(policy);
+  }
+
   public AgentWithStateControllerBuilder withUniformInitialPolicy() {
     var policy = Distribution.createUniformDistribution(actions);
     return withInitialPolicy(policy);
-
   }
 
   public AgentWithStateControllerBuilder withRandomInitialPolicy() {
@@ -23,9 +27,10 @@ public class AgentWithStateControllerBuilder extends AgentBuilder<AgentWithState
     stateController = FiniteStateControllerBuilder.createSelfLoopController(name, actions, observations, initialPolicy);
     return this;
   }
+
   @Override
   public AgentWithStateController createAgent() {
-    if (stateController == null) withUniformInitialPolicy();
+    if (stateController == null) withFirstActionInitialPolicy();
     return new AgentWithStateController(name, actions, observations, stateController);
   }
 }

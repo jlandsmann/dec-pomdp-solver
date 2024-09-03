@@ -38,8 +38,8 @@ uniform
 #   ...
 #   [ %d, <list of actions> ] 
 actions: 
-listen open-left open-right
-listen open-left open-right
+open-left listen open-right
+open-left listen open-right
 #the (number/list of) observations for each of the agents on a separate line
 #   observations: 
 #   [ %d, <list of observations> ]

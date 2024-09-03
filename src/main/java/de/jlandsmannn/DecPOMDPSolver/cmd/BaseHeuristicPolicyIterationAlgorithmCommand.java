@@ -106,7 +106,7 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
 
   /**
    * Since the algorithm is an infinite horizon algorithm,
-   * it can not work with a discount factor of 1.
+   * it cannot work with a discount factor of 1.
    * Therefore, we need to ensure that 0 <= discountFactor < 1.
    * @param decpomdp The parsed DecPOMDP
    * @param discountFactor The discountFactor to use
@@ -163,10 +163,6 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
         .map(state -> Map.entry(state, actionSelection))
         .collect(CustomCollectors.toMap());
       initialPolicies.put(agent, stateActionDistributions);
-
-      var firstAction = Distribution.createSingleEntryDistribution(agent.getActions().get(0));
-      var controller = FiniteStateControllerBuilder.createSelfLoopController(agent.getName(), agent.getActions(), agent.getObservations(), firstAction);
-      agent.setController(controller);
 
     }
     return initialPolicies;
