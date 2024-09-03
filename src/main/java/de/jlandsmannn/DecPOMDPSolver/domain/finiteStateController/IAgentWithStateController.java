@@ -13,6 +13,7 @@ import java.util.Set;
 
 public interface IAgentWithStateController extends IAgent {
   FiniteStateController getController();
+  void setController(FiniteStateController controller);
   Set<Node> getInitialControllerNodes();
   void setInitialControllerNodes(Set<Node> initialNodes);
 

@@ -29,7 +29,7 @@ public class IsomorphicAgentBuilder<THIS extends IsomorphicAgentBuilder<?>> exte
 
   protected void setControllerIfNotSet() {
     if (stateController == null) {
-      stateController = FiniteStateControllerBuilder.createArbitraryController(name, List.of(), actions, observations);
+      stateController = FiniteStateControllerBuilder.createArbitraryController(name, actions, observations);
     }
   }
 }

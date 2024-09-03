@@ -27,13 +27,12 @@ public class FiniteStateControllerBuilder {
    * It is a special case of {@link FiniteStateControllerBuilder#createArbitraryController(String, List, int, List, List)} with nodeCount = 1.
    *
    * @param name             the name of the controller can be used to differentiate nodes of two controllers
-   * @param correlationNodes the correlation nodes to consider
    * @param actions          the actions to consider
    * @param observations     the observations to consider
    * @return the created controller
    */
-  public static FiniteStateController createArbitraryController(String name, List<Node> correlationNodes, List<Action> actions, List<Observation> observations) {
-    return createArbitraryController(name, correlationNodes, 1, actions, observations);
+  public static FiniteStateController createArbitraryController(String name, List<Action> actions, List<Observation> observations) {
+    return createArbitraryController(name, actions, observations, 1);
   }
 
   /**
@@ -42,13 +41,12 @@ public class FiniteStateControllerBuilder {
    * Observations taken, after taking action in the last node, lead back to the first node.
    *
    * @param name             the name of the controller can be used to differentiate nodes of two controllers
-   * @param correlationNodes the correlation nodes to create the finite state controller for
-   * @param nodeCount        the number of nodes to create
    * @param actions          the actions to consider
    * @param observations     the observations to consider
+   * @param nodeCount        the number of nodes to create
    * @return the created controller
    */
-  public static FiniteStateController createArbitraryController(String name, List<Node> correlationNodes, int nodeCount, List<Action> actions, List<Observation> observations) {
+  public static FiniteStateController createArbitraryController(String name, List<Action> actions, List<Observation> observations, int nodeCount) {
     var builder = new FiniteStateControllerBuilder();
     var actionDistribution = Distribution.createUniformDistribution(actions);
     for (int i = 0; i < nodeCount; i++) {
@@ -59,6 +57,29 @@ public class FiniteStateControllerBuilder {
         for (var observation : observations) {
           builder.addTransition(node, action, observation, Distribution.createSingleEntryDistribution(followNode));
         }
+      }
+    }
+    return builder.createFiniteStateController();
+  }
+
+  /**
+   * Creates a controller with a single node and the given action selection,
+   * which loops on itself for all actions and observations.
+   * @param name             the name of the controller can be used to differentiate nodes of two controllers
+   * @param actions          the actions to consider
+   * @param observations     the observations to consider
+   * @param actionSelection  the action selection for the sole node
+   * @return the created controller
+   */
+  public static FiniteStateController createSelfLoopController(String name, List<Action> actions, List<Observation> observations, Distribution<Action> actionSelection) {
+    var builder = new FiniteStateControllerBuilder();
+    var node = Node.from(name + "-Q0");
+    var followNode = Distribution.createSingleEntryDistribution(node);
+
+    builder.addNode(node).addActionSelection(node, actionSelection);
+    for (var action : actions) {
+      for (var observation : observations) {
+        builder.addTransition(node, action, observation, followNode);
       }
     }
     return builder.createFiniteStateController();

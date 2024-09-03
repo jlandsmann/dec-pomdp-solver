@@ -4,6 +4,9 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.CustomCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
@@ -25,7 +28,7 @@ import java.util.stream.Collectors;
  * It provides basic sub-commands as help, initialization, loading, set initial policies and solving.
  * @param <DECPOMDP> The type of DecPOMDP this command is used for
  */
-public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP extends IDecPOMDP<?>> {
+public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP extends IDecPOMDPWithStateController<?>> {
   private static Logger LOG = LoggerFactory.getLogger(BaseHeuristicPolicyIterationAlgorithmCommand.class);
 
   protected final HeuristicPolicyIterationConfig defaultConfig;
@@ -157,13 +160,17 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
     Map<IAgent, Map<State, Distribution<Action>>> initialPolicies = new HashMap<>();
     for (int i = 0; i < decPOMDP.getAgents().size(); i++) {
       var agent = decPOMDP.getAgents().get(i);
-      var rawActionDistribution = CommonParser.parseActionsAndTheirDistributions(agent.getActions(), actionDistributionsPerAgent[i]);
-      var actionDistribution = Distribution.of(rawActionDistribution);
+      var rawActionSelection = CommonParser.parseActionsAndTheirDistributions(agent.getActions(), actionDistributionsPerAgent[i]);
+      var actionSelection = Distribution.of(rawActionSelection);
       var stateActionDistributions = decPOMDP.getStates()
         .stream()
-        .map(state -> Map.entry(state, actionDistribution))
+        .map(state -> Map.entry(state, actionSelection))
         .collect(CustomCollectors.toMap());
       initialPolicies.put(agent, stateActionDistributions);
+
+      var controller = FiniteStateControllerBuilder.createSelfLoopController(agent.getName(), agent.getActions(), agent.getObservations(), actionSelection);
+      agent.setController(controller);
+
     }
     return initialPolicies;
   }
