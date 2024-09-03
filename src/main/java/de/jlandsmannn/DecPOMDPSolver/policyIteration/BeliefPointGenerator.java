@@ -5,6 +5,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+import de.jlandsmannn.DecPOMDPSolver.domain.utility.CustomCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -98,8 +99,8 @@ public class BeliefPointGenerator {
       for (var action : agent.getActions()) {
         if (generatedBeliefPoints.size() >= numberOfBeliefPoints) break;
         var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action);
-        var beliefPointIsDiverse = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
-        if (beliefPointIsDiverse) beliefPointsToVisit.add(newBeliefPoint);
+        var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
+        if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
       }
 
       if (beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints && generationRuns < maxGenerationRuns) {
@@ -145,34 +146,22 @@ public class BeliefPointGenerator {
   }
 
   protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState, Action action) {
-    var numberOfObservations = agent.getObservations().size();
-    Map<Distribution<State>, Double> beliefStateMap = new ConcurrentHashMap<>();
-
-    agent.getObservations().forEach(observation -> {
-      var followBeliefState = getFollowUpBeliefStateForAgent(agent, beliefState, action, observation);
-      beliefStateMap.merge(followBeliefState, 1D / numberOfObservations, Double::sum);
-    });
-
-    return Distribution.createWeightedDistribution(beliefStateMap);
+    LOG.debug("Calculating follow-up belief state for {} with {} starting from {}.", agent, action, beliefState);
+    return decPOMDP.getStates().stream()
+      .parallel()
+      .map(followState -> {
+        var probability = getProbabilityForAgentTransition(agent, beliefState, action, followState);
+        return Map.entry(followState, probability);
+      })
+      .collect(CustomCollectors.toNormalizedDistribution());
   }
 
-  protected Distribution<State> getFollowUpBeliefStateForAgent(IAgent agent, Distribution<State> beliefState, Action action, Observation observation) {
-    LOG.debug("Calculating follow-up belief state for {} with {} and observing {} starting from {}.", agent, action, observation, beliefState);
-    Map<State, Double> localBeliefStateMap = new ConcurrentHashMap<>();
-
-    decPOMDP.getStates().stream().parallel().forEach(followState -> {
-      var probability = getProbabilityForAgentTransition(agent, beliefState, action, observation, followState);
-      localBeliefStateMap.put(followState, probability);
-    });
-    return Distribution.normalizeOf(localBeliefStateMap);
-  }
-
-  private double getProbabilityForAgentTransition(IAgent agent, Distribution<State> beliefState, Action action, Observation observation, State followState) {
+  private double getProbabilityForAgentTransition(IAgent agent, Distribution<State> beliefState, Action action, State followState) {
     var actionCombinations = getAllActionCombinationsWithFixedActionForAgent(action, agent);
-    var observationCombinations = getAllObservationCombinationsWithFixedObservationForAgent(observation, agent);
+    var observationCombinations = getAllObservationCombinations();
 
     var probability = 0D;
-    for (var state : beliefState) {
+    for (var state : beliefState.keySet()) {
       var stateProbability = beliefState.getProbability(state);
       if (stateProbability == 0) continue;
 
@@ -189,6 +178,10 @@ public class BeliefPointGenerator {
       }
     }
     return probability;
+  }
+
+  private List<Vector<Observation>> getAllObservationCombinations() {
+    return decPOMDP.getObservationVectors();
   }
 
   private double getProbabilityForActionVector(State state, Vector<Action> actionVector, IAgent agentToIgnore) {

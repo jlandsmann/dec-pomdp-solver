@@ -164,7 +164,8 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
         .collect(CustomCollectors.toMap());
       initialPolicies.put(agent, stateActionDistributions);
 
-      var controller = FiniteStateControllerBuilder.createSelfLoopController(agent.getName(), agent.getActions(), agent.getObservations(), actionSelection);
+      var firstAction = Distribution.createSingleEntryDistribution(agent.getActions().get(0));
+      var controller = FiniteStateControllerBuilder.createSelfLoopController(agent.getName(), agent.getActions(), agent.getObservations(), firstAction);
       agent.setController(controller);
 
     }

@@ -159,10 +159,10 @@ public class Distribution<T> implements Iterable<T> {
   }
 
   private static <K> Map<K, Double> normalize(Map<K, Double> map) {
-    var sumOfProbabilities = map.values().stream().reduce(Double::sum).orElse(1D);
-    return map.entrySet().stream()
-      .peek(entry -> entry.setValue(entry.getValue() / sumOfProbabilities))
-      .collect(CustomCollectors.toMap());
+    var sumOfProbabilities = map.values().stream().reduce(Double::sum).orElseThrow();
+    if (sumOfProbabilities == 0D) throw new IllegalArgumentException("Sum of probabilities is zero, cannot normalize.");
+    map.replaceAll((k, v) -> v / sumOfProbabilities);
+    return map;
   }
 
   /**
@@ -318,6 +318,8 @@ public class Distribution<T> implements Iterable<T> {
       .stream()
       .map(key -> other.getProbability(key) - getProbability(key))
       .map(Math::abs)
-      .allMatch(diff -> diff <= tolerance);
+      .max(Double::compareTo)
+      .map(maxDistance -> maxDistance < tolerance)
+      .orElseThrow();
   }
 }
