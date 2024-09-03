@@ -1,7 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
@@ -11,7 +9,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNode
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.CombinationCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Variable;
 import org.slf4j.Logger;

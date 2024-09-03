@@ -4,8 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 
-import java.util.List;
-
 public class AgentWithStateControllerBuilder extends AgentBuilder<AgentWithStateController, AgentWithStateControllerBuilder> {
 
   protected FiniteStateController stateController;

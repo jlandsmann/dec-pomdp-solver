@@ -5,7 +5,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.VectorCombinationBuilder;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**

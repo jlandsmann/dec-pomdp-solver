@@ -1,11 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Histogram<T> {
 

@@ -4,8 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 
-import java.util.List;
-
 public class IsomorphicAgentBuilder<THIS extends IsomorphicAgentBuilder<?>> extends AgentBuilder<IsomorphicAgentWithStateController, THIS> {
 
   private int partitionSize = 1;

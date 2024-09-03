@@ -2,16 +2,16 @@ package de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
-import de.jlandsmannn.DecPOMDPSolver.policyIteration.*;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
+import de.jlandsmannn.DecPOMDPSolver.policyIteration.ValueFunctionEvaluater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**

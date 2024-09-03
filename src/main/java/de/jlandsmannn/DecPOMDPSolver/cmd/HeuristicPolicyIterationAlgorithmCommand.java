@@ -1,31 +1,19 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateControllerBuilder;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.io.IDPOMDPFileParser;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationConfig;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.shell.command.CommandRegistration.OptionArity;
 
 /**
  * This command class contains all commands regarding the heuristic policy iteration algorithm

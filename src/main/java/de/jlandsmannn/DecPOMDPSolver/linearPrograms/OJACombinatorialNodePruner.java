@@ -1,9 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.linearPrograms;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.CombinatorialNodePruningTransformer;
 import de.jlandsmannn.DecPOMDPSolver.domain.linearOptimization.LinearOptimizationSolver;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.CombinatorialNodePruner;

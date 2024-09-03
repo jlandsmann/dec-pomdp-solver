@@ -1,7 +1,6 @@
 package de.jlandsmannn.DecPOMDPSolver.io.sectionParsers;
 
 import de.jlandsmannn.DecPOMDPSolver.io.exceptions.ParsingFailedException;
-import de.jlandsmannn.DecPOMDPSolver.io.utility.DPOMDPSectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionKeyword;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.SectionMatchResult;
 

@@ -1,15 +1,12 @@
 package de.jlandsmannn.DecPOMDPSolver.cmd;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.CustomCollectors;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.io.utility.CommonParser;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationConfig;
 import org.slf4j.Logger;
@@ -21,7 +18,6 @@ import org.springframework.shell.command.annotation.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This is an abstract base class for various commands that cover some kind of heuristic policy iteration algorithm.

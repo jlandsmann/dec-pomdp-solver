@@ -12,10 +12,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.tuple.Tuples;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.TreeMap;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 public interface IDecPOMDPWithStateController<AGENT extends IAgentWithStateController> extends IDecPOMDP<AGENT> {
 

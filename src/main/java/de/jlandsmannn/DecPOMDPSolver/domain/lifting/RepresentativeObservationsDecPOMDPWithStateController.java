@@ -9,7 +9,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class RepresentativeObservationsDecPOMDPWithStateController
   extends IsomorphicDecPOMDPWithStateController {

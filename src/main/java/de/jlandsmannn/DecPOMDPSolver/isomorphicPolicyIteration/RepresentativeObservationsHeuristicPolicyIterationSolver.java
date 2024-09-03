@@ -3,7 +3,6 @@ package de.jlandsmannn.DecPOMDPSolver.isomorphicPolicyIteration;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.RepresentativeObservationsDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
 import de.jlandsmannn.DecPOMDPSolver.policyIteration.HeuristicPolicyIterationSolver;

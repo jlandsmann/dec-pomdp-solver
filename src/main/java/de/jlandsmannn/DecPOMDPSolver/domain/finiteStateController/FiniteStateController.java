@@ -4,7 +4,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Observation;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import org.jline.utils.Log;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +34,7 @@ public class FiniteStateController {
    * @param transitionFunction the transition function of this controller
    */
   public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
-    this.nodes = Collections.synchronizedList(new ArrayList<>(nodes));
+    this.nodes = new ArrayList<>(nodes);
     this.nodeIndex = new AtomicLong(nodes.size());
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;

@@ -7,7 +7,7 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithSt
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStateController;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * This is an extension of the base agent,

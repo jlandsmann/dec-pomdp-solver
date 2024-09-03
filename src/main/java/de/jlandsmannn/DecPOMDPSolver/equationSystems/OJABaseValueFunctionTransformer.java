@@ -10,9 +10,6 @@ import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 

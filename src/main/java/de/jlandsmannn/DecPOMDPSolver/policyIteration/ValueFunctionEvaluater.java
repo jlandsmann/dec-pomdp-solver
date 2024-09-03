@@ -1,6 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.policyIteration;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IAgent;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.IDecPOMDP;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.EquationSystemSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransformer;

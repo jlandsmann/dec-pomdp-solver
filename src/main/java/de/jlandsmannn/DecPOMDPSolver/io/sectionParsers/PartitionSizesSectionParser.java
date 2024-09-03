@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.*;
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.COUNT_PATTERN;
+import static de.jlandsmannn.DecPOMDPSolver.io.utility.CommonPattern.ROWS_OF;
 
 /**
  * This parser covers the "partitionSizes" section.
