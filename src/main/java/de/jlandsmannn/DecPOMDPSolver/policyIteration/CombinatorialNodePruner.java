@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,8 @@ public abstract class CombinatorialNodePruner<DECPOMDP extends IDecPOMDPWithStat
     }
     var originalNodeCount = agent.getControllerNodes().size();
     LOG.info("Iterating over all initial nodes of {} for combinatorial pruning", agent);
-    for (var node : agent.getInitialControllerNodes()) {
+    var nodes = List.copyOf(agent.getInitialControllerNodes());
+    for (var node : nodes) {
       pruneNodeIfCombinatorialDominated(node);
     }
     var newNodeCount = agent.getControllerNodes().size();
