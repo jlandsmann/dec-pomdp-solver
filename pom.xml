@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>de.jlandsmannn</groupId>
 	<artifactId>Dec-POMDP-Solver</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>Dec-POMDP-Solver</name>
 	<description>Solving decentralised POMDPs using stochastic FSCs and policy iteration.</description>
 	<properties>
