@@ -34,7 +34,7 @@ public class FiniteStateController {
    * @param transitionFunction the transition function of this controller
    */
   public FiniteStateController(List<Node> nodes, Map<Node, Distribution<Action>> actionFunction, Map<Node, Map<Action, Map<Observation, Distribution<Node>>>> transitionFunction) {
-    this.nodes = new ArrayList<>(nodes);
+    this.nodes = Collections.synchronizedList(new ArrayList<>(nodes));
     this.nodeIndex = new AtomicLong(nodes.size());
     this.actionFunction = actionFunction;
     this.transitionFunction = transitionFunction;
@@ -49,7 +49,7 @@ public class FiniteStateController {
    * @return the nodes of this controller
    */
   public List<Node> getNodes() {
-    return nodes;
+    return List.copyOf(nodes);
   }
 
   public List<Node> getFollowNodes(Node node) {
@@ -127,11 +127,13 @@ public class FiniteStateController {
   }
 
   public void addNode(Node node, Distribution<Action> action) {
-    if (nodes.contains(node)) {
-      throw new IllegalArgumentException("Node " + node + " already exists");
+    synchronized (nodes) {
+      if (nodes.contains(node)) {
+        throw new IllegalArgumentException("Node " + node + " already exists");
+      }
+      nodes.add(node);
+      actionFunction.put(node, action);
     }
-    nodes.add(node);
-    actionFunction.put(node, action);
   }
 
   public void addTransition(Node node, Action a, Observation o, Node followNode) {
@@ -184,10 +186,12 @@ public class FiniteStateController {
   }
 
   private void removeOutgoingConnections(Node node) {
-    nodes.remove(node);
-    actionFunction.remove(node);
-    transitionFunction.remove(node);
-    followNodes.remove(node);
+    synchronized (nodes) {
+      actionFunction.remove(node);
+      transitionFunction.remove(node);
+      followNodes.remove(node);
+      nodes.remove(node);
+    }
   }
 
   private void replaceIncomingConnections(Collection<Node> nodesToPrune, Distribution<Node> nodesToReplaceWith) {

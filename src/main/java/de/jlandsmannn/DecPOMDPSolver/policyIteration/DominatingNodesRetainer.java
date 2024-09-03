@@ -74,6 +74,5 @@ public class DominatingNodesRetainer {
     if (!entryForEachAgent || someEntryEmpty) {
       throw new IllegalArgumentException("Belief points must not be empty.");
     }
-    ;
   }
 }
