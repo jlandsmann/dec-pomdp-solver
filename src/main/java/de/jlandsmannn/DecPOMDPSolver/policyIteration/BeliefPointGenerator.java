@@ -100,10 +100,14 @@ public class BeliefPointGenerator {
       var beliefPoint = beliefPointsToVisit.remove(0);
       var action = actionSelection.getRandom();
       var observation = observationSelection.getRandom();
-
-      var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
-      var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
-      if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
+      try {
+        var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
+        var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
+        if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
+      } catch (Exception e) {
+        beliefPointsToVisit.add(0, beliefPoint);
+        continue;
+      }
 
       if (beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints && generationRuns < maxGenerationRuns) {
         setPolicies(generateRandomPolicies());
