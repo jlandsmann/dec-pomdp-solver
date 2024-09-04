@@ -7,14 +7,13 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStat
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
+import org.apache.logging.log4j.Marker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class implements the heuristic policy iteration algorithm.
@@ -65,9 +64,13 @@ public class HeuristicPolicyIterationSolver
     do {
       LOG.info("Starting iteration #{}. Current value: {}", ++currentIteration, getValue());
       saveControllerState();
+      outputControllerSizes("Start");
       performExhaustiveBackup();
+      outputControllerSizes("After Backup");
       retainDominatingNodes();
+      outputControllerSizes("After Pruning");
       pruneCombinatorialDominatedNodes();
+      outputControllerSizes("After combinatorial Pruning");
       evaluateValueFunction();
     } while (hasControllerStateChanged() && !isIterationLimitReached());
     return getValue();
@@ -136,5 +139,24 @@ public class HeuristicPolicyIterationSolver
     boolean isIterationLimitReached = config.maxIterations() <= currentIteration;
     LOG.info("Iteration limit enabled: {} and reached: {}", hasIterationLimit, isIterationLimitReached);
     return hasIterationLimit && isIterationLimitReached;
+  }
+
+  protected void outputControllerSizes(String label) {
+    var builder = new StringBuilder();
+    builder
+      .append("Iteration #")
+      .append(currentIteration)
+      .append(" : ")
+      .append(label)
+      .append(" : ");
+
+    var controllerSizes = decPOMDP.getAgents().stream()
+      .map(IAgentWithStateController::getControllerNodes)
+      .map(Collection::size)
+      .map(Object::toString)
+      .reduce((a,b) -> a + " : " + b)
+      .orElse("");
+    builder.append(controllerSizes);
+    LOG.info(builder.toString());
   }
 }
