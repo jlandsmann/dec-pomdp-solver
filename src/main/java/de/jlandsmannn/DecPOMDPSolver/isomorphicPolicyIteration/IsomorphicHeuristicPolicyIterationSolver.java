@@ -25,7 +25,6 @@ public class IsomorphicHeuristicPolicyIterationSolver
   extends BaseDecPOMDPSolverWithConfig<IsomorphicDecPOMDPWithStateController, IsomorphicHeuristicPolicyIterationConfig, IsomorphicHeuristicPolicyIterationSolver> {
   private static final Logger LOG = LoggerFactory.getLogger(IsomorphicHeuristicPolicyIterationSolver.class);
 
-  protected final IsomorphicHeuristicPolicyIterationConfig config;
   protected final HeuristicPolicyIterationSolver solver;
   protected final ValueFunctionEvaluater<IsomorphicDecPOMDPWithStateController, ?> valueFunctionEvaluater;
 
