@@ -43,7 +43,7 @@ public class RepresentativeObservationsDecPOMDPWithStateController
     }
     var actionVector = getAnyGrounding(agentActions);
     var reward = doGetReward(currentState, actionVector);
-    return Math.pow(reward, groundingConstant);
+    return reward * groundingConstant;
   }
 
   @Override
