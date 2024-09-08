@@ -14,8 +14,8 @@ observations:
 nothing marker
 nothing message
 partitionSizes:
-2
-2
+1
+1
 #
 #
 T: noop noop : yy : yy : 0.81
