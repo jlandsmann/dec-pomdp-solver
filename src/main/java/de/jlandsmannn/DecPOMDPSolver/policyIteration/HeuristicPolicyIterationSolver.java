@@ -54,6 +54,7 @@ public class HeuristicPolicyIterationSolver
   @Override
   public double solve() {
     LOG.info("Start solving DecPOMDP with heuristic policy iteration.");
+    LOG.info("DecPOMDP has {} states and {} agents", decPOMDP.getStates().size(), decPOMDP.getAgentCount());
     if (decPOMDP.getDiscountFactor() == 1) {
       throw new IllegalStateException("This algorithm does not support discount factor of 1.");
     }

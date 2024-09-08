@@ -98,8 +98,8 @@ public class BeliefPointGenerator {
 
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
-      var action = actionSelection.getRandom();
-      var observation = observationSelection.getRandom();
+      var action = actionSelection.getRandom(random);
+      var observation = observationSelection.getRandom(random);
       try {
         var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
         var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);

@@ -217,14 +217,36 @@ public class Distribution<T> implements Iterable<T> {
     return distribution.getOrDefault(item, 0D);
   }
 
+
   /**
-   * Selects an element (pseudo) randomly
-   * weighted by their probabilities.
+   * Selects an element (pseudo) randomly weighted by their probabilities.
    *
-   * @return a random element from the distribution
+   * @return a pseudo-random element from the distribution
    */
   public T getRandom() {
-    var rand = Math.random();
+    return getRandom(new Random());
+  }
+
+  /**
+   * Selects an element (pseudo) randomly weighted by their probabilities.
+   *
+   * @param seed A seed for a {@link Random} instance for selection
+   * @return a pseudo-random element from the distribution
+   */
+  public T getRandom(long seed) {
+    var random = new Random();
+    if (seed != 0) random.setSeed(seed);
+    return getRandom(random);
+  }
+
+  /**
+   * Selects an element (pseudo) randomly weighted by their probabilities.
+   *
+   * @param random A {@link Random} object to select an element
+   * @return a pseudo-random element from the distribution
+   */
+  public T getRandom(Random random) {
+    var rand = random.nextDouble(0, 1);
     for (var entry : this.distribution.entrySet()) {
       rand -= entry.getValue();
       if (rand <= 0) return entry.getKey();

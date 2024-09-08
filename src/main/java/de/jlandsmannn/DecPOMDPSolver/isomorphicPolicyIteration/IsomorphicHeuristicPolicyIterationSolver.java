@@ -43,6 +43,7 @@ public class IsomorphicHeuristicPolicyIterationSolver
   @Override
   public double solve() {
     LOG.info("Start solving DecPOMDP with isomorphic heuristic policy iteration.");
+    LOG.info("Isomorphic DecPOMDP has {} states and {} agents", decPOMDP.getStates().size(), decPOMDP.getTotalAgentCount());
     createRepresentativeDecPOMDP();
     solveRepresentativeDecPOMDP();
     transferController();
