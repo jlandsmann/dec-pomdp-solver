@@ -42,12 +42,9 @@ public class BeliefPointGenerator {
 
   @Autowired
   BeliefPointGenerator(HeuristicPolicyIterationConfig config) {
-    random = new Random();
+    random = createSeededRandom(config);
     maxGenerationRuns = config.beliefPointGenerationMaxRuns();
     beliefPointDistanceThreshold = config.beliefPointDistanceThreshold();
-    if (config.beliefPointGenerationSeed() != 0) {
-      random.setSeed(config.beliefPointGenerationSeed());
-    }
   }
 
   public BeliefPointGenerator setDecPOMDP(IDecPOMDP<?> decPOMDP) {
@@ -93,8 +90,8 @@ public class BeliefPointGenerator {
     beliefPointsToVisit.add(currentBeliefState);
     generatedBeliefPoints.add(currentBeliefState);
 
-    var actionSelection = Distribution.createRandomDistribution(agent.getActions());
-    var observationSelection = Distribution.createRandomDistribution(agent.getObservations());
+    var actionSelection = Distribution.createRandomDistribution(agent.getActions(), random);
+    var observationSelection = Distribution.createRandomDistribution(agent.getObservations(), random);
 
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
@@ -254,5 +251,13 @@ public class BeliefPointGenerator {
         return Map.entry(state, distribution);
       })
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  private Random createSeededRandom(HeuristicPolicyIterationConfig config) {
+    var random = new Random();
+    var seed = config.beliefPointGenerationSeed() != 0 ? config.beliefPointGenerationSeed() : random.nextLong();
+    random.setSeed(seed);
+    LOG.info("Using seed {} for belief point generation", seed);
+    return random;
   }
 }
