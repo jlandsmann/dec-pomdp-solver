@@ -90,8 +90,8 @@ public class BeliefPointGenerator {
     beliefPointsToVisit.add(currentBeliefState);
     generatedBeliefPoints.add(currentBeliefState);
 
-    var actionSelection = Distribution.createRandomDistribution(agent.getActions(), random);
-    var observationSelection = Distribution.createRandomDistribution(agent.getObservations(), random);
+    var actionSelection = Distribution.createUniformDistribution(agent.getActions());
+    var observationSelection = Distribution.createUniformDistribution(agent.getObservations());
 
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
