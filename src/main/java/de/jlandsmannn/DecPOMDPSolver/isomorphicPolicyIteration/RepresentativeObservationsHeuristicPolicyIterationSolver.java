@@ -43,7 +43,8 @@ public class RepresentativeObservationsHeuristicPolicyIterationSolver
 
   @Override
   public double solve() {
-    LOG.info("Start solving DecPOMDP with isomorphic heuristic policy iteration.");
+    LOG.info("Start solving DecPOMDP with isomorphic heuristic policy iteration with representative observations.");
+    LOG.info("Isomorphic DecPOMDP has {} states and {} agents", decPOMDP.getStates().size(), decPOMDP.getTotalAgentCount());
     createRepresentativeDecPOMDP();
     solveRepresentativeDecPOMDP();
     transferController();
@@ -65,6 +66,15 @@ public class RepresentativeObservationsHeuristicPolicyIterationSolver
     );
   }
 
+  protected void solveRepresentativeDecPOMDP() {
+    LOG.info("Solving representative DecPOMDP.");
+    solver
+      .setConfig(config.policyIterationConfig())
+      .setDecPOMDP(representativeDecPOMDP)
+      .solve();
+    LOG.info("Solving representative DecPOMDP resulted in value of {}.", representativeDecPOMDP.getValue());
+  }
+
   protected void transferController() {
     LOG.info("Transferring local controller from representative DecPOMDP to isomorphic DecPOMDP.");
     IntStream.range(0, decPOMDP.getAgentCount())
@@ -73,14 +83,6 @@ public class RepresentativeObservationsHeuristicPolicyIterationSolver
         var otherAgent = representativeDecPOMDP.getAgents().get(idx);
         agent.setController(otherAgent.getController());
       });
-  }
-
-  protected void solveRepresentativeDecPOMDP() {
-    LOG.info("Solving representative DecPOMDP.");
-    solver
-      .setConfig(config.policyIterationConfig())
-      .setDecPOMDP(representativeDecPOMDP)
-      .solve();
   }
 
   protected void evaluateValueFunction() {
