@@ -31,9 +31,20 @@ public class DecPOMDPGenerator {
   }
 
   public static IsomorphicDecPOMDPWithStateController getIsomorphicDecPOMDP(int partitionSize) {
+    return getIsomorphicDecPOMDP(partitionSize, 1);
+  }
+
+  public static IsomorphicDecPOMDPWithStateController getIsomorphicDecPOMDP(int partitionSize, int controllerSize) {
     var builder = IDPOMDPFileParser.parseDecPOMDP("problems/MedicalNanoscale2.idpomdp").orElseThrow();
     for (var agent : builder.getAgents()) {
       agent.setPartitionSize(partitionSize);
+      var controller = FiniteStateControllerBuilder.createArbitraryController(
+        agent.getName(),
+        agent.getActions(),
+        agent.getObservations(),
+        controllerSize
+      );
+      agent.setController(controller);
     }
     return builder.setDiscountFactor(0.8).createDecPOMDP();
   }
