@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RepresentativeObservationsDecPOMDPWithStateController
-  extends IsomorphicDecPOMDPWithStateController {
+public class RepresentativeObservationsDecPOMDPWithStateController extends IsomorphicDecPOMDPWithStateController {
 
   private final long groundingConstant;
 
@@ -118,6 +117,25 @@ public class RepresentativeObservationsDecPOMDPWithStateController
   }
 
   @Override
+  public List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector) {
+    var rawNodeCombinations = new ArrayList<List<Node>>();
+    var offset = 0;
+    for (int i = 0; i < getAgents().size(); i++) {
+      var agent = getAgents().get(i);
+      var node = nodeVector.get(offset);
+      var followNodes = agent.getFollowNodes(node);
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
+        rawNodeCombinations.add(followNodes);
+      }
+      offset += agent.getPartitionSize();
+    }
+    return rawNodeCombinations
+      .stream()
+      .collect(CombinationCollectors.toCombinationVectors())
+      .toList();
+  }
+
+  @Override
   public List<Vector<Action>> getActionVectors() {
     return getAgents().stream()
       .map(agent -> HistogramBuilder.listOfPeakShaped(agent.getActions(), agent.getPartitionSize()))
@@ -126,6 +144,25 @@ public class RepresentativeObservationsDecPOMDPWithStateController
         .flatMap(histogram -> histogram.toList().stream())
         .collect(CustomCollectors.toVector())
       )
+      .toList();
+  }
+
+  @Override
+  public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
+    var rawActionCombinations = new ArrayList<List<Action>>();
+    var offset = 0;
+    for (int i = 0; i < getAgents().size(); i++) {
+      var agent = getAgents().get(i);
+      var node = nodeVector.get(offset);
+      var actions = agent.getSelectableActions(node);
+      for (int j = 0; j < agent.getPartitionSize(); j++) {
+        rawActionCombinations.add(actions);
+      }
+      offset += agent.getPartitionSize();
+    }
+    return rawActionCombinations
+      .stream()
+      .collect(CombinationCollectors.toCombinationVectors())
       .toList();
   }
 
