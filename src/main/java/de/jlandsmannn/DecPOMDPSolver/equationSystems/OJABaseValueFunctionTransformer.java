@@ -10,6 +10,7 @@ import org.ojalgo.matrix.store.SparseStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 
@@ -19,13 +20,17 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   protected U decPOMDP;
   protected long stateCount;
   protected long nodeCombinationCount;
+  protected List<State> states;
+  protected List<Vector<Node>> nodeCombinations;
 
   @Override
   public void setDecPOMDP(U decPOMDP) {
     LOG.info("Initialized with DecPOMDP");
     this.decPOMDP = decPOMDP;
-    this.stateCount = decPOMDP.getStates().size();
-    this.nodeCombinationCount = decPOMDP.getNodeCombinations().size();
+    this.states = List.copyOf(decPOMDP.getStates());
+    this.stateCount = states.size();
+    this.nodeCombinations = List.copyOf(decPOMDP.getNodeCombinations());
+    this.nodeCombinationCount = nodeCombinations.size();
   }
 
   public long getNumberOfEquations() {
@@ -42,7 +47,7 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   public MatrixStore<Double> getMatrixFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get matrix");
     LOG.info("Retrieving {}x{} transition matrix from DecPOMDP", getNumberOfEquations(), getNumberOfVariables());
-    var matrixBuilder = SparseStore.R032.make(
+    var matrixBuilder = SparseStore.R064.make(
       getNumberOfEquations(),
       getNumberOfVariables()
     );
@@ -66,7 +71,7 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   public MatrixStore<Double> getVectorFromDecPOMDP() {
     if (decPOMDP == null) throw new IllegalStateException("DecPOMDP must be set to get vector");
     LOG.info("Retrieving reward vector from DecPOMDP");
-    var matrixBuilder = SparseStore.R032.make(getNumberOfEquations(), 1);
+    var matrixBuilder = SparseStore.R064.make(getNumberOfEquations(), 1);
     LongStream.range(0, getNumberOfEquations())
       .parallel()
       .forEach(rowIndex -> {
@@ -84,14 +89,14 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
     LOG.info("Applying values to DecPOMDP");
 
     decPOMDP.clearValueFunction();
-    AtomicLong index = new AtomicLong();
-    for (var state : decPOMDP.getStates()) {
-      for (var nodeVector : decPOMDP.getNodeCombinations()) {
-        var value = values.get(index.getAndIncrement(), 0);
-        LOG.debug("Value for state {} and node vector {} is {}", state, nodeVector, value);
+    LongStream.range(0, getNumberOfVariables())
+      .parallel()
+      .forEach(index -> {
+        var state = getStateByIndex(index);
+        var nodeVector = getNodeVectorByIndex(index);
+        var value = values.get(index, 0);
         decPOMDP.setValue(state, nodeVector, value);
-      }
-    }
+      });
   }
 
   protected void calculateMatrixRow(SparseStore<Double> matrixBuilder, State state, Vector<Node> nodeVector, long rowIndex) {
@@ -106,19 +111,19 @@ public abstract class OJABaseValueFunctionTransformer<U extends IDecPOMDPWithSta
   }
 
   protected long indexOfStateAndNodeVector(State state, Vector<Node> nodeVector) {
-    var stateIndex = decPOMDP.getStates().indexOf(state);
-    var nodeVectorIndex = decPOMDP.getNodeCombinations().indexOf(nodeVector);
+    var stateIndex = states.indexOf(state);
+    var nodeVectorIndex = nodeCombinations.indexOf(nodeVector);
     return (stateIndex * nodeCombinationCount) + nodeVectorIndex;
   }
 
   protected State getStateByIndex(long index) {
     var realIndex = Math.floorDiv(index, nodeCombinationCount);
-    return decPOMDP.getStates().get(Math.toIntExact(realIndex));
+    return states.get(Math.toIntExact(realIndex));
   }
 
   protected Vector<Node> getNodeVectorByIndex(long index) {
-    var realIndex = index % nodeCombinationCount;
-    return decPOMDP.getNodeCombinations().get(Math.toIntExact(realIndex));
+    var realIndex = Math.floorMod(index, nodeCombinationCount);
+    return nodeCombinations.get(Math.toIntExact(realIndex));
   }
 
   protected abstract double getCoefficient(State state, Vector<Node> nodeVector, State newState, Vector<Node> newNodeVector);

@@ -68,11 +68,8 @@ public class Distribution<T> implements Iterable<T> {
         distribution.put(entry, probability);
         total += probability;
       }
-      for (T entry : entries) {
-        var probability = distribution.get(entry);
-        var newProbability = probability / total;
-        distribution.put(entry, newProbability);
-      }
+      var totalConst = total;
+      distribution.replaceAll((k,v) -> v / totalConst);
       return new Distribution<>(distribution);
     } catch (DistributionEmptyException | DistributionSumNotOneException e) {
       throw new IllegalStateException("Sum of distributions not one", e);

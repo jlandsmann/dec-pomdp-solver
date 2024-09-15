@@ -43,12 +43,6 @@ public class OJAIsomorphicValueFunctionTransformer extends OJABaseValueFunctionT
     });
   }
 
-  protected long indexOfStateAndNodeVector(State state, Vector<Node> nodeVector) {
-    var stateIndex = decPOMDP.getStates().indexOf(state);
-    var nodeVectorIndex = decPOMDP.getNodeCombinations().indexOf(nodeVector);
-    return (stateIndex * nodeCombinationCount) + nodeVectorIndex;
-  }
-
   protected <U> Vector<U> normalizeVector(Vector<U> vector) {
     return Vector.of(Histogram.from(vector).toList());
   }

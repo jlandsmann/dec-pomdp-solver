@@ -70,14 +70,13 @@ public class DecPOMDPWithStateController extends GroundDecPOMDP<AgentWithStateCo
     return beliefState
       .entrySet()
       .stream()
-      .map(entry -> {
+      .mapToDouble(entry -> {
         var state = entry.getKey();
         var probability = entry.getValue();
         var value = getValue(state, nodes);
         return probability * value;
       })
-      .reduce(Double::sum)
-      .orElse(0D);
+      .sum();
   }
 
   /**

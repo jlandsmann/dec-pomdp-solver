@@ -10,9 +10,9 @@ import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import java.util.List;
 
 /**
- * This interfaces describes a decentralized partially-observable markov decision process (DecPOMDP).
+ * This interfaces describes a decentralized partially observable markov decision process (DecPOMDP).
  *
- * @param <AGENT> THe type of agent, that is used for the DecPOMDP
+ * @param <AGENT> The type of agent used for the DecPOMDP
  */
 public interface IDecPOMDP<AGENT extends IAgent> {
 

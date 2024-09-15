@@ -36,7 +36,7 @@ public class IsomorphicDecPOMDPWithStateController
     return getNodeCombinations().stream()
       .mapToDouble(nodeCombination -> getValue(beliefState, nodeCombination))
       .max()
-      .orElse(0D);
+      .orElseThrow();
   }
 
   @Override
@@ -55,7 +55,7 @@ public class IsomorphicDecPOMDPWithStateController
     return Optional
       .ofNullable(preCalculatedValueFunction.get(state))
       .map(s -> s.get(nodes))
-      .orElse(0D);
+      .orElseThrow();
   }
 
   @Override
