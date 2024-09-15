@@ -42,8 +42,8 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
     return getGroundings(actionVector)
       .stream()
       .mapToDouble(grounding -> super.getTransitionProbability(currentState, grounding, followState))
-      .sum()
-    ;
+      .reduce((a,b) -> a * b)
+      .orElseThrow();
   }
 
   @Override
@@ -67,7 +67,8 @@ public abstract class IsomorphicDecPOMDP<AGENT extends ILiftedAgent> extends Gro
     return getGroundings(actionVector, observationVector)
       .stream()
       .mapToDouble(groundings -> super.getObservationProbability(groundings.first(), followState, groundings.second()))
-      .sum();
+      .reduce((a,b) -> a * b)
+      .orElseThrow();
   }
 
   @Override
