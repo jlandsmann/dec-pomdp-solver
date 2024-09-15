@@ -74,11 +74,11 @@ public class BeliefPointGenerator {
   public Map<IAgent, Set<Distribution<State>>> generateBeliefPoints() {
     assertAllDependenciesAreSet();
     var beliefPoints = new ConcurrentHashMap<IAgent, Set<Distribution<State>>>(decPOMDP.getAgents().size());
-    decPOMDP.getAgents().forEach(agent -> {
+    for (IAgent agent : decPOMDP.getAgents()) {
       policies = initialPolicies;
       var beliefPoint = generateBeliefPointsForAgent(agent);
       beliefPoints.put(agent, beliefPoint);
-    });
+    }
     return beliefPoints;
   }
 
@@ -90,13 +90,10 @@ public class BeliefPointGenerator {
     beliefPointsToVisit.add(currentBeliefState);
     generatedBeliefPoints.add(currentBeliefState);
 
-    var actionSelection = Distribution.createUniformDistribution(agent.getActions());
-    var observationSelection = Distribution.createUniformDistribution(agent.getObservations());
-
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
-      var action = actionSelection.getRandom(random);
-      var observation = observationSelection.getRandom(random);
+      var action = agent.getActions().get(random.nextInt(0, agent.getActions().size()));
+      var observation = agent.getObservations().get(random.nextInt(0, agent.getObservations().size()));
       try {
         var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
         var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
