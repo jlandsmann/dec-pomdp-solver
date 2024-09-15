@@ -22,7 +22,7 @@ public class RepresentativeObservationsDecPOMDPWithStateController extends Isomo
                                                                   Map<State, Map<Vector<Action>, Double>> rewardFunction,
                                                                   Map<Vector<Action>, Map<State, Distribution<Vector<Observation>>>> observationFunction) {
     super(agents, states, discountFactor, initialBeliefState, transitionFunction, rewardFunction, observationFunction);
-    groundingConstant = agents.stream().mapToLong(ILiftedAgent::getPartitionSize).reduce(Math::multiplyExact).orElse(1);
+    groundingConstant = agents.stream().mapToLong(ILiftedAgent::getPartitionSize).reduce(Math::multiplyExact).orElseThrow();
   }
 
   @Override
@@ -89,17 +89,19 @@ public class RepresentativeObservationsDecPOMDPWithStateController extends Isomo
     } else if (newNodes.size() != getTotalAgentCount()) {
       throw new IllegalArgumentException("Number of newNodes does not match total number of agents");
     }
-    var offset = 0;
     var probability = 1D;
+    var nodeVector = getAnyGrounding(nodes);
+    var actionVector = getAnyGrounding(actions);
+    var observationVector = getAnyGrounding(observations);
+    var newNodeVector = getAnyGrounding(newNodes);
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      var node = nodes.get(offset);
-      var action = actions.get(offset);
-      var observation = observations.get(offset);
-      var newNode = newNodes.get(offset);
+      var node = nodeVector.get(i);
+      var action = actionVector.get(i);
+      var observation = observationVector.get(i);
+      var newNode = newNodeVector.get(i);
       var transitionProbability = agent.getNodeTransitionProbability(node, action, observation, newNode);
       probability *= Math.pow(transitionProbability, agent.getPartitionSize());
-      offset += agent.getPartitionSize();
     }
     return probability;
   }

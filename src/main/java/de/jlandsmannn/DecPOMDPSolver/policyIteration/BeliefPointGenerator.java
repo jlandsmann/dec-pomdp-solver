@@ -92,13 +92,17 @@ public class BeliefPointGenerator {
 
     while (!beliefPointsToVisit.isEmpty() && generatedBeliefPoints.size() < numberOfBeliefPoints) {
       var beliefPoint = beliefPointsToVisit.remove(0);
-      var action = agent.getActions().get(random.nextInt(0, agent.getActions().size()));
-      var observation = agent.getObservations().get(random.nextInt(0, agent.getObservations().size()));
+      var actionIndex = random.nextInt(0, agent.getActions().size());
+      var action = agent.getActions().get(actionIndex);
+      var observationIndex = random.nextInt(0, agent.getObservations().size());
+      var observation = agent.getObservations().get(observationIndex);
+      LOG.debug("Select {}({}) and {}({}) for {}", action, actionIndex, observation, observationIndex, agent);
       try {
         var newBeliefPoint = getFollowUpBeliefStateForAgent(agent, beliefPoint, action, observation);
         var hasBeenAdded = addPointOnlyIfDiverse(generatedBeliefPoints, newBeliefPoint);
         if (hasBeenAdded) beliefPointsToVisit.add(newBeliefPoint);
       } catch (Exception e) {
+        LOG.debug("No transition defined {} and {} for {}", action, observation, agent);
         beliefPointsToVisit.add(0, beliefPoint);
         continue;
       }

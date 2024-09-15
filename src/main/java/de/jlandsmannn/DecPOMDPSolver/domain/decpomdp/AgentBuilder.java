@@ -21,13 +21,13 @@ public abstract class AgentBuilder<AGENT extends IAgent, THIS extends AgentBuild
     return (THIS) this;
   }
 
-  public THIS setActions(Collection<Action> actions) {
+  public THIS setActions(List<Action> actions) {
     this.actions = actions.stream().distinct().toList();
     return (THIS) this;
   }
 
-  public THIS setObservations(Collection<Observation> observations) {
-    this.observations = List.copyOf(Set.copyOf(observations));
+  public THIS setObservations(List<Observation> observations) {
+    this.observations = observations.stream().distinct().toList();
     return (THIS) this;
   }
 
