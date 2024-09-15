@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OJAValueFunctionTransformerTest {
 
-  OJAValueFunctionTransformer transformer;
+  OJAValueFunctionTransformer<DecPOMDPWithStateController> transformer;
   DecPOMDPWithStateController decPOMDP;
 
   @BeforeEach
   void setUp() {
     decPOMDP = generateDecPOMDP();
-    transformer = new OJAValueFunctionTransformer();
+    transformer = new OJAValueFunctionTransformer<>();
     transformer.setDecPOMDP(decPOMDP);
   }
 
