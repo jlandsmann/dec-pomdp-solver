@@ -118,20 +118,23 @@ public class RepresentativeObservationsDecPOMDPWithStateController extends Isomo
 
   @Override
   public List<Vector<Node>> getNodeCombinations(Vector<Node> nodeVector) {
-    var rawNodeCombinations = new ArrayList<List<Node>>();
+    var rawNodeCombinations = new ArrayList<List<Histogram<Node>>>();
     var offset = 0;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
       var node = nodeVector.get(offset);
       var followNodes = agent.getFollowNodes(node);
-      for (int j = 0; j < agent.getPartitionSize(); j++) {
-        rawNodeCombinations.add(followNodes);
-      }
+      var histograms = HistogramBuilder.listOfPeakShaped(followNodes, agent.getPartitionSize());
+      rawNodeCombinations.add(histograms);
       offset += agent.getPartitionSize();
     }
     return rawNodeCombinations
       .stream()
       .collect(CombinationCollectors.toCombinationVectors())
+      .map(vector -> vector.stream()
+        .flatMap(histogram -> histogram.toList().stream())
+        .collect(CustomCollectors.toVector())
+      )
       .toList();
   }
 
@@ -149,20 +152,23 @@ public class RepresentativeObservationsDecPOMDPWithStateController extends Isomo
 
   @Override
   public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
-    var rawActionCombinations = new ArrayList<List<Action>>();
+    List<List<Histogram<Action>>> rawActionCombinations = new ArrayList<>();
     var offset = 0;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
       var node = nodeVector.get(offset);
       var actions = agent.getSelectableActions(node);
-      for (int j = 0; j < agent.getPartitionSize(); j++) {
-        rawActionCombinations.add(actions);
-      }
+      var histograms = HistogramBuilder.listOfPeakShaped(actions, agent.getPartitionSize());
+      rawActionCombinations.add(histograms);
       offset += agent.getPartitionSize();
     }
     return rawActionCombinations
       .stream()
       .collect(CombinationCollectors.toCombinationVectors())
+      .map(vector -> vector.stream()
+        .flatMap(histogram -> histogram.toList().stream())
+        .collect(CustomCollectors.toVector())
+      )
       .toList();
   }
 

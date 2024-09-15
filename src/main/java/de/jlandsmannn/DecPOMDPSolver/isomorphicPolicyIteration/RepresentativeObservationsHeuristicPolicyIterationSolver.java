@@ -77,12 +77,11 @@ public class RepresentativeObservationsHeuristicPolicyIterationSolver
 
   protected void transferController() {
     LOG.info("Transferring local controller from representative DecPOMDP to isomorphic DecPOMDP.");
-    IntStream.range(0, decPOMDP.getAgentCount())
-      .forEach(idx -> {
-        var agent = decPOMDP.getAgents().get(idx);
-        var otherAgent = representativeDecPOMDP.getAgents().get(idx);
-        agent.setController(otherAgent.getController());
-      });
+    for (int idx = 0; idx < decPOMDP.getAgentCount(); idx++) {
+      var agent = decPOMDP.getAgents().get(idx);
+      var otherAgent = representativeDecPOMDP.getAgents().get(idx);
+      agent.setController(otherAgent.getController());
+    }
   }
 
   protected void evaluateValueFunction() {

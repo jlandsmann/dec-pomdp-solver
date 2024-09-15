@@ -3,6 +3,7 @@ package de.jlandsmannn.DecPOMDPSolver;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
+import de.jlandsmannn.DecPOMDPSolver.domain.lifting.RepresentativeObservationsDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.io.DPOMDPFileParser;
 import de.jlandsmannn.DecPOMDPSolver.io.IDPOMDPFileParser;
 
@@ -47,5 +48,28 @@ public class DecPOMDPGenerator {
       agent.setController(controller);
     }
     return builder.setDiscountFactor(0.8).createDecPOMDP();
+  }
+
+  public static RepresentativeObservationsDecPOMDPWithStateController getRepresentativeDecPOMDP() {
+    return getRepresentativeDecPOMDP(2);
+  }
+
+  public static RepresentativeObservationsDecPOMDPWithStateController getRepresentativeDecPOMDP(int partitionSize) {
+    return getRepresentativeDecPOMDP(partitionSize, 1);
+  }
+
+  public static RepresentativeObservationsDecPOMDPWithStateController getRepresentativeDecPOMDP(int partitionSize, int controllerSize) {
+    var builder = IDPOMDPFileParser.parseDecPOMDP("problems/MedicalNanoscale2.idpomdp").orElseThrow();
+    for (var agent : builder.getAgents()) {
+      agent.setPartitionSize(partitionSize);
+      var controller = FiniteStateControllerBuilder.createArbitraryController(
+        agent.getName(),
+        agent.getActions(),
+        agent.getObservations(),
+        controllerSize
+      );
+      agent.setController(controller);
+    }
+    return builder.setDiscountFactor(0.8).createRepresentativeObservationsDecPOMDP();
   }
 }
