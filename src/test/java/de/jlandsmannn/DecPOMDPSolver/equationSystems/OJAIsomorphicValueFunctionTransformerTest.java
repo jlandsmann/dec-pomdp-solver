@@ -27,7 +27,7 @@ class OJAIsomorphicValueFunctionTransformerTest {
 
   @BeforeEach
   void setUp() {
-    decPOMDP = DecPOMDPGenerator.getIsomorphicDecPOMDP(2, 2);
+    decPOMDP = DecPOMDPGenerator.getIsomorphicDecPOMDP(3, 2);
     transformer = new OJAIsomorphicValueFunctionTransformer();
     transformer.setDecPOMDP(decPOMDP);
   }
@@ -135,8 +135,8 @@ class OJAIsomorphicValueFunctionTransformerTest {
 
   @Test
   void normalizeVector_ShouldOrderPartitionNodesInVector() {
-    var originalVector = Vector.of(Node.listOf("A1-Q1", "A1-Q3", "A1-Q0", "A2-Q1", "A2-Q0", "A2-Q1"));
-    var expectedNormalizedVector = Vector.of(Node.listOf("A1-Q0", "A1-Q1", "A1-Q3", "A2-Q0", "A2-Q1", "A2-Q1"));
+    var originalVector = Vector.of(Node.listOf("A1-Q1", "A1-Q3", "A1-Q0", "A0-Q1", "A0-Q0", "A0-Q1"));
+    var expectedNormalizedVector = Vector.of(Node.listOf("A1-Q0", "A1-Q1", "A1-Q3", "A0-Q0", "A0-Q1", "A0-Q1"));
     var actualNormalizedVector = transformer.normalizeVector(originalVector);
     assertEquals(expectedNormalizedVector, actualNormalizedVector);
   }
