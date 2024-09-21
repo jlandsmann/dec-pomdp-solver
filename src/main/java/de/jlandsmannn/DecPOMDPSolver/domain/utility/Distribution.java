@@ -152,7 +152,7 @@ public class Distribution<T> implements Iterable<T> {
   }
 
   public static <K> Distribution<K> normalizeOf(Map<K, Double> map) {
-    return of(normalize(map));
+   return of(normalize(map));
   }
 
   private static <K> Map<K, Double> normalize(Map<K, Double> map) {

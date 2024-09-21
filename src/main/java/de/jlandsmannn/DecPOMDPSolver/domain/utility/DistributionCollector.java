@@ -1,6 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -12,6 +13,7 @@ import java.util.stream.Collector;
 public class DistributionCollector<K> implements Collector<Map.Entry<K, Double>, Map<K, Double>, Distribution<K>> {
 
   private final boolean normalize;
+  private final Optional<K> extraElement;
 
   public DistributionCollector() {
     this(false);
@@ -19,6 +21,12 @@ public class DistributionCollector<K> implements Collector<Map.Entry<K, Double>,
 
   public DistributionCollector(boolean normalize) {
     this.normalize = normalize;
+    this.extraElement = Optional.empty();
+  }
+
+  public DistributionCollector(K extraElement) {
+    this.normalize = false;
+    this.extraElement = Optional.ofNullable(extraElement);
   }
 
   @Override
@@ -51,7 +59,17 @@ public class DistributionCollector<K> implements Collector<Map.Entry<K, Double>,
 
   @Override
   public Function<Map<K, Double>, Distribution<K>> finisher() {
-    return normalize ? Distribution::normalizeOf : Distribution::of;
+    if (normalize) return Distribution::normalizeOf;
+    else if (extraElement.isEmpty()) return Distribution::of;
+    else return this::finishWithExtraElement;
+  }
+
+  private Distribution<K> finishWithExtraElement(Map<K, Double> mapping) {
+    if (extraElement.isEmpty()) throw new IllegalStateException("Cannot finish with extra element without extra element.");
+    var sumOfValues = mapping.values().stream().reduce(Double::sum).orElse(0D);
+    var valueOfExtraElement = 1D - sumOfValues;
+    mapping.put(extraElement.get(), valueOfExtraElement);
+    return Distribution.of(mapping);
   }
 
   @Override

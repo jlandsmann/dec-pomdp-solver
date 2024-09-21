@@ -1,5 +1,7 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
+import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
+
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -19,6 +21,10 @@ public class CustomCollectors {
 
   public static <K> Collector<Map.Entry<K, Double>, ?, Distribution<K>> toDistribution() {
     return new DistributionCollector<>();
+  }
+
+  public static <K> Collector<Map.Entry<K, Double>, ?, Distribution<K>> toFilledUpDistribution(K extraElement) {
+    return new DistributionCollector<>(extraElement);
   }
 
   public static <K> Collector<Map.Entry<K, Double>, ?, Distribution<K>> toNormalizedDistribution() {

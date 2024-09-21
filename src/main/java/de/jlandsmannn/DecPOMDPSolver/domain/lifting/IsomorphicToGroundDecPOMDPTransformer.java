@@ -55,14 +55,15 @@ public class IsomorphicToGroundDecPOMDPTransformer {
     return model.getStates().stream().map(followState -> {
       var probability = model.getTransitionProbability(state, actionVector, followState);
       return Map.entry(followState, probability);
-    }).collect(CustomCollectors.toNormalizedDistribution());
+    }).collect(CustomCollectors.toFilledUpDistribution(State.from("##")));
   }
 
   private Distribution<Vector<Observation>> calculateObservation(IDecPOMDP<?> model, Vector<Action> actionVector, State followState) {
+    var fakeObservationVector = actionVector.stream().map((a) -> Observation.from("##")).collect(CustomCollectors.toVector());
     return model.getObservationVectors().stream().map(observation -> {
       var probability = model.getObservationProbability(actionVector, followState, observation);
       return Map.entry(observation, probability);
-    }).collect(CustomCollectors.toNormalizedDistribution());
+    }).collect(CustomCollectors.toFilledUpDistribution(fakeObservationVector));
   }
   
   private Stream<IAgentWithStateController> transformIsomorphicAgentToGroundAgents(IsomorphicAgentWithStateController agent) {
