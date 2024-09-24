@@ -5,7 +5,6 @@ import de.jlandsmannn.DecPOMDPSolver.domain.equationSystems.ValueFunctionTransfo
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.DecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.primitives.Node;
 import de.jlandsmannn.DecPOMDPSolver.domain.lifting.IsomorphicDecPOMDPWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.utility.Histogram;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Vector;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.SparseStore;

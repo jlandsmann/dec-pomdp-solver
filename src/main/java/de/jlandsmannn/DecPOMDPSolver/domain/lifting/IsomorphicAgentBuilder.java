@@ -2,8 +2,6 @@ package de.jlandsmannn.DecPOMDPSolver.domain.lifting;
 
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.AgentBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.Action;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateController;
-import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.AgentWithStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.FiniteStateControllerBuilder;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;

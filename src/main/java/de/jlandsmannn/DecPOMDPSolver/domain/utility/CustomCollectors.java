@@ -1,7 +1,5 @@
 package de.jlandsmannn.DecPOMDPSolver.domain.utility;
 
-import de.jlandsmannn.DecPOMDPSolver.domain.decpomdp.primitives.State;
-
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;

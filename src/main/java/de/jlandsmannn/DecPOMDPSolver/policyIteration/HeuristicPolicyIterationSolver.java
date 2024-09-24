@@ -7,13 +7,15 @@ import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IAgentWithStat
 import de.jlandsmannn.DecPOMDPSolver.domain.finiteStateController.IDecPOMDPWithStateController;
 import de.jlandsmannn.DecPOMDPSolver.domain.solving.BaseDecPOMDPSolverWithConfig;
 import de.jlandsmannn.DecPOMDPSolver.domain.utility.Distribution;
-import org.apache.logging.log4j.Marker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class implements the heuristic policy iteration algorithm.
