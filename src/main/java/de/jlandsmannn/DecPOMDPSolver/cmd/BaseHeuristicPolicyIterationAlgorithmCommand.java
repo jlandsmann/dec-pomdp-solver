@@ -49,7 +49,7 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
    * as well as the maximum number of iterations of the policy iteration to execute.
    * After this command, the load command should be called.
    */
-  @Command(command = "init", alias = "i", description = "Initialize the heuristic policy iteration solver.")
+  @Command(command = "init", alias = "i", description = "Initializes the heuristic policy iteration solver.")
   public String init(
     @Option(shortNames = 'k', defaultValue = "0") int numberOfBeliefPoints,
     @Option(shortNames = 'l', defaultValue = "0") int maxIterations
@@ -76,7 +76,7 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
    * If the file does not exist or is not a valid DPOMDP file, the parsing will be aborted.
    * The (custom) discount factor can be used to override the discount factor defined in the loaded file.
    */
-  @Command(command = "load", alias = "l", description = "Load a problem instance to solve.")
+  @Command(command = "load", alias = "l", description = "Loads a problem instance to solve.")
   public String load(
     @Option(shortNames = 'f', required = true) String filename,
     @Option(shortNames = 'd', defaultValue = "-1") double discountFactor
@@ -134,7 +134,7 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
    * where listening happens by a chance of 80% and hearing left or right each by a chance of 10%.
    * Because both agents have same actions and policies, we repeat it.
    */
-  @Command(command = "initialPolicy", alias = "p", description = "Set initial policies for belief point generation.")
+  @Command(command = "initialPolicy", alias = "p", description = "Sets initial policies for belief point generation.")
   public String setInitialPolicies(
     @Option(shortNames = 'a', required = true, arity = CommandRegistration.OptionArity.ONE_OR_MORE) String actionDistributions
   ) {
@@ -175,7 +175,7 @@ public abstract class BaseHeuristicPolicyIterationAlgorithmCommand<DECPOMDP exte
    * but prints the final result of the algorithm.
    * For detailed information about the execution, have a look at the logs.
    */
-  @Command(command = "solve", alias = "s", description = "Solve the loaded problem instance.")
+  @Command(command = "solve", alias = "s", description = "Solves the loaded problem instance.")
   public String solve() {
     LOG.info("Command 'solve' was called.");
     if (!initialized) {
