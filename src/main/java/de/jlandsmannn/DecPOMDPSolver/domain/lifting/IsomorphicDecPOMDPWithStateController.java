@@ -158,20 +158,26 @@ public class IsomorphicDecPOMDPWithStateController
 
   @Override
   public List<Vector<Action>> getActionCombinations(Vector<Node> nodeVector) {
-    var rawActionCombinations = new ArrayList<List<Action>>();
+    var nodeHistogram = Histogram.from(nodeVector);
+    var rawActionCombinations = new ArrayList<List<Histogram<Action>>>();
     var offset = 0;
     for (int i = 0; i < getAgents().size(); i++) {
       var agent = getAgents().get(i);
-      for (int j = 0; j < agent.getPartitionSize(); j++) {
+      for (int j = 0; j < agent.getPartitionSize();) {
         var node = nodeVector.get(offset + j);
         var actions = agent.getSelectableActions(node);
-        rawActionCombinations.add(actions);
+        var histograms = HistogramBuilder.listOfPeakShaped(actions, nodeHistogram.get(node));
+        rawActionCombinations.add(histograms);
+        j += nodeHistogram.get(node);
       }
       offset += agent.getPartitionSize();
     }
-    return rawActionCombinations
-      .stream()
+    return rawActionCombinations.stream()
       .collect(CombinationCollectors.toCombinationVectors())
+      .map(vector -> vector.stream()
+        .flatMap(histogram -> histogram.toList().stream())
+        .collect(CustomCollectors.toVector())
+      )
       .toList();
   }
 }
