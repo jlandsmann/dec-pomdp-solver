@@ -1,6 +1,6 @@
 # DecPOMDP Solver
 This repository contains a spring boot application for solving 
-decentralized partial-observable markov decision problems.
+decentralized partially-observable markov decision problems (DecPOMDPs).
 Solving means that the policies of the agents are optimized
 with respective of the expected reward starting from an initial belief state.
 
