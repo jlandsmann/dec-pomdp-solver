@@ -251,7 +251,8 @@ class FiniteStateControllerTest {
   @Test
   void pruneNode_ShouldRemoveNodeFromTransitionFunction() {
     var nodeToPrune = nodes.stream().findFirst().orElseThrow();
-    var nodeDistribution = Distribution.createSingleEntryDistribution(new Node("N2"));
+    var nodeToReplaceWith = nodes.stream().skip(1).findFirst().orElseThrow();
+    var nodeDistribution = Distribution.createSingleEntryDistribution(nodeToReplaceWith);
     finiteStateController.pruneNode(nodeToPrune, nodeDistribution);
 
     for (var node : finiteStateController.getNodes()) {
